@@ -1,0 +1,8 @@
+src
+test
+vitest.config.ts
+vite.config.ts
+eslint.config.js
+prettier.config.js
+tsconfig.json
+tsconfig.build.json

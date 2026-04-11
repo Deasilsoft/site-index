@@ -1,0 +1,61 @@
+{
+  "name": "vite-plugin-site-index",
+  "version": "0.0.0",
+  "description": "A Vite plugin that executes dedicated metadata modules to generate a strict sitemap index, leaf sitemaps, and robots.txt.",
+  "keywords": [
+    "vite",
+    "vite-plugin",
+    "sitemap",
+    "robots",
+    "robots.txt",
+    "site-index"
+  ],
+  "author": "Deasilsoft <contact@deasilsoft.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deasilsoft/vite-plugin-site-index.git"
+  },
+  "homepage": "https://github.com/Deasilsoft/vite-plugin-site-index",
+  "bugs": {
+    "url": "https://github.com/Deasilsoft/vite-plugin-site-index/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "vite": "^7.0.0 || ^8.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.0",
+    "prettier": "^3.8.2",
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.1",
+    "vite": "^8.0.8",
+    "vitest": "^4.1.4"
+  }
+}
