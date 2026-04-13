@@ -26,11 +26,13 @@ export default defineConfig(
             },
             {
               regex: "^\\./(?:(?!\\.js$).)+$",
-              message: "Use explicit .js extensions for relative imports/exports.",
+              message:
+                "Use explicit .js extensions for relative imports/exports.",
             },
             {
               regex: "^\\.\\./(?:(?!\\.js$).)+$",
-              message: "Use explicit .js extensions for relative imports/exports.",
+              message:
+                "Use explicit .js extensions for relative imports/exports.",
             },
           ],
         },
