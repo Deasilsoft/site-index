@@ -31,14 +31,18 @@ export function configureSiteIndexServer(
   async function refreshSafely(): Promise<void> {
     if (inFlight !== null) {
       queued = true;
+
       await inFlight;
+
       return;
     }
 
     do {
       queued = false;
       inFlight = runRefresh();
+
       await inFlight;
+
       inFlight = null;
     } while (queued);
   }
