@@ -5,7 +5,7 @@ import {
   resolveModuleLoaderContext,
 } from "./context.js";
 import { findSiteIndexFiles } from "./discovery.js";
-import { resolveModule } from "./resolver.js";
+import { loadSiteIndexModule } from "./resolver.js";
 import type { Registry, RegistryLoadResult } from "./types.js";
 
 async function buildRegistry(
@@ -15,9 +15,9 @@ async function buildRegistry(
   const registry: Registry = {};
 
   for (const file of files) {
-    const key = `./${normalizePath(path.relative(context.root, file))}`;
+    const relativeFilePath = `./${normalizePath(path.relative(context.root, file))}`;
 
-    registry[key] = await resolveModule(file, (id) =>
+    registry[relativeFilePath] = await loadSiteIndexModule(file, (id) =>
       context.ssrLoadModule(id),
     );
   }
@@ -25,7 +25,7 @@ async function buildRegistry(
   return registry;
 }
 
-export async function loadRegistry(
+export async function loadSiteIndexRegistry(
   context?: ModuleLoaderContext,
 ): Promise<RegistryLoadResult> {
   const warnings: string[] = [];

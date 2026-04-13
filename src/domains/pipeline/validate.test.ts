@@ -3,7 +3,7 @@ import {
   assertNoDuplicateURLs,
   assertValidSiteIndexURL,
   assertValidSitemapName,
-} from "./validate";
+} from "./validate.js";
 
 describe("assertValidSiteIndexURL edge cases", () => {
   it.each([

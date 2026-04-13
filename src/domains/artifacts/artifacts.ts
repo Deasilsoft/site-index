@@ -5,21 +5,21 @@ import type { Artifact, ResolvedSiteIndex } from "./types.js";
 function mapSiteIndexesBySitemap(
   siteIndexes: ResolvedSiteIndex[],
 ): Map<string, ResolvedSiteIndex[]> {
-  const map = new Map<string, ResolvedSiteIndex[]>();
+  const sitemapGroups = new Map<string, ResolvedSiteIndex[]>();
 
   for (const siteIndex of siteIndexes) {
     if (!siteIndex.index) continue;
 
-    const group = map.get(siteIndex.sitemap);
+    const group = sitemapGroups.get(siteIndex.sitemap);
 
     if (group) {
       group.push(siteIndex);
     } else {
-      map.set(siteIndex.sitemap, [siteIndex]);
+      sitemapGroups.set(siteIndex.sitemap, [siteIndex]);
     }
   }
 
-  return map;
+  return sitemapGroups;
 }
 
 function buildSitemapArtifacts(

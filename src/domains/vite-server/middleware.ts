@@ -1,6 +1,6 @@
 import type { ArtifactsRef, Middleware } from "./types.js";
 
-function isSiteIndexUrl(url: string): boolean {
+function isArtifactUrl(url: string): boolean {
   return (
     url === "/sitemap.xml" ||
     (url.startsWith("/sitemap-") && url.endsWith(".xml")) ||
@@ -19,15 +19,17 @@ export function createMiddleware(
   return async (req, res, next) => {
     if (!req.url) return next();
 
-    if (isSiteIndexUrl(req.url)) {
+    if (isArtifactUrl(req.url)) {
       await refreshArtifacts();
     }
 
-    const match = artifactsRef.current.find((a) => a.path === req.url);
+    const artifact = artifactsRef.current.find(
+      (artifact) => artifact.path === req.url,
+    );
 
-    if (!match) return next();
+    if (!artifact) return next();
 
-    res.setHeader("Content-Type", contentTypeFor(match.path));
-    res.end(match.content);
+    res.setHeader("Content-Type", contentTypeFor(artifact.path));
+    res.end(artifact.content);
   };
 }

@@ -11,7 +11,7 @@ export type ModuleLoaderContext = {
   ssrLoadModule: (id: string) => Promise<unknown>;
 };
 
-type ContextResolution = {
+type ModuleLoaderContextHandle = {
   moduleLoaderContext: ModuleLoaderContext;
   dispose: () => Promise<void>;
 };
@@ -36,7 +36,7 @@ function createContextFromServer(
 
 export async function resolveModuleLoaderContext(
   context?: ModuleLoaderContext,
-): Promise<ContextResolution> {
+): Promise<ModuleLoaderContextHandle> {
   if (context) {
     return { moduleLoaderContext: context, dispose: async () => {} };
   }

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { resolveModule } from "./resolver.js";
+import { loadSiteIndexModule } from "./resolver.js";
 
-describe("resolveModule", () => {
+describe("loadSiteIndexModule", () => {
   it("normalizes the file path before calling loadWithVite", async () => {
     const loadWithVite = vi.fn().mockResolvedValue({ siteIndexes: [] });
 
-    await resolveModule("/root//about.site-index.ts", loadWithVite);
+    await loadSiteIndexModule("/root//about.site-index.ts", loadWithVite);
 
     expect(loadWithVite).toHaveBeenCalledWith("/root/about.site-index.ts");
   });
@@ -15,7 +15,10 @@ describe("resolveModule", () => {
       .fn()
       .mockResolvedValue({ siteIndexes: [{ url: "/about" }] });
 
-    const result = await resolveModule("/about.site-index.ts", loadWithVite);
+    const result = await loadSiteIndexModule(
+      "/about.site-index.ts",
+      loadWithVite,
+    );
 
     expect(result).toEqual({ siteIndexes: [{ url: "/about" }] });
   });
@@ -25,7 +28,10 @@ describe("resolveModule", () => {
       default: { siteIndexes: [{ url: "/about" }] },
     });
 
-    const result = await resolveModule("/about.site-index.ts", loadWithVite);
+    const result = await loadSiteIndexModule(
+      "/about.site-index.ts",
+      loadWithVite,
+    );
 
     expect(result).toEqual({ siteIndexes: [{ url: "/about" }] });
   });
@@ -34,14 +40,17 @@ describe("resolveModule", () => {
     const loadWithVite = vi.fn().mockResolvedValue(null);
 
     await expect(
-      resolveModule("/bad.site-index.ts", loadWithVite),
+      loadSiteIndexModule("/bad.site-index.ts", loadWithVite),
     ).rejects.toThrow("Module must export siteIndexes");
   });
 
   it("passes through an object with no siteIndexes unchanged", async () => {
     const loadWithVite = vi.fn().mockResolvedValue({ unrelated: true });
 
-    const result = await resolveModule("/bad.site-index.ts", loadWithVite);
+    const result = await loadSiteIndexModule(
+      "/bad.site-index.ts",
+      loadWithVite,
+    );
 
     expect(result).toEqual({ unrelated: true });
   });
@@ -51,7 +60,10 @@ describe("resolveModule", () => {
       default: { unrelated: true },
     });
 
-    const result = await resolveModule("/bad.site-index.ts", loadWithVite);
+    const result = await loadSiteIndexModule(
+      "/bad.site-index.ts",
+      loadWithVite,
+    );
 
     expect(result).toEqual({ default: { unrelated: true } });
   });

@@ -44,7 +44,7 @@ export function renderSitemapXml(
 }
 
 export function renderSitemapIndexXml(
-  paths: string[],
+  sitemapPaths: string[],
   siteUrl: string,
 ): string {
   const normalizedSiteUrl = normalizeUrl(siteUrl);
@@ -53,7 +53,7 @@ export function renderSitemapIndexXml(
   lines.push(XML_VERSION_DECLARATION);
   lines.push(`<sitemapindex xmlns="${SITEMAP_XML_NAMESPACE}">`);
 
-  for (const path of paths) {
+  for (const path of sitemapPaths) {
     const loc = escapeXml(`${normalizedSiteUrl}${path}`);
 
     lines.push("  <sitemap>");

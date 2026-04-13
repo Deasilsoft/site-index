@@ -24,6 +24,14 @@ export default defineConfig(
               group: ["..", "../**"],
               message: 'Use the "@/" alias instead of parent-relative imports.',
             },
+            {
+              regex: "^\\./(?:(?!\\.js$).)+$",
+              message: "Use explicit .js extensions for relative imports/exports.",
+            },
+            {
+              regex: "^\\.\\./(?:(?!\\.js$).)+$",
+              message: "Use explicit .js extensions for relative imports/exports.",
+            },
           ],
         },
       ],

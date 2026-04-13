@@ -1,5 +1,5 @@
 import { defineConfig } from "vitest/config";
-import { resolveAliasPath } from "./vite.config";
+import { resolveAliasPath } from "./vite.config.js";
 
 export default defineConfig({
   resolve: {

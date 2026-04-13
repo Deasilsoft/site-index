@@ -1,22 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createSiteIndexesSource } from "./source.js";
-import type { EntryModule } from "./types.js";
+import type { SiteIndexModule } from "./types.js";
 
-const { loadRegistryMock } = vi.hoisted(() => ({
-  loadRegistryMock: vi.fn(),
+const { loadSiteIndexRegistryMock } = vi.hoisted(() => ({
+  loadSiteIndexRegistryMock: vi.fn(),
 }));
 
 vi.mock("./loader.js", () => ({
-  loadRegistry: loadRegistryMock,
+  loadSiteIndexRegistry: loadSiteIndexRegistryMock,
 }));
 
 describe("createSiteIndexesSource", () => {
   beforeEach(() => {
-    loadRegistryMock.mockReset();
+    loadSiteIndexRegistryMock.mockReset();
   });
 
   it("flattens siteIndexes from all loaded modules", async () => {
-    loadRegistryMock.mockResolvedValueOnce({
+    loadSiteIndexRegistryMock.mockResolvedValueOnce({
       registry: {
         "./about.site-index.ts": { siteIndexes: [{ url: "/about" }] },
         "./blog.site-index.ts": { siteIndexes: [{ url: "/blog" }] },
@@ -32,9 +32,9 @@ describe("createSiteIndexesSource", () => {
   });
 
   it("throws a clear error when a module export is null", async () => {
-    loadRegistryMock.mockResolvedValueOnce({
+    loadSiteIndexRegistryMock.mockResolvedValueOnce({
       registry: {
-        "./null.site-index.ts": null as unknown as EntryModule,
+        "./null.site-index.ts": null as unknown as SiteIndexModule,
       },
       warnings: [],
     });
@@ -47,7 +47,7 @@ describe("createSiteIndexesSource", () => {
   });
 
   it("throws when a module does not export siteIndexes", async () => {
-    loadRegistryMock.mockResolvedValueOnce({
+    loadSiteIndexRegistryMock.mockResolvedValueOnce({
       registry: {
         "./bad.site-index.ts": {},
       },

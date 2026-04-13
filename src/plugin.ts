@@ -1,4 +1,3 @@
-import type { Artifact } from "@/domains/artifacts";
 import type { Options } from "@/domains/config";
 import { resolveConfig } from "@/domains/config";
 import { pipeline } from "@/domains/pipeline";
@@ -7,15 +6,16 @@ import {
   type ModuleLoaderContext,
 } from "@/domains/site-indexes";
 import { configureSiteIndexServer } from "@/domains/vite-server";
+import type { ArtifactsRef } from "@/domains/vite-server/types.js";
 import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
 
 export function siteIndexPlugin(options: Options): Plugin {
   const config = resolveConfig(options);
-  const artifactsRef: { current: Artifact[] } = { current: [] };
+  const artifactsRef: ArtifactsRef = { current: [] };
 
   let command: ResolvedConfig["command"] = "build";
 
-  function resolvePipelineContext(
+  function createModuleLoaderContext(
     server?: ViteDevServer,
   ): ModuleLoaderContext | undefined {
     if (!server) {
@@ -32,7 +32,7 @@ export function siteIndexPlugin(options: Options): Plugin {
     warn: (warning: string) => void,
     server?: ViteDevServer,
   ): Promise<void> {
-    const source = createSiteIndexesSource(resolvePipelineContext(server));
+    const source = createSiteIndexesSource(createModuleLoaderContext(server));
     const output = await pipeline(config, source);
 
     artifactsRef.current = output.artifacts;
@@ -52,8 +52,8 @@ export function siteIndexPlugin(options: Options): Plugin {
 
   return {
     name: "vite-plugin-site-index",
-    configResolved(config) {
-      command = config.command;
+    configResolved(resolvedConfig) {
+      command = resolvedConfig.command;
     },
     async buildStart() {
       if (command === "serve") {

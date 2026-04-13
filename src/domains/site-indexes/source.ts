@@ -1,17 +1,21 @@
 import type {
   SiteIndexesSource,
   SiteIndexesSourceResult,
-} from "@/domains/pipeline/types.js";
+} from "@/domains/pipeline";
 import type { ModuleLoaderContext } from "./context.js";
-import { loadRegistry } from "./loader.js";
-import type { EntryModule, SiteIndexes } from "./types.js";
+import { loadSiteIndexRegistry } from "./loader.js";
+import type { SiteIndexModule, SiteIndexes } from "./types.js";
 
-function extractSiteIndexes(module: EntryModule): SiteIndexes {
-  if (!module || typeof module !== "object" || !module.siteIndexes) {
+function extractSiteIndexes(siteIndexModule: SiteIndexModule): SiteIndexes {
+  if (
+    !siteIndexModule ||
+    typeof siteIndexModule !== "object" ||
+    !siteIndexModule.siteIndexes
+  ) {
     throw new Error("Module must export siteIndexes");
   }
 
-  return module.siteIndexes;
+  return siteIndexModule.siteIndexes;
 }
 
 export function createSiteIndexesSource(
@@ -19,14 +23,14 @@ export function createSiteIndexesSource(
 ): SiteIndexesSource {
   return {
     async loadSiteIndexes(): Promise<SiteIndexesSourceResult> {
-      const registry = await loadRegistry(context);
+      const loadResult = await loadSiteIndexRegistry(context);
       const siteIndexes: SiteIndexes = [];
 
-      for (const [, module] of Object.entries(registry.registry)) {
-        siteIndexes.push(...extractSiteIndexes(module));
+      for (const [, siteIndexModule] of Object.entries(loadResult.registry)) {
+        siteIndexes.push(...extractSiteIndexes(siteIndexModule));
       }
 
-      return { siteIndexes, warnings: registry.warnings };
+      return { siteIndexes, warnings: loadResult.warnings };
     },
   };
 }

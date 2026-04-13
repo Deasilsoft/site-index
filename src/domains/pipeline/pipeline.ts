@@ -1,8 +1,8 @@
 import { buildArtifacts } from "@/domains/artifacts";
 import type { Config } from "@/domains/config";
-import { resolveSiteIndexes } from "./resolve";
-import type { PipelineOutput, SiteIndexesSource } from "./types";
-import { assertValidSiteIndexes } from "./validate";
+import { resolveSiteIndexes } from "./resolve.js";
+import type { PipelineOutput, SiteIndexesSource } from "./types.js";
+import { assertValidSiteIndexes } from "./validate.js";
 
 export async function pipeline(
   config: Config,

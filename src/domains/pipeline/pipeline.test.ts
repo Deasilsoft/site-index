@@ -1,8 +1,8 @@
 import type { Artifact } from "@/domains/artifacts";
 import type { SiteIndexes } from "@/domains/site-indexes";
 import { describe, expect, it, vi } from "vitest";
-import { pipeline } from "./pipeline";
-import type { SiteIndexesSource } from "./types";
+import { pipeline } from "./pipeline.js";
+import type { SiteIndexesSource } from "./types.js";
 
 describe("pipeline", () => {
   const config = { siteUrl: "https://example.com" };

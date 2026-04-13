@@ -9,11 +9,11 @@ export type SiteIndex = {
 
 export type SiteIndexes = SiteIndex[];
 
-export type EntryModule = {
+export type SiteIndexModule = {
   siteIndexes: SiteIndexes;
 };
 
-export type Registry = Record<string, EntryModule>;
+export type Registry = Record<string, SiteIndexModule>;
 
 export type RegistryLoadResult = WithWarnings<{
   registry: Registry;

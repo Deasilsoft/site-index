@@ -2,9 +2,9 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { loadRegistry } from "./loader.js";
+import { loadSiteIndexRegistry } from "./loader.js";
 
-describe("loadRegistry", () => {
+describe("loadSiteIndexRegistry", () => {
   let emptyDir: string;
 
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe("loadRegistry", () => {
   });
 
   it("emits warning when context root has no site-index files", async () => {
-    const result = await loadRegistry({
+    const result = await loadSiteIndexRegistry({
       root: emptyDir,
       ssrLoadModule: vi.fn(),
     });
@@ -35,7 +35,7 @@ describe("loadRegistry", () => {
       siteIndexes: [{ url: "/about" }],
     });
 
-    const result = await loadRegistry({
+    const result = await loadSiteIndexRegistry({
       root: emptyDir,
       ssrLoadModule,
     });
