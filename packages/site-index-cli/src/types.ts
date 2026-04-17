@@ -58,9 +58,3 @@ export type Logger = {
   warn: LogMethod;
   error: LogMethod;
 };
-
-export type CliErrorWithExitCode = {
-  message?: unknown;
-  stack?: unknown;
-  exitCode?: unknown;
-};
