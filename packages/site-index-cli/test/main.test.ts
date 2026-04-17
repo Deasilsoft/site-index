@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { loggerErrorMock, runBuildMock, runCheckMock } =
-  vi.hoisted(() => ({
-    loggerErrorMock: vi.fn(),
-    runBuildMock: vi.fn(async () => undefined),
-    runCheckMock: vi.fn(async () => undefined),
-  }));
+const { loggerErrorMock, runBuildMock, runCheckMock } = vi.hoisted(() => ({
+  loggerErrorMock: vi.fn(),
+  runBuildMock: vi.fn(async () => undefined),
+  runCheckMock: vi.fn(async () => undefined),
+}));
 
 vi.mock("../src/build/run.js", () => ({
   runBuild: runBuildMock,
