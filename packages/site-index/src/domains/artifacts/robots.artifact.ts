@@ -27,6 +27,6 @@ export function makeRobotsArtifact(
   return {
     filePath: "/robots.txt",
     content: renderRobotsTxt(siteUrl, disallowed),
-    contentType: "application/xml; charset=utf-8",
+    contentType: "text/plain; charset=utf-8",
   };
 }
