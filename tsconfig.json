@@ -1,8 +1,0 @@
-{
-  "files": [],
-  "references": [
-    { "path": "./packages/site-index" },
-    { "path": "./packages/site-index-cli" },
-    { "path": "./packages/vite-plugin-site-index" }
-  ]
-}
