@@ -1,11 +1,10 @@
+import type { Result, Warning } from "../../shared/types.js";
 import type {
-  DataWithWarnings,
   ResolvedModule,
   ResolvedSiteIndex,
   SiteIndex,
   SourcedResolvedSiteIndex,
-  Warning,
-} from "../types.js";
+} from "./types.js";
 
 const DEFAULT_SITEMAP = "pages";
 const DEFAULT_INDEX = true;
@@ -45,7 +44,7 @@ function resolveModuleSiteIndexes(
 
 function deduplicateSiteIndexes(
   sourcedSiteIndexes: SourcedResolvedSiteIndex[],
-): DataWithWarnings<ResolvedSiteIndex[]> {
+): Result<ResolvedSiteIndex[]> {
   const warnings: Warning[] = [];
   const firstSiteIndexByUrl = new Map<string, SourcedResolvedSiteIndex>();
 
@@ -74,7 +73,7 @@ function deduplicateSiteIndexes(
 
 export function validateSiteIndexes(
   resolvedModules: ResolvedModule[],
-): DataWithWarnings<ResolvedSiteIndex[]> {
+): Result<ResolvedSiteIndex[]> {
   return deduplicateSiteIndexes(
     resolvedModules.flatMap(resolveModuleSiteIndexes),
   );

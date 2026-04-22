@@ -1,4 +1,5 @@
-import type { Artifact, ResolvedSiteIndex } from "../types.js";
+import type { ResolvedSiteIndex } from "../site-indexes/types.js";
+import type { Artifact } from "./types.js";
 
 const XML_VERSION_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
 const SITEMAP_XML_NAMESPACE = "https://www.sitemaps.org/schemas/sitemap/0.9";

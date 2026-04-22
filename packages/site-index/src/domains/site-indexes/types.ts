@@ -25,34 +25,11 @@ export type Module = {
 export type LoadedModule = {
   module: Module;
   exports: {
-    default: SiteIndex[];
+    siteIndexes: SiteIndex[];
   };
 };
 
 export type ResolvedModule = {
   module: Module;
   siteIndexes: SiteIndex[];
-};
-
-export type Warning = {
-  message: string;
-  filePath?: string;
-};
-
-export type DataWithWarnings<T> = {
-  data: T;
-  warnings: Warning[];
-};
-
-export type Options = {
-  siteUrl: string;
-  discoveryRoot: string;
-  loadDiscoveredModules: (
-    modules: Module[],
-  ) => Promise<DataWithWarnings<LoadedModule[]>>;
-};
-
-export type Artifact = {
-  filePath: string;
-  content: string;
 };

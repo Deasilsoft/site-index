@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Options } from "../types.js";
+import type { ModuleLoader, Options } from "./types.js";
 
 const trimTrailingSlashes = (url: string): string => {
   return url.trim().replace(/\/+$/, "");
@@ -12,8 +12,12 @@ const OptionsSchema = z.object({
       hostname: z.regexes.domain,
     })
     .transform(trimTrailingSlashes),
-  discoveryRoot: z.string().trim().min(1),
-  loadDiscoveredModules: z.custom<Options["loadDiscoveredModules"]>(
+  rootPath: z.string().trim().min(1),
+  extensions: z
+    .array(z.string().regex(/^\.\w+$/))
+    .optional()
+    .default([".js", ".mjs", ".ts"]),
+  loadModules: z.custom<ModuleLoader>(
     (value) => typeof value === "function",
     "loadDiscoveredModules must be a function",
   ),

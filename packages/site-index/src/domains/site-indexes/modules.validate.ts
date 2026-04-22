@@ -1,11 +1,6 @@
-import type {
-  DataWithWarnings,
-  LoadedModule,
-  ResolvedModule,
-  SiteIndex,
-  Warning,
-} from "../types.js";
 import { z } from "zod";
+import type { Result, Warning } from "../../shared/types.js";
+import type { LoadedModule, ResolvedModule, SiteIndex } from "./types.js";
 
 const URL_PATH_REGEX = /^\/[^?#]*$/;
 const SITEMAP_NAME_REGEX = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -56,9 +51,7 @@ function toSiteIndex(siteIndex: ParsedSiteIndex): SiteIndex {
   return normalized;
 }
 
-function parseSiteIndexes(
-  loadedModule: LoadedModule,
-): DataWithWarnings<SiteIndex[]> {
+function parseSiteIndexes(loadedModule: LoadedModule): Result<SiteIndex[]> {
   const parsedExports = ModuleExportsSchema.safeParse(loadedModule.exports);
 
   if (!parsedExports.success) {
@@ -81,7 +74,7 @@ function parseSiteIndexes(
 
 function resolveModule(
   loadedModule: LoadedModule,
-): DataWithWarnings<ResolvedModule | null> {
+): Result<ResolvedModule | null> {
   const parsed = parseSiteIndexes(loadedModule);
 
   if (parsed.data.length === 0 && parsed.warnings.length > 0) {
@@ -102,7 +95,7 @@ function resolveModule(
 
 export function validateModules(
   loadedModules: LoadedModule[],
-): DataWithWarnings<ResolvedModule[]> {
+): Result<ResolvedModule[]> {
   const data: ResolvedModule[] = [];
   const warnings: Warning[] = [];
 

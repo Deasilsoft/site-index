@@ -1,28 +1,30 @@
-import { discoverAllModules } from "./stages/discover.js";
-import { makeArtifacts } from "./stages/generate.js";
-import { validateModules } from "./stages/validateModules.js";
-import { validateOptions } from "./stages/validateOptions.js";
-import { validateSiteIndexes } from "./stages/validateSiteIndexes.js";
-import type { Artifact, DataWithWarnings, Options } from "./types.js";
+import { type Artifact, makeArtifacts } from "./domains/artifacts/index.js";
+import { type Options, validateOptions } from "./domains/options/index.js";
+import {
+  discoverModules,
+  validateModules,
+  validateSiteIndexes,
+} from "./domains/site-indexes/index.js";
+import type { Result } from "./shared/index.js";
 
 export async function runSiteIndexPipeline(
   options: Options,
-): Promise<DataWithWarnings<Artifact[]>> {
+): Promise<Result<Artifact[]>> {
   const config = validateOptions(options);
-  const modules = await discoverAllModules(config.discoveryRoot);
+  const modules = await discoverModules(config.rootPath, config.extensions);
 
   if (modules.length === 0) {
     return {
       data: [],
       warnings: [
         {
-          message: `No modules found in: ${config.discoveryRoot}`,
+          message: `No modules found in: ${config.rootPath}`,
         },
       ],
     };
   }
 
-  const loadedModules = await config.loadDiscoveredModules(modules);
+  const loadedModules = await config.loadModules(modules);
   const validatedModules = validateModules(loadedModules.data);
   const validatedSiteIndexes = validateSiteIndexes(validatedModules.data);
 

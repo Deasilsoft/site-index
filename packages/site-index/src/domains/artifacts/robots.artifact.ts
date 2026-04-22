@@ -1,4 +1,5 @@
-import type { Artifact, ResolvedSiteIndex } from "../types.js";
+import type { ResolvedSiteIndex } from "../site-indexes/types.js";
+import type { Artifact } from "./types.js";
 
 function renderRobotsTxt(siteUrl: string, disallowedPaths: string[]): string {
   const lines: string[] = [];

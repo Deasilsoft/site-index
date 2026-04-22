@@ -1,12 +1,6 @@
-import type { Module } from "../types.js";
 import path from "node:path";
 import { glob } from "tinyglobby";
-
-const SUPPORTED_EXTENSIONS = [".ts", ".js", ".mjs"] as const;
-
-const SITE_INDEX_PATTERNS = SUPPORTED_EXTENSIONS.map(
-  (extension) => `**/*.site-index${extension}`,
-);
+import type { Module } from "./types.js";
 
 const IGNORED_PATHS = [
   "**/node_modules/**",
@@ -25,14 +19,20 @@ function makeModule(root: string, filePath: string): Module {
   };
 }
 
-export async function discoverAllModules(root: string): Promise<Module[]> {
-  const filePaths = await glob(SITE_INDEX_PATTERNS, {
-    cwd: root,
-    absolute: true,
-    onlyFiles: true,
-    dot: false,
-    ignore: IGNORED_PATHS,
-  });
+export async function discoverModules(
+  root: string,
+  supportedExtensions: string[],
+): Promise<Module[]> {
+  const filePaths = await glob(
+    supportedExtensions.map((extension) => `**/*.site-index${extension}`),
+    {
+      cwd: root,
+      absolute: true,
+      onlyFiles: true,
+      dot: false,
+      ignore: IGNORED_PATHS,
+    },
+  );
 
   filePaths.sort((a, b) => a.localeCompare(b));
 
