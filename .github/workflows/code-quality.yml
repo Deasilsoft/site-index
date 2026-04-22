@@ -14,11 +14,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20, 22, 24, 25]
+        node-version: [22, 24, 25]
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -35,10 +35,10 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type-check
+      - name: Typecheck
         run: npm run typecheck
 
-      - name: Knip (unused files/exports/deps)
+      - name: Knip
         run: npm run knip
 
       - name: Test
@@ -47,10 +47,10 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload coverage to Codecov
+      - name: Upload coverage
         if: matrix.node-version == 24 && github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
           disable_search: true

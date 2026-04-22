@@ -5,30 +5,29 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present",
+    "predeps:reset": "rm -rf node_modules package-lock.json",
+    "deps:reset": "npm install",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "knip": "knip",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "npm run test --workspaces",
-    "typecheck": "tsc -b"
+    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^25.6.0",
-    "@vitest/coverage-v8": "^4.1.4",
-    "eslint": "^10.2.0",
-    "knip": "^6.4.1",
+    "code-slicer": "^0.2.1",
+    "eslint": "^10.2.1",
+    "knip": "^6.6.0",
     "prettier": "^3.8.3",
     "prettier-plugin-packagejson": "^3.0.2",
-    "typescript": "^6.0.2",
-    "typescript-eslint": "^8.58.2",
-    "vite": "^8.0.8",
-    "vitest": "^4.1.4"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

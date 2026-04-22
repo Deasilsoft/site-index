@@ -14,11 +14,11 @@ All packages share the same module contract and produce the same output artifact
 
 ## Package map
 
-| Package                  | Purpose                                                             | Best for                                                     |
-| ------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------------ |
-| `site-index`             | Discovery, module loading contract, validation, artifact generation | Programmatic integration in any Node app                     |
-| `site-index-cli`         | Running the pipeline from terminal/CI/cron                          | Scheduled jobs, static generation without custom glue code   |
-| `vite-plugin-site-index` | Vite build/dev integration                                          | Vite apps that want sitemap + robots artifacts automatically |
+| Package                  | Purpose                                        | Best for                                                   |
+| ------------------------ | ---------------------------------------------- | ---------------------------------------------------------- |
+| `site-index`             | Discovery, validation, and artifact generation | Programmatic integration in any Node app                   |
+| `site-index-cli`         | Run the pipeline from terminal/CI/cron         | Scheduled jobs, static generation without custom glue code |
+| `vite-plugin-site-index` | Vite build + dev integration                   | Vite apps that want sitemap + robots automatically         |
 
 ## Install
 
@@ -44,7 +44,7 @@ npm install site-index
 
 ## Shared content model (`*.site-index.*`)
 
-Each discovered module exports a default array:
+Each module must export a default array:
 
 ```ts
 import type { SiteIndex } from "site-index";
@@ -75,13 +75,11 @@ export default rows.map((row) => ({
 
 All packages produce the same artifact set:
 
-- `sitemap.xml` (sitemap index)
+- `sitemap.xml` (index)
 - `sitemap-<name>.xml`
 - `robots.txt`
 
 ## Flow 1: Vite plugin (`vite-plugin-site-index`)
-
-For Vite-based apps.
 
 ```ts
 import { defineConfig } from "vite";
@@ -98,8 +96,11 @@ export default defineConfig({
 
 Behavior:
 
-- `vite build` emits artifacts into the bundle output
-- `vite dev` serves `/sitemap.xml`, `/sitemap-<name>.xml`, and `/robots.txt`
+- `vite build` emits artifacts into the output bundle
+- `vite dev` serves up-to-date artifacts:
+  - `/sitemap.xml`
+  - `/sitemap-<name>.xml`
+  - `/robots.txt`
 
 ## Flow 2: CLI (`site-index-cli`)
 
@@ -109,26 +110,7 @@ For CI, cron jobs, or manual builds.
 npx site-index build --site-url https://example.com --root .
 ```
 
-Required:
-
-- `--site-url <url>` base URL
-
-Optional:
-
-- `--root <path>` discovery root (default: current directory)
-- `--out-dir <dir>` artifact output directory (default: `dist`)
-- `--config <path>` Vite config path
-- `--mode <mode>` Vite mode
-
-Scaffold helper:
-
-```bash
-npx site-index make pages --dir src
-```
-
 ## Flow 3: Core library (`site-index`)
-
-For full programmatic control.
 
 ```ts
 import { runSiteIndexPipeline } from "site-index";
@@ -147,9 +129,6 @@ const result = await runSiteIndexPipeline({
     return { data, warnings: [] };
   },
 });
-
-console.log(result.data);
-console.log(result.warnings);
 ```
 
 ## Constraints
