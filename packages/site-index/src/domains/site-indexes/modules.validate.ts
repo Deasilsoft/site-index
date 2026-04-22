@@ -52,7 +52,9 @@ function toSiteIndex(siteIndex: ParsedSiteIndex): SiteIndex {
 }
 
 function parseSiteIndexes(loadedModule: LoadedModule): Result<SiteIndex[]> {
-  const parsedExports = ModuleExportsSchema.safeParse(loadedModule.exports);
+  const parsedExports = ModuleExportsSchema.safeParse(
+    loadedModule.defaultExport,
+  );
 
   if (!parsedExports.success) {
     return {

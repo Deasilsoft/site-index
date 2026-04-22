@@ -5,7 +5,7 @@ const testRoot = "/test-fixtures";
 
 function createLoadedModule(
   fileName: string,
-  exportsValue: unknown,
+  defaultExport: unknown,
 ): LoadedModule {
   const filePath = `${testRoot}/${fileName}`;
 
@@ -14,7 +14,7 @@ function createLoadedModule(
       filePath,
       importId: `./${fileName}`,
     },
-    exports: exportsValue as LoadedModule["exports"],
+    defaultExport: defaultExport as LoadedModule["defaultExport"],
   };
 }
 

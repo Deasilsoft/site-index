@@ -24,7 +24,7 @@ export type Module = {
 
 export type LoadedModule = {
   module: Module;
-  exports: {
+  defaultExport: {
     siteIndexes: SiteIndex[];
   };
 };

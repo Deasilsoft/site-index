@@ -1,6 +1,6 @@
 import type { Result, Warning } from "../../shared/types.js";
-import type { LoadedModule, Module } from "./types.js";
 import type { LoadModule } from "../options/types.js";
+import type { LoadedModule, Module } from "./types.js";
 
 export async function loadModules(
   modules: Module[],
@@ -11,11 +11,11 @@ export async function loadModules(
 
   for (const module of modules) {
     try {
-      const exports = await loadModule(module);
+      const defaultExport = await loadModule(module);
 
       data.push({
         module,
-        exports,
+        defaultExport: defaultExport,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
