@@ -1,22 +1,22 @@
 import { describe, expect, it } from "vitest";
-import type { ModuleLoader } from "../src/index.js";
+import type { LoadModule } from "../src/index.js";
 import { validateOptions } from "../src/index.js";
 
-const loadModules: ModuleLoader = async () => ({ data: [], warnings: [] });
+const loadModule: LoadModule = async () => ({ siteIndexes: [] });
 
 describe("validateOptions", () => {
   it("normalizes siteUrl and rootPath and applies default extensions", () => {
     const result = validateOptions({
       siteUrl: "https://example.com///",
       rootPath: "  /repo  ",
-      loadModules,
+      loadModule,
     });
 
     expect(result).toEqual({
       siteUrl: "https://example.com",
       rootPath: "/repo",
       extensions: [".js", ".mjs", ".ts"],
-      loadModules,
+      loadModule,
     });
   });
 
@@ -25,7 +25,7 @@ describe("validateOptions", () => {
       siteUrl: "https://example.com",
       rootPath: "/repo",
       extensions: [".ts", ".tsx"],
-      loadModules,
+      loadModule,
     });
 
     expect(result.extensions).toEqual([".ts", ".tsx"]);
@@ -34,11 +34,15 @@ describe("validateOptions", () => {
   it.each([
     [
       "invalid siteUrl",
-      { siteUrl: "not-a-url", rootPath: "/repo", loadModules },
+      { siteUrl: "not-a-url", rootPath: "/repo", loadModule },
     ],
     [
       "blank rootPath",
-      { siteUrl: "https://example.com", rootPath: "   ", loadModules },
+      {
+        siteUrl: "https://example.com",
+        rootPath: "   ",
+        loadModule,
+      },
     ],
     [
       "invalid extension format",
@@ -46,15 +50,15 @@ describe("validateOptions", () => {
         siteUrl: "https://example.com",
         rootPath: "/repo",
         extensions: ["ts"],
-        loadModules,
+        loadModule,
       },
     ],
     [
-      "non-function loadModules",
+      "non-function loadModule",
       {
         siteUrl: "https://example.com",
         rootPath: "/repo",
-        loadModules: "not-a-function",
+        loadModule: "not-a-function",
       },
     ],
   ])("throws for %s", (_name, input) => {

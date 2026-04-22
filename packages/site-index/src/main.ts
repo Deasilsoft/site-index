@@ -2,6 +2,7 @@ import { type Artifact, makeArtifacts } from "./domains/artifacts/index.js";
 import { type Options, validateOptions } from "./domains/options/index.js";
 import {
   discoverModules,
+  loadModules,
   validateModules,
   validateSiteIndexes,
 } from "./domains/site-indexes/index.js";
@@ -24,7 +25,7 @@ export async function runSiteIndexPipeline(
     };
   }
 
-  const loadedModules = await config.loadModules(modules);
+  const loadedModules = await loadModules(modules, config.loadModule);
   const validatedModules = validateModules(loadedModules.data);
   const validatedSiteIndexes = validateSiteIndexes(validatedModules.data);
 

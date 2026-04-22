@@ -1,9 +1,8 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { runSiteIndexPipeline, type ModuleLoader } from "../src/index.js";
-import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
-import { createLoadedModules } from "./helpers/modules.js";
+import { type LoadModule, runSiteIndexPipeline } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
+import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
 const tempRoots: string[] = [];
 
@@ -19,36 +18,38 @@ describe("runSiteIndexPipeline warnings", () => {
       "good-a.site-index.ts",
       "good-b.site-index.ts",
       "bad.site-index.ts",
+      "throws.site-index.ts",
     ]);
 
-    const loadModules: ModuleLoader = async (modules) => {
+    const loadModule: LoadModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         ["./good-a.site-index.ts", { default: [{ url: "/about" }] }],
         ["./good-b.site-index.ts", { default: [{ url: "/about" }] }],
         ["./bad.site-index.ts", { default: [{ url: "not-valid" }] }],
       ]);
 
-      return {
-        data: createLoadedModules(modules, byImportId),
-        warnings: [
-          {
-            message: "Loader warning",
-            filePath: path.join(root, "good-a.site-index.ts"),
-          },
-        ],
-      };
+      if (module.importId === "./throws.site-index.ts") {
+        throw new Error("Loader warning");
+      }
+
+      return (byImportId.get(module.importId) ?? {
+        default: [],
+      }) as Awaited<ReturnType<LoadModule>>;
     };
 
     const result = await runSiteIndexPipeline({
       siteUrl: "https://example.com",
       rootPath: root,
-      loadModules,
+      loadModule,
     });
 
     expect(result.warnings).toHaveLength(3);
     expect(result.warnings.map((warning) => warning.message)).toEqual(
       expect.arrayContaining([
-        "Loader warning",
+        expect.stringContaining(
+          `Failed to load module "${path.join(root, "throws.site-index.ts")}"`,
+        ),
+        expect.stringContaining("Loader warning"),
         expect.stringContaining("Invalid site index module exports"),
         expect.stringContaining("Duplicate url ignored: /about"),
       ]),

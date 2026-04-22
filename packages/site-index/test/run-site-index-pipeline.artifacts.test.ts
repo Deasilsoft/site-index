@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { runSiteIndexPipeline, type ModuleLoader } from "../src/index.js";
+import { type LoadModule, runSiteIndexPipeline } from "../src/index.js";
 import { artifactMap } from "./helpers/artifacts.js";
 import { writeFiles } from "./helpers/fs.js";
-import { createLoadedModules } from "./helpers/modules.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
 const tempRoots: string[] = [];
@@ -21,7 +20,7 @@ describe("runSiteIndexPipeline artifacts", () => {
       "private.site-index.ts",
     ]);
 
-    const loadModules: ModuleLoader = async (modules) => {
+    const loadModule: LoadModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         ["./about.site-index.ts", { default: [{ url: "/about" }] }],
         [
@@ -43,16 +42,15 @@ describe("runSiteIndexPipeline artifacts", () => {
         ],
       ]);
 
-      return {
-        data: createLoadedModules(modules, byImportId),
-        warnings: [],
-      };
+      return (byImportId.get(module.importId) ?? {
+        default: [],
+      }) as Awaited<ReturnType<LoadModule>>;
     };
 
     const result = await runSiteIndexPipeline({
       siteUrl: "https://example.com",
       rootPath: root,
-      loadModules,
+      loadModule,
     });
 
     expect(result.warnings).toEqual([]);
@@ -86,7 +84,7 @@ describe("runSiteIndexPipeline artifacts", () => {
 
     await writeFiles(root, ["a.site-index.ts", "b.site-index.ts"]);
 
-    const loadModules: ModuleLoader = async (modules) => {
+    const loadModule: LoadModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         [
           "./a.site-index.ts",
@@ -102,16 +100,15 @@ describe("runSiteIndexPipeline artifacts", () => {
         ["./b.site-index.ts", { default: [{ url: "/a-first" }] }],
       ]);
 
-      return {
-        data: createLoadedModules(modules, byImportId),
-        warnings: [],
-      };
+      return (byImportId.get(module.importId) ?? {
+        default: [],
+      }) as Awaited<ReturnType<LoadModule>>;
     };
 
     const result = await runSiteIndexPipeline({
       siteUrl: "https://example.com",
       rootPath: root,
-      loadModules,
+      loadModule,
     });
 
     expect(result.warnings).toEqual([]);

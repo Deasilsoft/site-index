@@ -1,12 +1,12 @@
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  runSiteIndexPipeline,
+  type LoadModule,
   type Module,
-  type ModuleLoader,
+  runSiteIndexPipeline,
 } from "../src/index.js";
-import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 import { writeFiles } from "./helpers/fs.js";
+import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
 const tempRoots: string[] = [];
 
@@ -17,25 +17,22 @@ afterEach(async () => {
 describe("runSiteIndexPipeline discovery", () => {
   it("returns warning when no modules are found", async () => {
     const root = await createTempProject(tempRoots);
-    const loadModules = vi.fn<ModuleLoader>(async () => ({
-      data: [],
-      warnings: [],
-    }));
+    const loadModule = vi.fn<LoadModule>(async () => ({ siteIndexes: [] }));
 
     const result = await runSiteIndexPipeline({
       siteUrl: "https://example.com",
       rootPath: root,
-      loadModules,
+      loadModule,
     });
 
     expect(result).toEqual({
       data: [],
       warnings: [{ message: `No modules found in: ${root}` }],
     });
-    expect(loadModules).not.toHaveBeenCalled();
+    expect(loadModule).not.toHaveBeenCalled();
   });
 
-  it("passes discovered modules correctly to loadModules", async () => {
+  it("passes discovered modules correctly to loadModule", async () => {
     const root = await createTempProject(tempRoots);
 
     await writeFiles(root, [
@@ -46,16 +43,16 @@ describe("runSiteIndexPipeline discovery", () => {
       "node_modules/pkg/ignore.site-index.ts",
     ]);
 
-    let receivedModules: Module[] = [];
-    const loadModules: ModuleLoader = async (modules) => {
-      receivedModules = modules;
-      return { data: [], warnings: [] };
+    const receivedModules: Module[] = [];
+    const loadModule: LoadModule = async (module) => {
+      receivedModules.push(module);
+      return { siteIndexes: [] };
     };
 
     await runSiteIndexPipeline({
       siteUrl: "https://example.com",
       rootPath: root,
-      loadModules,
+      loadModule,
     });
 
     expect(receivedModules).toEqual([

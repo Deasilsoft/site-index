@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { runSiteIndexPipeline, type ModuleLoader } from "../src/index.js";
+import { type LoadModule, runSiteIndexPipeline } from "../src/index.js";
 
 describe("runSiteIndexPipeline option errors", () => {
   it.each([
@@ -10,27 +10,24 @@ describe("runSiteIndexPipeline option errors", () => {
       { siteUrl: "https://example.com", rootPath: "/repo", extensions: ["ts"] },
     ],
   ])("rejects invalid options: %s", async (_name, input) => {
-    const loadModules = vi.fn<ModuleLoader>(async () => ({
-      data: [],
-      warnings: [],
-    }));
+    const loadModule = vi.fn<LoadModule>(async () => ({ siteIndexes: [] }));
 
     await expect(
       runSiteIndexPipeline({
         ...input,
-        loadModules,
+        loadModule,
       } as Parameters<typeof runSiteIndexPipeline>[0]),
     ).rejects.toThrow();
 
-    expect(loadModules).not.toHaveBeenCalled();
+    expect(loadModule).not.toHaveBeenCalled();
   });
 
-  it("rejects non-function loadModules", async () => {
+  it("rejects non-function loadModule", async () => {
     await expect(
       runSiteIndexPipeline({
         siteUrl: "https://example.com",
         rootPath: "/repo",
-        loadModules: "not-a-function" as unknown as ModuleLoader,
+        loadModule: "not-a-function" as unknown as LoadModule,
       }),
     ).rejects.toThrow();
   });
