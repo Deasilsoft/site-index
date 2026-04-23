@@ -18,7 +18,7 @@ function createLoadedModule(
   };
 }
 
-describe("validateModules", () => {
+describe("modules resolve", () => {
   it("returns resolved modules for valid default exports", () => {
     const loadedModules: LoadedModule[] = [
       createLoadedModule("about.site-index.ts", [{ url: "/about" }]),

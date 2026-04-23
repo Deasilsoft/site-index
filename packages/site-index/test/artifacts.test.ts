@@ -10,7 +10,7 @@ afterEach(async () => {
   await cleanupTempProjects(tempRoots);
 });
 
-describe("runSiteIndexPipeline artifacts", () => {
+describe("artifacts", () => {
   it("builds artifacts from discovered modules", async () => {
     const root = await createTempProject(tempRoots);
 
@@ -57,24 +57,24 @@ describe("runSiteIndexPipeline artifacts", () => {
 
     const artifacts = artifactMap(result.data);
     expect([...artifacts.keys()].sort()).toEqual([
-      "/robots.txt",
-      "/sitemap-blog.xml",
-      "/sitemap-pages.xml",
-      "/sitemap.xml",
+      "robots.txt",
+      "sitemap-blog.xml",
+      "sitemap-pages.xml",
+      "sitemap.xml",
     ]);
 
-    const robots = artifacts.get("/robots.txt");
+    const robots = artifacts.get("robots.txt");
     expect(robots).toContain("Disallow: /admin");
     expect(robots).toContain("Sitemap: https://example.com/sitemap.xml");
 
-    const sitemapBlog = artifacts.get("/sitemap-blog.xml");
+    const sitemapBlog = artifacts.get("sitemap-blog.xml");
     expect(sitemapBlog).toContain("https://example.com/blog/first-post");
     expect(sitemapBlog).toContain("https://example.com/blog/second-post");
     expect(sitemapBlog).toContain(
       "<lastmod>2026-04-22T10:15:00.000Z</lastmod>",
     );
 
-    const sitemapPages = artifacts.get("/sitemap-pages.xml");
+    const sitemapPages = artifacts.get("sitemap-pages.xml");
     expect(sitemapPages).toContain("https://example.com/about");
     expect(sitemapPages).not.toContain("https://example.com/admin");
   });
@@ -113,19 +113,19 @@ describe("runSiteIndexPipeline artifacts", () => {
 
     expect(result.warnings).toEqual([]);
     expect(result.data.map((artifact) => artifact.filePath)).toEqual([
-      "/sitemap-blog.xml",
-      "/sitemap-pages.xml",
-      "/sitemap.xml",
-      "/robots.txt",
+      "sitemap-blog.xml",
+      "sitemap-pages.xml",
+      "sitemap.xml",
+      "robots.txt",
     ]);
 
     const artifacts = artifactMap(result.data);
 
-    const sitemapPages = artifacts.get("/sitemap-pages.xml");
+    const sitemapPages = artifacts.get("sitemap-pages.xml");
     expect(sitemapPages).toContain("https://example.com/a-first");
     expect(sitemapPages).toContain("https://example.com/z-last");
 
-    const robots = artifacts.get("/robots.txt");
+    const robots = artifacts.get("robots.txt");
     expect(robots).toContain("Disallow: /private-a");
     expect(robots).toContain("Disallow: /private-b");
     expect(robots?.indexOf("Disallow: /private-a")).toBeLessThan(

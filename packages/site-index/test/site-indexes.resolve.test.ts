@@ -20,7 +20,7 @@ function createResolvedModule(
   };
 }
 
-describe("validateSiteIndexes", () => {
+describe("site-indexes resolve", () => {
   it("applies defaults, sorts output, and deduplicates across modules", () => {
     const resolvedModules: ResolvedModule[] = [
       createResolvedModule("about.site-index.ts", [{ url: "/about" }]),

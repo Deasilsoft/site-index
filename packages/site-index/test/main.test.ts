@@ -10,7 +10,7 @@ afterEach(async () => {
   await cleanupTempProjects(tempRoots);
 });
 
-describe("runSiteIndexPipeline warnings", () => {
+describe("main", () => {
   it("collects warnings from module loading and validation", async () => {
     const root = await createTempProject(tempRoots);
 
@@ -56,9 +56,9 @@ describe("runSiteIndexPipeline warnings", () => {
     );
     expect(result.data.map((artifact) => artifact.filePath)).toEqual(
       expect.arrayContaining([
-        "/robots.txt",
-        "/sitemap-pages.xml",
-        "/sitemap.xml",
+        "robots.txt",
+        "sitemap-pages.xml",
+        "sitemap.xml",
       ]),
     );
   });

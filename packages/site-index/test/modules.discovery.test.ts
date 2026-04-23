@@ -11,7 +11,7 @@ afterEach(async () => {
   await cleanupTempProjects(tempRoots);
 });
 
-describe("runSiteIndexPipeline discovery", () => {
+describe("modules discovery", () => {
   it("returns warning when no modules are found", async () => {
     const root = await createTempProject(tempRoots);
     const loadModule = vi.fn<ModuleLoader>(async () => ({
