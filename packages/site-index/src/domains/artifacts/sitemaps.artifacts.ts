@@ -51,7 +51,7 @@ export function makeSitemapArtifacts(
   );
 
   return sortedSitemaps.map(([sitemap, siteIndexes]) => ({
-    filePath: `/sitemap-${sitemap}.xml`,
+    filePath: `sitemap-${sitemap}.xml`,
     content: renderSitemapXml(siteIndexes, siteUrl),
     contentType: "application/xml; charset=utf-8",
   }));
@@ -85,7 +85,7 @@ export function makeSitemapIndexArtifact(
     .sort((a, b) => a.localeCompare(b));
 
   return {
-    filePath: "/sitemap.xml",
+    filePath: "sitemap.xml",
     content: renderSitemapIndexXml(paths, siteUrl),
     contentType: "application/xml; charset=utf-8",
   };

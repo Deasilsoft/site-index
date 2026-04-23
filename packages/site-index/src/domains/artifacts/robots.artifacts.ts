@@ -25,7 +25,7 @@ export function makeRobotsArtifact(
     .sort((a, b) => a.localeCompare(b));
 
   return {
-    filePath: "/robots.txt",
+    filePath: "robots.txt",
     content: renderRobotsTxt(siteUrl, disallowed),
     contentType: "text/plain; charset=utf-8",
   };
