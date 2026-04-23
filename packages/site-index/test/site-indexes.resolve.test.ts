@@ -1,18 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { type ResolvedModule, validateSiteIndexes } from "../src/index.js";
+import type { ResolvedModule } from "../src/domains/site-indexes/modules.schema.js";
+import { resolveSiteIndexes } from "../src/domains/site-indexes/site-indexes.resolve.js";
+import type { ResolvedSiteIndex } from "../src/domains/site-indexes/site-indexes.schema.js";
 
 const testRoot = "/test-fixtures";
 
 function createResolvedModule(
   fileName: string,
-  siteIndexes: ResolvedModule["siteIndexes"],
+  siteIndexes: Partial<ResolvedSiteIndex>[],
 ): ResolvedModule {
   return {
-    module: {
-      filePath: `${testRoot}/${fileName}`,
-      importId: `./${fileName}`,
-    },
-    siteIndexes,
+    filePath: `${testRoot}/${fileName}`,
+    importId: `./${fileName}`,
+    siteIndexes: siteIndexes.map((siteIndex) => ({
+      sitemap: "pages",
+      index: true,
+      ...siteIndex,
+    })) as ResolvedSiteIndex[],
   };
 }
 
@@ -40,7 +44,7 @@ describe("validateSiteIndexes", () => {
       ]),
     ];
 
-    const result = validateSiteIndexes(resolvedModules);
+    const result = resolveSiteIndexes(resolvedModules);
 
     expect(result.data).toEqual([
       {
@@ -48,34 +52,48 @@ describe("validateSiteIndexes", () => {
         sitemap: "blog",
         index: true,
         lastModified: "2026-04-08T09:00:00.000Z",
+        filePath: "/test-fixtures/blog.site-index.ts",
       },
       {
         url: "/blog/hello-world",
         sitemap: "blog",
         index: true,
         lastModified: "2026-04-10T12:00:00.000Z",
+        filePath: "/test-fixtures/blog.site-index.ts",
       },
-      { url: "/about", sitemap: "pages", index: true },
-      { url: "/admin", sitemap: "pages", index: false },
+      {
+        url: "/about",
+        sitemap: "pages",
+        index: true,
+        filePath: "/test-fixtures/about.site-index.ts",
+      },
+      {
+        url: "/admin",
+        sitemap: "pages",
+        index: false,
+        filePath: "/test-fixtures/private.site-index.ts",
+      },
     ]);
     expect(result.warnings).toEqual([
       {
         message:
-          "Duplicate url ignored: /about (already defined in /test-fixtures/about.site-index.ts)",
+          'Duplicate URL "/about" found in "/test-fixtures/about.site-index.ts"',
         filePath: "/test-fixtures/duplicate-about.site-index.ts",
       },
     ]);
   });
 
   it("preserves lastModified while applying defaults", () => {
-    const result = validateSiteIndexes([
+    const modules = [
       createResolvedModule("a.site-index.ts", [
         {
           url: "/about",
           lastModified: "2026-01-01T00:00:00Z",
         },
       ]),
-    ]);
+    ];
+    const before = structuredClone(modules);
+    const result = resolveSiteIndexes(modules);
 
     expect(result).toEqual({
       data: [
@@ -84,14 +102,16 @@ describe("validateSiteIndexes", () => {
           lastModified: "2026-01-01T00:00:00Z",
           sitemap: "pages",
           index: true,
+          filePath: "/test-fixtures/a.site-index.ts",
         },
       ],
       warnings: [],
     });
+    expect(modules).toEqual(before);
   });
 
   it("keeps first duplicate URL within the same module", () => {
-    const result = validateSiteIndexes([
+    const result = resolveSiteIndexes([
       createResolvedModule("duplicates.site-index.ts", [
         {
           url: "/about",
@@ -114,18 +134,25 @@ describe("validateSiteIndexes", () => {
         sitemap: "pages",
         index: false,
         lastModified: "2026-01-01T00:00:00.000Z",
+        filePath: "/test-fixtures/duplicates.site-index.ts",
       },
     ]);
     expect(result.warnings).toEqual([
       {
         message:
-          "Duplicate url ignored: /about (already defined in /test-fixtures/duplicates.site-index.ts)",
+          'Duplicate URL "/about" found in "/test-fixtures/duplicates.site-index.ts"',
         filePath: "/test-fixtures/duplicates.site-index.ts",
       },
     ]);
   });
 
   it("returns empty data and warnings for empty input", () => {
-    expect(validateSiteIndexes([])).toEqual({ data: [], warnings: [] });
+    const first = resolveSiteIndexes([]);
+    const second = resolveSiteIndexes([]);
+
+    expect(first).toEqual({ data: [], warnings: [] });
+    expect(second).toEqual({ data: [], warnings: [] });
+    expect(first.data).not.toBe(second.data);
+    expect(first.warnings).not.toBe(second.warnings);
   });
 });

@@ -1,21 +1,22 @@
 import type { Result, Warning } from "../../shared/types.js";
-import type { LoadModule } from "../options/types.js";
+import type { ModuleLoader } from "../options/types.js";
 import type { LoadedModule, Module } from "./types.js";
 
 export async function loadModules(
   modules: Module[],
-  loadModule: LoadModule,
+  loadModule: ModuleLoader,
 ): Promise<Result<LoadedModule[]>> {
   const data: LoadedModule[] = [];
   const warnings: Warning[] = [];
 
   for (const module of modules) {
     try {
-      const defaultExport = await loadModule(module);
+      const exports = await loadModule(module);
 
       data.push({
-        module,
-        defaultExport: defaultExport,
+        importId: module.importId,
+        filePath: module.filePath,
+        siteIndexes: exports.siteIndexes,
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);

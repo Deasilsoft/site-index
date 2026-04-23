@@ -1,5 +1,5 @@
 export type Artifact = {
-  filePath: string;
+  filePath: `/${string}`;
   content: string;
   contentType: string;
 };

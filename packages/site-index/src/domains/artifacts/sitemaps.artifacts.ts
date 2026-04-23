@@ -1,4 +1,4 @@
-import type { ResolvedSiteIndex } from "../site-indexes/types.js";
+import type { ResolvedSiteIndex } from "../site-indexes/site-indexes.schema.js";
 import type { Artifact } from "./types.js";
 
 const XML_VERSION_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';

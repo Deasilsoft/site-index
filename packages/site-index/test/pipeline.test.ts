@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { type LoadModule, runSiteIndexPipeline } from "../src/index.js";
+import { main, type ModuleLoader } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
@@ -21,11 +21,11 @@ describe("runSiteIndexPipeline warnings", () => {
       "throws.site-index.ts",
     ]);
 
-    const loadModule: LoadModule = async (module) => {
+    const loadModule: ModuleLoader = async (module) => {
       const byImportId = new Map<string, unknown>([
-        ["./good-a.site-index.ts", { default: [{ url: "/about" }] }],
-        ["./good-b.site-index.ts", { default: [{ url: "/about" }] }],
-        ["./bad.site-index.ts", { default: [{ url: "not-valid" }] }],
+        ["./good-a.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
+        ["./good-b.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
+        ["./bad.site-index.ts", { siteIndexes: [{ url: "not-valid" }] }],
       ]);
 
       if (module.importId === "./throws.site-index.ts") {
@@ -33,11 +33,11 @@ describe("runSiteIndexPipeline warnings", () => {
       }
 
       return (byImportId.get(module.importId) ?? {
-        default: [],
-      }) as Awaited<ReturnType<LoadModule>>;
+        siteIndexes: [],
+      }) as Awaited<ReturnType<ModuleLoader>>;
     };
 
-    const result = await runSiteIndexPipeline({
+    const result = await main({
       siteUrl: "https://example.com",
       rootPath: root,
       loadModule,
@@ -50,8 +50,8 @@ describe("runSiteIndexPipeline warnings", () => {
           `Failed to load module "${path.join(root, "throws.site-index.ts")}"`,
         ),
         expect.stringContaining("Loader warning"),
-        expect.stringContaining("Invalid site index module exports"),
-        expect.stringContaining("Duplicate url ignored: /about"),
+        expect.stringContaining("Invalid module"),
+        expect.stringContaining('Duplicate URL "/about"'),
       ]),
     );
     expect(result.data.map((artifact) => artifact.filePath)).toEqual(

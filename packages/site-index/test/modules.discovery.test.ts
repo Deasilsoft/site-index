@@ -1,10 +1,7 @@
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  type LoadModule,
-  type Module,
-  runSiteIndexPipeline,
-} from "../src/index.js";
+import type { Module } from "../src/domains/site-indexes/types.js";
+import { main, type ModuleLoader } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
@@ -17,9 +14,11 @@ afterEach(async () => {
 describe("runSiteIndexPipeline discovery", () => {
   it("returns warning when no modules are found", async () => {
     const root = await createTempProject(tempRoots);
-    const loadModule = vi.fn<LoadModule>(async () => ({ siteIndexes: [] }));
+    const loadModule = vi.fn<ModuleLoader>(async () => ({
+      siteIndexes: [],
+    }));
 
-    const result = await runSiteIndexPipeline({
+    const result = await main({
       siteUrl: "https://example.com",
       rootPath: root,
       loadModule,
@@ -44,12 +43,13 @@ describe("runSiteIndexPipeline discovery", () => {
     ]);
 
     const receivedModules: Module[] = [];
-    const loadModule: LoadModule = async (module) => {
+    const loadModule: ModuleLoader = async (module) => {
       receivedModules.push(module);
+
       return { siteIndexes: [] };
     };
 
-    await runSiteIndexPipeline({
+    await main({
       siteUrl: "https://example.com",
       rootPath: root,
       loadModule,

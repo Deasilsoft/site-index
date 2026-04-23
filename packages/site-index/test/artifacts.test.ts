@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { type LoadModule, runSiteIndexPipeline } from "../src/index.js";
+import { main, type ModuleLoader } from "../src/index.js";
 import { artifactMap } from "./helpers/artifacts.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
@@ -20,13 +20,13 @@ describe("runSiteIndexPipeline artifacts", () => {
       "private.site-index.ts",
     ]);
 
-    const loadModule: LoadModule = async (module) => {
+    const loadModule: ModuleLoader = async (module) => {
       const byImportId = new Map<string, unknown>([
-        ["./about.site-index.ts", { default: [{ url: "/about" }] }],
+        ["./about.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
         [
           "./blog.site-index.ts",
           {
-            default: [
+            siteIndexes: [
               {
                 url: "/blog/first-post",
                 sitemap: "blog",
@@ -38,16 +38,16 @@ describe("runSiteIndexPipeline artifacts", () => {
         ],
         [
           "./private.site-index.ts",
-          { default: [{ url: "/admin", index: false }] },
+          { siteIndexes: [{ url: "/admin", index: false }] },
         ],
       ]);
 
       return (byImportId.get(module.importId) ?? {
-        default: [],
-      }) as Awaited<ReturnType<LoadModule>>;
+        siteIndexes: [],
+      }) as Awaited<ReturnType<ModuleLoader>>;
     };
 
-    const result = await runSiteIndexPipeline({
+    const result = await main({
       siteUrl: "https://example.com",
       rootPath: root,
       loadModule,
@@ -84,12 +84,12 @@ describe("runSiteIndexPipeline artifacts", () => {
 
     await writeFiles(root, ["a.site-index.ts", "b.site-index.ts"]);
 
-    const loadModule: LoadModule = async (module) => {
+    const loadModule: ModuleLoader = async (module) => {
       const byImportId = new Map<string, unknown>([
         [
           "./a.site-index.ts",
           {
-            default: [
+            siteIndexes: [
               { url: "/z-last" },
               { url: "/private-b", index: false },
               { url: "/private-a", index: false },
@@ -97,15 +97,15 @@ describe("runSiteIndexPipeline artifacts", () => {
             ],
           },
         ],
-        ["./b.site-index.ts", { default: [{ url: "/a-first" }] }],
+        ["./b.site-index.ts", { siteIndexes: [{ url: "/a-first" }] }],
       ]);
 
       return (byImportId.get(module.importId) ?? {
-        default: [],
-      }) as Awaited<ReturnType<LoadModule>>;
+        siteIndexes: [],
+      }) as Awaited<ReturnType<ModuleLoader>>;
     };
 
-    const result = await runSiteIndexPipeline({
+    const result = await main({
       siteUrl: "https://example.com",
       rootPath: root,
       loadModule,
