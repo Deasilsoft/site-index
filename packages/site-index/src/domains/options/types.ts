@@ -7,6 +7,6 @@ export type LoadModule = (
 export type Options = {
   siteUrl: string;
   rootPath: string;
-  extensions?: string[];
+  extensions?: string[] | undefined;
   loadModule: LoadModule;
 };

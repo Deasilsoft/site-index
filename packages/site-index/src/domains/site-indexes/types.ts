@@ -1,13 +1,13 @@
 export type SiteIndex = {
   url: `/${string}`;
-  lastModified?: string;
-  sitemap?: string;
-  index?: boolean;
+  lastModified?: string | undefined;
+  sitemap?: string | undefined;
+  index?: boolean | undefined;
 };
 
 export type ResolvedSiteIndex = {
   url: `/${string}`;
-  lastModified?: string;
+  lastModified?: string | undefined;
   sitemap: string;
   index: boolean;
 };

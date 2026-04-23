@@ -1,6 +1,6 @@
 export type Warning = {
   message: string;
-  filePath?: string;
+  filePath?: string | undefined;
 };
 
 export type Result<T> = {
