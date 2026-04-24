@@ -1,4 +1,4 @@
-export { siteIndexPlugin } from "./plugin.js";
-export { SITE_INDEX_PLUGIN_MARKER } from "./plugin.js";
-export type { Config } from "./types.js";
-export type { SiteIndex } from "site-index";
+export type { Options } from "./domains/options/types.js";
+export { siteIndexBuildPlugin } from "./domains/build/build.plugin.js";
+export { siteIndexServePlugin } from "./domains/serve/serve.plugin.js";
+export { siteIndexPlugin } from "./main.js";
