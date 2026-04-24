@@ -31,12 +31,7 @@ export function serveArtifacts(
     relevantFiles = result.nextRelevantFiles;
   }
 
-  const refresh = makeServeRefresh(
-    server,
-    options,
-    viteConfig,
-    updateState,
-  );
+  const refresh = makeServeRefresh(server, options, viteConfig, updateState);
 
   function requestRefresh(): void {
     void refresh.requestRefresh();

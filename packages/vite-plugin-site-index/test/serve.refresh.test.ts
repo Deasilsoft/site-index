@@ -46,7 +46,9 @@ describe("makeServeRefresh", () => {
           error: vi.fn(),
         },
       },
-      ssrLoadModule: vi.fn().mockResolvedValue({ default: { siteIndexes: [] } }),
+      ssrLoadModule: vi
+        .fn()
+        .mockResolvedValue({ default: { siteIndexes: [] } }),
     };
 
     const onSuccessfulRefresh = vi.fn();
@@ -63,10 +65,13 @@ describe("makeServeRefresh", () => {
     expect(server.ssrLoadModule).toHaveBeenCalledWith(
       "./src/routes/blog.site-index.ts",
     );
-    expect(collectRelevantFiles).toHaveBeenCalledWith(server, new Set([
-      "./src/routes/blog.site-index.ts",
-    ]));
-    expect(server.config.logger.warn).toHaveBeenCalledWith("Duplicate URL: /blog");
+    expect(collectRelevantFiles).toHaveBeenCalledWith(
+      server,
+      new Set(["./src/routes/blog.site-index.ts"]),
+    );
+    expect(server.config.logger.warn).toHaveBeenCalledWith(
+      "Duplicate URL: /blog",
+    );
     expect(onSuccessfulRefresh).toHaveBeenCalledWith({
       artifacts: [
         {
@@ -109,5 +114,3 @@ describe("makeServeRefresh", () => {
     );
   });
 });
-
-
