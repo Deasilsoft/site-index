@@ -1,0 +1,55 @@
+{
+  "name": "@site-index/vite-runtime",
+  "version": "0.0.0",
+  "description": "Vite-backed runtime for executing site-index pipelines.",
+  "keywords": [
+    "site-index",
+    "sitemap",
+    "robots",
+    "seo",
+    "vite"
+  ],
+  "homepage": "https://github.com/Deasilsoft/site-index/tree/main/packages/@site-index/vite-runtime",
+  "bugs": {
+    "url": "https://github.com/Deasilsoft/site-index/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deasilsoft/site-index.git",
+    "directory": "packages/@site-index/vite-runtime"
+  },
+  "license": "MIT",
+  "author": "Deasilsoft <contact@deasilsoft.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist coverage",
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@site-index/core": "0.0.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "vite": "^8.0.10",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "vite": "^8.0.10"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,17 +1,11 @@
-export type SiteIndex = {
-  url: `/${string}`;
-  lastModified?: string | undefined;
-  sitemap?: string | undefined;
-  index?: boolean | undefined;
+export type BaseConfig = {
+  siteUrl: string;
+  rootPath: string;
+  configFile?: string;
 };
 
-export type Module = {
-  filePath: string;
-  importId: string;
+export type BuildConfig = BaseConfig & {
+  outPath: string;
 };
 
-export type ModuleExports = {
-  siteIndexes: SiteIndex[];
-};
-
-export type LoadedModule = Module & ModuleExports;
+export type CheckConfig = BaseConfig;
