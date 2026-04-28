@@ -1,39 +1,39 @@
-import { makeArtifacts } from "./domains/artifacts/make.artifacts.js";
-import type { Artifact } from "./domains/artifacts/types.js";
-import { resolveOptions } from "./domains/options/options.resolve.js";
-import type { Options } from "./domains/options/types.js";
-import { discoverModules } from "./domains/site-indexes/modules.discovery.js";
-import { loadModules } from "./domains/site-indexes/modules.load.js";
-import { resolveModules } from "./domains/site-indexes/modules.resolve.js";
-import { resolveSiteIndexes } from "./domains/site-indexes/site-indexes.resolve.js";
-import type { Result, Warning } from "./shared/types.js";
+import { cac } from "cac";
+import pkg from "../package.json" with { type: "json" };
+import { initMakeCommand } from "./domains/make/commands/make.command.js";
+import { initBuildCommand } from "./domains/site-indexes/commands/build.command.js";
+import { initCheckCommand } from "./domains/site-indexes/commands/check.command.js";
+import { logger } from "./shared/services/logger.service.js";
 
-export async function main(options: Options): Promise<Result<Artifact[]>> {
-  const warnings: Warning[] = [];
-  const config = resolveOptions(options);
-  const modules = await discoverModules(config.rootPath, config.extensions);
+export async function main(argv: string[] = process.argv) {
+  logger.configure({
+    quiet: argv.includes("--quiet"),
+    verbose: argv.includes("--verbose"),
+  });
 
-  if (modules.length === 0) {
-    warnings.push({
-      message: `No modules found in: ${config.rootPath}`,
-    });
+  try {
+    const cli = cac("site-index");
 
-    return {
-      data: [],
-      warnings,
-    };
+    cli.option("--quiet", "Suppress informational output");
+    cli.option("--verbose", "Enable verbose logging");
+
+    initBuildCommand(cli);
+    initCheckCommand(cli);
+    initMakeCommand(cli);
+
+    cli.help();
+    cli.version(pkg.version);
+
+    cli.parse(argv, { run: false });
+
+    if (argv.length <= 2) {
+      cli.outputHelp();
+    } else {
+      await cli.runMatchedCommand();
+    }
+  } catch (error) {
+    logger.error(error);
+
+    process.exitCode = 1;
   }
-
-  const loadedModules = await loadModules(modules, config.loadModule);
-  const resolvedModules = resolveModules(loadedModules.data);
-  const resolvedSiteIndexes = resolveSiteIndexes(resolvedModules.data);
-
-  warnings.push(...loadedModules.warnings);
-  warnings.push(...resolvedModules.warnings);
-  warnings.push(...resolvedSiteIndexes.warnings);
-
-  return {
-    data: makeArtifacts(config.siteUrl, resolvedSiteIndexes.data),
-    warnings,
-  };
 }

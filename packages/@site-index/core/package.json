@@ -1,0 +1,51 @@
+{
+  "name": "@site-index/core",
+  "version": "0.0.0",
+  "description": "Deterministic site-index pipeline: config, discovery, loading, validation, and artifact generation.",
+  "keywords": [
+    "site-index",
+    "sitemap",
+    "robots",
+    "seo"
+  ],
+  "homepage": "https://github.com/Deasilsoft/site-index/tree/main/packages/@site-index/core",
+  "bugs": {
+    "url": "https://github.com/Deasilsoft/site-index/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deasilsoft/site-index.git",
+    "directory": "packages/@site-index/core"
+  },
+  "license": "MIT",
+  "author": "Deasilsoft <contact@deasilsoft.com>",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "clean": "rm -rf dist coverage",
+    "test": "vitest run --coverage",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "tinyglobby": "^0.2.16",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.5",
+    "vitest": "^4.1.5"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -2,7 +2,8 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/site-index",
+    "packages/@site-index/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

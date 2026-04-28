@@ -1,7 +1,12 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@site-index/core": ["../@site-index/core/src/index.ts"],
+      "@site-index/vite-runtime": ["../@site-index/vite-runtime/src/index.ts"],
+      "@site-index/vite-plugin": ["../@site-index/vite-plugin/src/index.ts"]
+    }
   },
   "include": ["test/**/*.test.ts"]
 }

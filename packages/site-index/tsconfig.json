@@ -4,7 +4,17 @@
     "composite": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "paths": {
+      "@site-index/core": ["../@site-index/core/src/index.ts"],
+      "@site-index/vite-runtime": ["../@site-index/vite-runtime/src/index.ts"],
+      "@site-index/vite-plugin": ["../@site-index/vite-plugin/src/index.ts"]
+    }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../@site-index/core" },
+    { "path": "../@site-index/vite-runtime" },
+    { "path": "../@site-index/vite-plugin" }
+  ]
 }
