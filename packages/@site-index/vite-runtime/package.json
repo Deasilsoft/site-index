@@ -30,12 +30,16 @@
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "tsc -b",
     "clean": "rm -rf dist coverage",
+    "prepack": "npm run clean && npm run build",
+    "pretest": "npm pack --dry-run",
     "test": "vitest run --coverage",
+    "pretypecheck": "npm run build",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {

@@ -35,7 +35,8 @@
     "site-index": "dist/bin.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "!dist/**/*.tsbuildinfo"
   ],
   "scripts": {
     "build": "tsc -b",
@@ -43,8 +44,10 @@
     "build:executable": "chmod +x dist/bin.js",
     "build:templates": "mkdir -p dist/domains/make/templates && cp -r src/domains/make/templates/* dist/domains/make/templates/",
     "clean": "rm -rf dist coverage",
-    "pretest": "npm run clean && npm run build && npm pack --dry-run",
+    "prepack": "npm run clean && npm run build",
+    "pretest": "npm pack --dry-run",
     "test": "vitest run --coverage",
+    "pretypecheck": "npm run build",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
