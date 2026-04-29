@@ -1,9 +1,10 @@
-import type { ViteDevServer } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { siteIndexServePlugin } from "../src/index.js";
-import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
-import { createRuntimeBuilderMock } from "./helpers/runtime.builder.mock.js";
-import { createViteDevServerMock } from "./helpers/vite-dev-server.mock.js";
+import {
+  createServeRuntimeMock,
+  getRegisteredMiddleware,
+  setupServePlugin,
+  triggerHotUpdate,
+} from "./helpers/serve.plugin.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -16,107 +17,51 @@ describe("siteIndexServePlugin rejections", () => {
     vi.clearAllMocks();
   });
 
-  it("logs build errors from configureServer", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => {
-        throw new Error("Vite config could not be resolved");
-      }),
-      getArtifacts: vi.fn(() => []),
-      getWatchedFiles: vi.fn(() => new Set()),
-      close: vi.fn(async () => {}),
-    };
+  it.each([new Error("Vite config could not be resolved"), "broken"])(
+    "handles rejection: %p",
+    async (input) => {
+      const runtime = createServeRuntimeMock({
+        buildArtifacts: async () => {
+          throw input;
+        },
+      });
 
-    const { builder } = createRuntimeBuilderMock(runtime);
-    createRuntimeServiceMock.mockReturnValue(builder as never);
+      const { server } = setupServePlugin({
+        runtime,
+        createRuntimeServiceMock,
+      });
 
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerMock();
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const configureServer = getPluginHookHandler<
-      (server: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-
-    configureServer(server);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(server.config.logger.error).toHaveBeenCalledWith(
-      "Vite config could not be resolved",
-    );
-  });
-
-  it("logs non-Error rejections from configureServer", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => {
-        throw "broken";
-      }),
-      getArtifacts: vi.fn(() => []),
-      getWatchedFiles: vi.fn(() => new Set()),
-      close: vi.fn(async () => {}),
-    };
-
-    const { builder } = createRuntimeBuilderMock(runtime);
-    createRuntimeServiceMock.mockReturnValue(builder as never);
-
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerMock();
-
-    const configureServer = getPluginHookHandler<
-      (server: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-
-    configureServer(server);
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    expect(server.config.logger.error).toHaveBeenCalledWith("broken");
-  });
+      expect(server.config.logger.error).toHaveBeenCalledWith(
+        input instanceof Error ? input.message : String(input),
+      );
+    },
+  );
 
   it("logs and preserves current artifacts when hot-update rebuild fails", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
+    const runtime = createServeRuntimeMock({
       buildArtifacts: vi
         .fn()
         .mockResolvedValueOnce({ data: [], warnings: [] })
         .mockRejectedValueOnce(new Error("hmr exploded")),
-      getArtifacts: vi.fn(() => [
+      getArtifacts: () => [
         {
           filePath: "robots.txt",
           content: "FIRST",
           contentType: "text/plain; charset=utf-8",
         },
-      ]),
-      getWatchedFiles: vi.fn(
-        () => new Set(["/repo/src/routes/a.site-index.ts"]),
-      ),
-      close: vi.fn(async () => {}),
-    };
+      ],
+      getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
+    });
 
-    const { builder } = createRuntimeBuilderMock(runtime);
-    createRuntimeServiceMock.mockReturnValue(builder as never);
+    const { plugin, server } = setupServePlugin({
+      runtime,
+      createRuntimeServiceMock,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerMock();
-
-    const configureServer = getPluginHookHandler<
-      (current: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-    configureServer(server);
-    await Promise.resolve();
-
-    const use = server.middlewares.use as unknown as ReturnType<typeof vi.fn>;
-    const middleware = use.mock.calls[0]?.[0] as (
-      req: { url?: string; method?: string },
-      res: {
-        setHeader(name: string, value: string): void;
-        statusCode: number;
-        end(body?: string): void;
-      },
-      next: () => void,
-    ) => void;
+    const middleware = getRegisteredMiddleware(server);
 
     const res = {
       setHeader: vi.fn(),
@@ -128,12 +73,9 @@ describe("siteIndexServePlugin rejections", () => {
     middleware({ url: "/robots.txt", method: "GET" }, res, next);
     expect(res.end).toHaveBeenLastCalledWith("FIRST");
 
-    const handleHotUpdate = getPluginHookHandler<
-      (ctx: { file: string; server: ViteDevServer }) => Promise<void>
-    >(plugin.handleHotUpdate);
-
     await expect(
-      handleHotUpdate({
+      triggerHotUpdate({
+        plugin,
         file: "/repo/src/routes/a.site-index.ts",
         server,
       }),
