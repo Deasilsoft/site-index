@@ -2,6 +2,8 @@ import type { ResolvedConfig, ViteDevServer } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { siteIndexServePlugin } from "../src/index.js";
 import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
+import { createRuntimeBuilderStub } from "./helpers/runtime.builder.stub.js";
+import { createViteDevServerStub } from "./helpers/vite-dev-server.stub.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -18,10 +20,13 @@ describe("siteIndexServePlugin", () => {
     const runtime = {
       setViteConfig: vi.fn(),
       attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => ({ data: [], warnings: [] })),
+      buildArtifacts: vi.fn(async () => ({
+        data: [],
+        warnings: [{ message: "Duplicate URL: /a" }],
+      })),
       getArtifacts: vi.fn(() => [
         {
-          filePath: "robots.txt",
+          filePath: "/robots.txt",
           content: "ROBOTS",
           contentType: "text/plain; charset=utf-8",
         },
@@ -32,11 +37,7 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const builder = {
-      withOptions: vi.fn(() => ({
-        build: vi.fn(() => runtime),
-      })),
-    };
+    const { builder, withOptions } = createRuntimeBuilderStub(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
@@ -58,18 +59,7 @@ describe("siteIndexServePlugin", () => {
 
     configResolved(resolvedConfig);
 
-    const server = {
-      config: {
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          error: vi.fn(),
-        },
-      },
-      middlewares: {
-        use: vi.fn(),
-      },
-    } as unknown as ViteDevServer;
+    const server = createViteDevServerStub();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -87,14 +77,59 @@ describe("siteIndexServePlugin", () => {
       server,
     });
 
+    const closeBundle = getPluginHookHandler<() => Promise<void> | void>(
+      plugin.closeBundle,
+    );
+
+    await closeBundle();
+
     expect(createRuntimeServiceMock).toHaveBeenCalledTimes(1);
-    expect(builder.withOptions).toHaveBeenCalledWith({
+    expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
     expect(runtime.setViteConfig).toHaveBeenCalledWith(resolvedConfig);
     expect(runtime.attachViteServer).toHaveBeenCalledWith(server);
     expect(server.middlewares.use).toHaveBeenCalledTimes(1);
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(2);
+    expect(server.config.logger.warn).toHaveBeenCalledWith("Duplicate URL: /a");
+    expect(runtime.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips rebuild for hot updates outside watched files", async () => {
+    const runtime = {
+      setViteConfig: vi.fn(),
+      attachViteServer: vi.fn(),
+      buildArtifacts: vi.fn(async () => ({ data: [], warnings: [] })),
+      getArtifacts: vi.fn(() => []),
+      getWatchedFiles: vi.fn(
+        () => new Set(["/repo/src/routes/a.site-index.ts"]),
+      ),
+      close: vi.fn(async () => {}),
+    };
+
+    const { builder } = createRuntimeBuilderStub(runtime);
+    createRuntimeServiceMock.mockReturnValue(builder as never);
+
+    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
+    const server = createViteDevServerStub();
+
+    const configureServer = getPluginHookHandler<
+      (server: ViteDevServer) => void | (() => void)
+    >(plugin.configureServer);
+    configureServer(server);
+    await Promise.resolve();
+
+    const handleHotUpdate = getPluginHookHandler<
+      (ctx: { file: string; server: ViteDevServer }) => Promise<void> | void
+    >(plugin.handleHotUpdate);
+
+    await handleHotUpdate({
+      file: "/repo/src/routes/not-watched.ts",
+      server,
+    });
+
+    expect(runtime.buildArtifacts).toHaveBeenCalledTimes(1);
+    expect(server.config.logger.warn).not.toHaveBeenCalled();
   });
 
   it("keeps middleware map stable and syncs artifacts after initial and hot builds", async () => {
@@ -133,28 +168,14 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const builder = {
-      withOptions: vi.fn(() => ({
-        build: vi.fn(() => runtime),
-      })),
-    };
+    const { builder } = createRuntimeBuilderStub(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
     const use = vi.fn();
-    const server = {
-      config: {
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          error: vi.fn(),
-        },
-      },
-      middlewares: {
-        use,
-      },
-    } as unknown as ViteDevServer;
+    const server = createViteDevServerStub();
+    server.middlewares.use = use;
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -209,27 +230,12 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const builder = {
-      withOptions: vi.fn(() => ({
-        build: vi.fn(() => runtime),
-      })),
-    };
+    const { builder } = createRuntimeBuilderStub(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = {
-      config: {
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          error: vi.fn(),
-        },
-      },
-      middlewares: {
-        use: vi.fn(),
-      },
-    } as unknown as ViteDevServer;
+    const server = createViteDevServerStub();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -241,5 +247,33 @@ describe("siteIndexServePlugin", () => {
     expect(server.config.logger.error).toHaveBeenCalledWith(
       "Vite config could not be resolved",
     );
+  });
+
+  it("logs non-Error rejections from configureServer", async () => {
+    const runtime = {
+      setViteConfig: vi.fn(),
+      attachViteServer: vi.fn(),
+      buildArtifacts: vi.fn(async () => {
+        throw "broken";
+      }),
+      getArtifacts: vi.fn(() => []),
+      getWatchedFiles: vi.fn(() => new Set()),
+      close: vi.fn(async () => {}),
+    };
+
+    const { builder } = createRuntimeBuilderStub(runtime);
+    createRuntimeServiceMock.mockReturnValue(builder as never);
+
+    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
+    const server = createViteDevServerStub();
+
+    const configureServer = getPluginHookHandler<
+      (server: ViteDevServer) => void | (() => void)
+    >(plugin.configureServer);
+
+    configureServer(server);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(server.config.logger.error).toHaveBeenCalledWith("broken");
   });
 });

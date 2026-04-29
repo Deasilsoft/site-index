@@ -2,6 +2,7 @@ import type { ResolvedConfig } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { siteIndexBuildPlugin } from "../src/index.js";
 import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
+import { createRuntimeBuilderStub } from "./helpers/runtime.builder.stub.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -47,11 +48,7 @@ describe("siteIndexBuildPlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const builder = {
-      withOptions: vi.fn(() => ({
-        build: vi.fn(() => runtime),
-      })),
-    };
+    const { builder, withOptions } = createRuntimeBuilderStub(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
@@ -108,7 +105,7 @@ describe("siteIndexBuildPlugin", () => {
     await closeBundle();
 
     expect(createRuntimeServiceMock).toHaveBeenCalledTimes(1);
-    expect(builder.withOptions).toHaveBeenCalledWith({
+    expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
     expect(runtime.setViteConfig).toHaveBeenCalledWith(resolvedConfig);
@@ -138,11 +135,7 @@ describe("siteIndexBuildPlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const builder = {
-      withOptions: vi.fn(() => ({
-        build: vi.fn(() => runtime),
-      })),
-    };
+    const { builder } = createRuntimeBuilderStub(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
