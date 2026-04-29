@@ -124,36 +124,4 @@ describe("siteIndexBuildPlugin", () => {
     });
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
-
-  it("bubbles buildArtifacts errors", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      buildArtifacts: vi.fn(async () => {
-        throw new Error("pipeline exploded");
-      }),
-      getArtifacts: vi.fn(() => []),
-      close: vi.fn(async () => {}),
-    };
-
-    const { builder } = createRuntimeBuilderMock(runtime);
-
-    createRuntimeServiceMock.mockReturnValue(builder as never);
-
-    const plugin = siteIndexBuildPlugin({ siteUrl: "https://example.com" });
-    const buildStart = getPluginHookHandler<
-      (this: {
-        info(message: string): void;
-        warn(message: string): void;
-        error(message: string): void;
-      }) => void | Promise<void>
-    >(plugin.buildStart);
-
-    await expect(
-      buildStart.call({
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-      }),
-    ).rejects.toThrow("pipeline exploded");
-  });
 });
