@@ -159,7 +159,9 @@ describe("siteIndexServePlugin", () => {
     const { plugin, server } = setupServePlugin(runtime);
     await Promise.resolve();
 
-    const middleware = server.middlewares.use.mock.calls[0]?.[0] as (
+    const use = server.middlewares.use as unknown as ReturnType<typeof vi.fn>;
+
+    const middleware = use.mock.calls[0]?.[0] as (
       req: { url?: string; method?: string },
       res: {
         setHeader(name: string, value: string): void;
@@ -184,6 +186,6 @@ describe("siteIndexServePlugin", () => {
 
     middleware({ url: "/robots.txt", method: "GET" }, res, next);
     expect(res.end).toHaveBeenLastCalledWith("SECOND");
-    expect(server.middlewares.use).toHaveBeenCalledTimes(1);
+    expect(use).toHaveBeenCalledTimes(1);
   });
 });
