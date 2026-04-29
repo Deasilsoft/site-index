@@ -1,5 +1,8 @@
 import type { Result, Warning } from "../../../types.js";
-import { type ResolvedModule, ResolvedModuleSchema, } from "../schemas/modules.schema.js";
+import {
+  type ResolvedModule,
+  ResolvedModuleSchema,
+} from "../schemas/modules.schema.js";
 import type { LoadedModule } from "../types.js";
 
 export function resolveModules(

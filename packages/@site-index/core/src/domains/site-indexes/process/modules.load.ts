@@ -1,10 +1,10 @@
 import type { Result, Warning } from "../../../types.js";
-import type { ModuleLoader } from "../../options/types.js";
+import type { LoadSiteIndexModule } from "../../options/types.js";
 import type { LoadedModule, Module } from "../types.js";
 
 export async function loadModules(
   modules: Module[],
-  loadModule: ModuleLoader,
+  loadModule: LoadSiteIndexModule,
 ): Promise<Result<LoadedModule[]>> {
   const data: LoadedModule[] = [];
   const warnings: Warning[] = [];

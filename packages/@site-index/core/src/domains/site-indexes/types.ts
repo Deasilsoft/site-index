@@ -14,8 +14,8 @@ export type Module = {
   importId: string;
 };
 
-export type ModuleExports = {
+export type SiteIndexModule = {
   siteIndexes: SiteIndex[];
 };
 
-export type LoadedModule = Module & ModuleExports;
+export type LoadedModule = Module & SiteIndexModule;

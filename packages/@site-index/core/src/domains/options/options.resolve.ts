@@ -1,5 +1,5 @@
 import { z as Zod } from "zod";
-import type { ModuleLoader, Options } from "./types.js";
+import type { LoadSiteIndexModule, Options } from "./types.js";
 
 const OptionsSchema = Zod.object({
   siteUrl: Zod.url({
@@ -10,7 +10,7 @@ const OptionsSchema = Zod.object({
   extensions: Zod.array(Zod.string().regex(/^\.\w+$/))
     .optional()
     .default([".js", ".mjs", ".ts"]),
-  loadModule: Zod.custom<ModuleLoader>(
+  loadModule: Zod.custom<LoadSiteIndexModule>(
     (value) => typeof value === "function",
     "loadModule must be a function",
   ),

@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { main, type ModuleLoader } from "../src/index.js";
+import { type LoadSiteIndexModule, main } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
@@ -21,7 +21,7 @@ describe("main", () => {
       "throws.site-index.ts",
     ]);
 
-    const loadModule: ModuleLoader = async (module) => {
+    const loadModule: LoadSiteIndexModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         ["./good-a.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
         ["./good-b.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
@@ -34,7 +34,7 @@ describe("main", () => {
 
       return (byImportId.get(module.importId) ?? {
         siteIndexes: [],
-      }) as Awaited<ReturnType<ModuleLoader>>;
+      }) as Awaited<ReturnType<LoadSiteIndexModule>>;
     };
 
     const result = await main({

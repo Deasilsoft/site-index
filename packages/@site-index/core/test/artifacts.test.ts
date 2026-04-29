@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { main, type ModuleLoader } from "../src/index.js";
+import { type LoadSiteIndexModule, main } from "../src/index.js";
 import { artifactMap } from "./helpers/artifacts.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
@@ -20,7 +20,7 @@ describe("artifacts", () => {
       "private.site-index.ts",
     ]);
 
-    const loadModule: ModuleLoader = async (module) => {
+    const loadModule: LoadSiteIndexModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         ["./about.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
         [
@@ -44,7 +44,7 @@ describe("artifacts", () => {
 
       return (byImportId.get(module.importId) ?? {
         siteIndexes: [],
-      }) as Awaited<ReturnType<ModuleLoader>>;
+      }) as Awaited<ReturnType<LoadSiteIndexModule>>;
     };
 
     const result = await main({
@@ -84,7 +84,7 @@ describe("artifacts", () => {
 
     await writeFiles(root, ["a.site-index.ts", "b.site-index.ts"]);
 
-    const loadModule: ModuleLoader = async (module) => {
+    const loadModule: LoadSiteIndexModule = async (module) => {
       const byImportId = new Map<string, unknown>([
         [
           "./a.site-index.ts",
@@ -102,7 +102,7 @@ describe("artifacts", () => {
 
       return (byImportId.get(module.importId) ?? {
         siteIndexes: [],
-      }) as Awaited<ReturnType<ModuleLoader>>;
+      }) as Awaited<ReturnType<LoadSiteIndexModule>>;
     };
 
     const result = await main({
