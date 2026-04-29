@@ -11,6 +11,7 @@
     "preclean:install": "rm -rf node_modules package-lock.json",
     "clean:install": "npm install",
     "clean:packages": "npm run clean --workspaces --if-present",
+    "cli": "npm run cli -w site-index --",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "knip": "knip",
