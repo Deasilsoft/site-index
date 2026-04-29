@@ -36,7 +36,7 @@ type Harness = {
   expectLookupAndLoadCounts(lookups: number, loads: number): void;
 };
 
-export function createModuleServiceHarness(): Harness {
+export function createModuleServiceSetup(): Harness {
   const getModuleByUrl = vi.fn();
   const ssrLoadModule = vi.fn();
   const defaultModule = {

@@ -1,13 +1,13 @@
 import { describe, it } from "vitest";
-import { createModuleServiceHarness } from "./helpers/module-service.harness.js";
+import { createModuleServiceSetup } from "./helpers/module-service.setup.js";
 
 describe("ModuleService", () => {
   it("reuses cached modules for repeated import ids", async () => {
-    const harness = createModuleServiceHarness();
-    const { module } = harness.mockCacheableSuccess();
+    const setup = createModuleServiceSetup();
+    const { module } = setup.mockCacheableSuccess();
 
-    await harness.loadTwice(module);
+    await setup.loadTwice(module);
 
-    harness.expectLookupAndLoadCounts(1, 1);
+    setup.expectLookupAndLoadCounts(1, 1);
   });
 });

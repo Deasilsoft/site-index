@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { createModuleServiceHarness } from "./helpers/module-service.harness.js";
+import { createModuleServiceSetup } from "./helpers/module-service.setup.js";
 
 describe("ModuleService rejections", () => {
   it("throws when module graph lookup is unresolved and retries on the next load", async () => {
-    const harness = createModuleServiceHarness();
-    const { module, moduleExports } = harness.mockUnresolvedThenResolved();
+    const setup = createModuleServiceSetup();
+    const { module, moduleExports } = setup.mockUnresolvedThenResolved();
 
-    await expect(harness.loadOnce(module)).rejects.toThrow(
+    await expect(setup.loadOnce(module)).rejects.toThrow(
       'Unable to resolve loaded module "./src/routes/a.site-index.ts"',
     );
 
-    await expect(harness.loadOnce(module)).resolves.toEqual(moduleExports);
-    harness.expectLookupAndLoadCounts(2, 2);
+    await expect(setup.loadOnce(module)).resolves.toEqual(moduleExports);
+    setup.expectLookupAndLoadCounts(2, 2);
   });
 });

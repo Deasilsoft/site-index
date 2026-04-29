@@ -1,7 +1,7 @@
 import type { ViteDevServer } from "vite";
 import { vi } from "vitest";
 
-export function createViteDevServerStub(): ViteDevServer {
+export function createViteDevServerMock(): ViteDevServer {
   return {
     config: {
       logger: {

@@ -2,7 +2,7 @@ import type { ResolvedConfig } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { siteIndexBuildPlugin } from "../src/index.js";
 import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
-import { createRuntimeBuilderStub } from "./helpers/runtime.builder.stub.js";
+import { createRuntimeBuilderMock } from "./helpers/runtime.builder.mock.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -48,7 +48,7 @@ describe("siteIndexBuildPlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder, withOptions } = createRuntimeBuilderStub(runtime);
+    const { builder, withOptions } = createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
@@ -135,7 +135,7 @@ describe("siteIndexBuildPlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder } = createRuntimeBuilderStub(runtime);
+    const { builder } = createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 

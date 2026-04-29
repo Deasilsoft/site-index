@@ -6,7 +6,7 @@ type ResponseLike = {
   statusCode: number;
 };
 
-export function createResponseStub(): ResponseLike {
+export function createResponseMock(): ResponseLike {
   return {
     setHeader: vi.fn(),
     end: vi.fn(),

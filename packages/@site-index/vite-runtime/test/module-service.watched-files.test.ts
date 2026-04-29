@@ -1,7 +1,7 @@
 import * as SiteIndex from "@site-index/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createRuntimeService } from "../src/index.js";
-import { createViteServerStub } from "./helpers/vite-server.harness.js";
+import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
 vi.mock("@site-index/core", () => ({
   main: vi.fn(),
@@ -34,7 +34,7 @@ describe("RuntimeService watched-file graph", () => {
     docsEntry.importedModules.add(docs);
     docs.importedModules.add(shared);
 
-    const viteServer = createViteServerStub({
+    const viteServer = createViteServerMock({
       modulesByUrl: {
         "./src/routes/blog.site-index.ts": blogEntry as never,
         "./src/routes/docs.site-index.ts": docsEntry as never,
@@ -83,7 +83,7 @@ describe("RuntimeService watched-file graph", () => {
     aliasEntry.importedModules.add(aliasResolved);
     aliasEntry.importedModules.add(virtual);
 
-    const viteServer = createViteServerStub({
+    const viteServer = createViteServerMock({
       modulesByUrl: {
         "@/routes/alias.site-index.ts": aliasEntry as never,
       },
@@ -123,7 +123,7 @@ describe("RuntimeService watched-file graph", () => {
     depA.importedModules.add(depB);
     depB.importedModules.add(entry);
 
-    const viteServer = createViteServerStub({
+    const viteServer = createViteServerMock({
       modulesByUrl: {
         "./src/routes/cycle.site-index.ts": entry as never,
       },

@@ -7,7 +7,7 @@ type Input = {
   modulesByUrl?: Record<string, Vite.EnvironmentModuleNode | undefined>;
 };
 
-export function createViteServerStub(input: Input = {}) {
+export function createViteServerMock(input: Input = {}) {
   const moduleNodesByUrl = new Map<string, Vite.EnvironmentModuleNode>();
   const lookedUpUrls: string[] = [];
 

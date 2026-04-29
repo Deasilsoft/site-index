@@ -2,8 +2,8 @@ import type { ResolvedConfig, ViteDevServer } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { siteIndexServePlugin } from "../src/index.js";
 import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
-import { createRuntimeBuilderStub } from "./helpers/runtime.builder.stub.js";
-import { createViteDevServerStub } from "./helpers/vite-dev-server.stub.js";
+import { createRuntimeBuilderMock } from "./helpers/runtime.builder.mock.js";
+import { createViteDevServerMock } from "./helpers/vite-dev-server.mock.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -37,7 +37,7 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder, withOptions } = createRuntimeBuilderStub(runtime);
+    const { builder, withOptions } = createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
@@ -59,7 +59,7 @@ describe("siteIndexServePlugin", () => {
 
     configResolved(resolvedConfig);
 
-    const server = createViteDevServerStub();
+    const server = createViteDevServerMock();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -107,11 +107,11 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder } = createRuntimeBuilderStub(runtime);
+    const { builder } = createRuntimeBuilderMock(runtime);
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerStub();
+    const server = createViteDevServerMock();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -168,13 +168,13 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder } = createRuntimeBuilderStub(runtime);
+    const { builder } = createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
     const use = vi.fn();
-    const server = createViteDevServerStub();
+    const server = createViteDevServerMock();
     server.middlewares.use = use;
 
     const configureServer = getPluginHookHandler<
@@ -230,12 +230,12 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder } = createRuntimeBuilderStub(runtime);
+    const { builder } = createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerStub();
+    const server = createViteDevServerMock();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)
@@ -261,11 +261,11 @@ describe("siteIndexServePlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder } = createRuntimeBuilderStub(runtime);
+    const { builder } = createRuntimeBuilderMock(runtime);
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerStub();
+    const server = createViteDevServerMock();
 
     const configureServer = getPluginHookHandler<
       (server: ViteDevServer) => void | (() => void)

@@ -1,7 +1,7 @@
 import type { Artifact } from "@site-index/core";
 import { describe, expect, it, vi } from "vitest";
 import { makeArtifactsMiddleware } from "../src/domains/serve/artifacts.middleware.js";
-import { createResponseStub } from "./helpers/http.stub.js";
+import { createResponseMock } from "./helpers/http.mock.js";
 
 function toRequestPath(filePath: string): string {
   return filePath.startsWith("/") ? filePath : `/${filePath}`;
@@ -25,7 +25,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -54,7 +54,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -83,7 +83,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -112,7 +112,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -141,7 +141,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -165,7 +165,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware(
@@ -189,7 +189,7 @@ describe("createArtifactsMiddleware", () => {
       ]),
     );
 
-    const res = createResponseStub();
+    const res = createResponseMock();
     const next = vi.fn();
 
     middleware({ method: "GET" } as never, res as never, next);

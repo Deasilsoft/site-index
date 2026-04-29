@@ -1,8 +1,8 @@
 import * as SiteIndex from "@site-index/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createNode } from "./helpers/module-node.factory.js";
-import { createAttachedRuntime } from "./helpers/runtime.harness.js";
-import { createViteServerStub } from "./helpers/vite-server.harness.js";
+import { createAttachedRuntimeSetup } from "./helpers/runtime.setup.js";
+import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
 vi.mock("@site-index/core", () => ({
   main: vi.fn(),
@@ -36,13 +36,13 @@ describe("RuntimeService build state", () => {
       createNode("/repo/src/site-indexes/dep.ts"),
     ]);
 
-    const viteServer = createViteServerStub({
+    const viteServer = createViteServerMock({
       modulesByUrl: {
         "./src/routes/a.site-index.ts": watchedNode,
       },
     });
 
-    const runtime = createAttachedRuntime(viteServer.server);
+    const runtime = createAttachedRuntimeSetup(viteServer.server);
 
     await runtime.buildArtifacts();
 
