@@ -85,6 +85,39 @@ describe("RuntimeService Vite server lifecycle", () => {
     expect(hoisted.close).toHaveBeenCalledOnce();
   });
 
+  it("creates owned server config without configFile when not provided", async () => {
+    vi.mocked(SiteIndex.main).mockImplementation(async (options) => {
+      await options.loadModule({
+        filePath: "/project/src/routes/a.site-index.ts",
+        importId: "./src/routes/a.site-index.ts",
+      });
+
+      return { data: [], warnings: [] };
+    });
+
+    const runtime = createRuntimeService()
+      .withOptions({ siteUrl: "https://example.com" })
+      .withViteConfig({
+        root: "/project",
+        mode: "test",
+      } as never)
+      .build();
+
+    await runtime.buildArtifacts();
+
+    expect(hoisted.createServer).toHaveBeenCalledWith({
+      root: "/project",
+      mode: "test",
+      appType: "custom",
+      server: {
+        middlewareMode: true,
+        hmr: false,
+      },
+    });
+
+    await runtime.close();
+  });
+
   it("does not close externally attached servers", async () => {
     vi.mocked(SiteIndex.main).mockResolvedValue({ data: [], warnings: [] });
 

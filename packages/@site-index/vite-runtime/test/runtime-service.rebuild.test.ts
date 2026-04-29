@@ -1,7 +1,7 @@
 import * as SiteIndex from "@site-index/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createRuntimeService } from "../src/index.js";
 import { createNode } from "./helpers/module-node.factory.js";
+import { createAttachedRuntime } from "./helpers/runtime.harness.js";
 import { createViteServerStub } from "./helpers/vite-server.harness.js";
 
 vi.mock("@site-index/core", () => ({
@@ -42,11 +42,7 @@ describe("RuntimeService build state", () => {
       },
     });
 
-    const runtime = createRuntimeService()
-      .withOptions({ siteUrl: "https://example.com" })
-      .build();
-
-    runtime.attachViteServer(viteServer.server);
+    const runtime = createAttachedRuntime(viteServer.server);
 
     await runtime.buildArtifacts();
 
