@@ -11,77 +11,90 @@ vi.mock("@site-index/vite-runtime", () => ({
   createRuntimeService: createRuntimeServiceMock,
 }));
 
+function createServeRuntimeMock(input?: {
+  buildArtifacts?: () => Promise<{
+    data: unknown[];
+    warnings: Array<{ message: string }>;
+  }>;
+  getArtifacts?: () => Array<{
+    filePath: string;
+    content: string;
+    contentType: string;
+  }>;
+  getWatchedFiles?: () => ReadonlySet<string>;
+}) {
+  return {
+    setViteConfig: vi.fn(),
+    attachViteServer: vi.fn(),
+    buildArtifacts: vi.fn(
+      input?.buildArtifacts ?? (async () => ({ data: [], warnings: [] })),
+    ),
+    getArtifacts: vi.fn(input?.getArtifacts ?? (() => [])),
+    getWatchedFiles: vi.fn(input?.getWatchedFiles ?? (() => new Set<string>())),
+    close: vi.fn(async () => {}),
+  };
+}
+
+function setupServePlugin(runtime: ReturnType<typeof createServeRuntimeMock>) {
+  const { builder, withOptions } = createRuntimeBuilderMock(runtime);
+  createRuntimeServiceMock.mockReturnValue(builder as never);
+
+  const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
+  const server = createViteDevServerMock();
+  const resolvedConfig = {
+    command: "serve",
+    root: "/repo",
+    mode: "development",
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    },
+  } as unknown as ResolvedConfig;
+
+  getPluginHookHandler<(resolved: ResolvedConfig) => void>(
+    plugin.configResolved,
+  )(resolvedConfig);
+  getPluginHookHandler<(current: ViteDevServer) => void>(
+    plugin.configureServer,
+  )(server);
+
+  return { plugin, server, resolvedConfig, withOptions };
+}
+
 describe("siteIndexServePlugin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("wires runtime to serve lifecycle and middleware", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => ({
+    const runtime = createServeRuntimeMock({
+      buildArtifacts: async () => ({
         data: [],
         warnings: [{ message: "Duplicate URL: /a" }],
-      })),
-      getArtifacts: vi.fn(() => [
+      }),
+      getArtifacts: () => [
         {
           filePath: "/robots.txt",
           content: "ROBOTS",
           contentType: "text/plain; charset=utf-8",
         },
-      ]),
-      getWatchedFiles: vi.fn(
-        () => new Set(["/repo/src/routes/a.site-index.ts"]),
-      ),
-      close: vi.fn(async () => {}),
-    };
+      ],
+      getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
+    });
 
-    const { builder, withOptions } = createRuntimeBuilderMock(runtime);
-
-    createRuntimeServiceMock.mockReturnValue(builder as never);
-
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const resolvedConfig = {
-      command: "serve",
-      root: "/repo",
-      mode: "development",
-      logger: {
-        info: vi.fn(),
-        warn: vi.fn(),
-        error: vi.fn(),
-      },
-    } as unknown as ResolvedConfig;
-
-    const configResolved = getPluginHookHandler<
-      (resolved: ResolvedConfig) => void | Promise<void>
-    >(plugin.configResolved);
-
-    configResolved(resolvedConfig);
-
-    const server = createViteDevServerMock();
-
-    const configureServer = getPluginHookHandler<
-      (server: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-
-    configureServer(server);
+    const { plugin, server, resolvedConfig, withOptions } =
+      setupServePlugin(runtime);
     await Promise.resolve();
 
-    const handleHotUpdate = getPluginHookHandler<
-      (ctx: { file: string; server: ViteDevServer }) => Promise<void> | void
-    >(plugin.handleHotUpdate);
-
-    await handleHotUpdate({
+    await getPluginHookHandler<
+      (ctx: { file: string; server: ViteDevServer }) => Promise<void>
+    >(plugin.handleHotUpdate)({
       file: "/repo/src/routes/a.site-index.ts",
       server,
     });
 
-    const closeBundle = getPluginHookHandler<() => Promise<void> | void>(
-      plugin.closeBundle,
-    );
-
-    await closeBundle();
+    await getPluginHookHandler<() => Promise<void>>(plugin.closeBundle)();
 
     expect(createRuntimeServiceMock).toHaveBeenCalledTimes(1);
     expect(withOptions).toHaveBeenCalledWith({
@@ -96,34 +109,16 @@ describe("siteIndexServePlugin", () => {
   });
 
   it("skips rebuild for hot updates outside watched files", async () => {
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => ({ data: [], warnings: [] })),
-      getArtifacts: vi.fn(() => []),
-      getWatchedFiles: vi.fn(
-        () => new Set(["/repo/src/routes/a.site-index.ts"]),
-      ),
-      close: vi.fn(async () => {}),
-    };
+    const runtime = createServeRuntimeMock({
+      getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
+    });
 
-    const { builder } = createRuntimeBuilderMock(runtime);
-    createRuntimeServiceMock.mockReturnValue(builder as never);
-
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const server = createViteDevServerMock();
-
-    const configureServer = getPluginHookHandler<
-      (server: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-    configureServer(server);
+    const { plugin, server } = setupServePlugin(runtime);
     await Promise.resolve();
 
-    const handleHotUpdate = getPluginHookHandler<
-      (ctx: { file: string; server: ViteDevServer }) => Promise<void> | void
-    >(plugin.handleHotUpdate);
-
-    await handleHotUpdate({
+    await getPluginHookHandler<
+      (ctx: { file: string; server: ViteDevServer }) => Promise<void>
+    >(plugin.handleHotUpdate)({
       file: "/repo/src/routes/not-watched.ts",
       server,
     });
@@ -147,44 +142,24 @@ describe("siteIndexServePlugin", () => {
         contentType: "text/plain; charset=utf-8",
       },
     ];
-
     let currentArtifacts = firstArtifacts;
 
-    const runtime = {
-      setViteConfig: vi.fn(),
-      attachViteServer: vi.fn(),
-      buildArtifacts: vi.fn(async () => {
+    const runtime = createServeRuntimeMock({
+      buildArtifacts: async () => {
         currentArtifacts =
           runtime.buildArtifacts.mock.calls.length === 1
             ? firstArtifacts
             : secondArtifacts;
-
         return { data: currentArtifacts, warnings: [] };
-      }),
-      getArtifacts: vi.fn(() => currentArtifacts),
-      getWatchedFiles: vi.fn(
-        () => new Set(["/repo/src/routes/a.site-index.ts"]),
-      ),
-      close: vi.fn(async () => {}),
-    };
+      },
+      getArtifacts: () => currentArtifacts,
+      getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
+    });
 
-    const { builder } = createRuntimeBuilderMock(runtime);
-
-    createRuntimeServiceMock.mockReturnValue(builder as never);
-
-    const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
-    const use = vi.fn();
-    const server = createViteDevServerMock();
-    server.middlewares.use = use;
-
-    const configureServer = getPluginHookHandler<
-      (server: ViteDevServer) => void | (() => void)
-    >(plugin.configureServer);
-
-    configureServer(server);
+    const { plugin, server } = setupServePlugin(runtime);
     await Promise.resolve();
 
-    const middleware = use.mock.calls[0]?.[0] as (
+    const middleware = server.middlewares.use.mock.calls[0]?.[0] as (
       req: { url?: string; method?: string },
       res: {
         setHeader(name: string, value: string): void;
@@ -194,21 +169,15 @@ describe("siteIndexServePlugin", () => {
       next: () => void,
     ) => void;
 
-    const res = {
-      setHeader: vi.fn(),
-      statusCode: 0,
-      end: vi.fn(),
-    };
+    const res = { setHeader: vi.fn(), statusCode: 0, end: vi.fn() };
     const next = vi.fn();
 
     middleware({ url: "/robots.txt", method: "GET" }, res, next);
     expect(res.end).toHaveBeenLastCalledWith("FIRST");
 
-    const handleHotUpdate = getPluginHookHandler<
-      (ctx: { file: string; server: ViteDevServer }) => Promise<void> | void
-    >(plugin.handleHotUpdate);
-
-    await handleHotUpdate({
+    await getPluginHookHandler<
+      (ctx: { file: string; server: ViteDevServer }) => Promise<void>
+    >(plugin.handleHotUpdate)({
       file: "/repo/src/routes/a.site-index.ts",
       server,
     });

@@ -153,4 +153,46 @@ describe("RuntimeService watched-file graph", () => {
       ]),
     );
   });
+
+  it("tracks deep dependency chains from a loaded entry", async () => {
+    const depth = 40;
+    const entry = createModule("/repo/src/routes/deep.site-index.ts");
+    const expected = [entry.file!];
+
+    let current = entry;
+    for (let index = 0; index < depth; index += 1) {
+      const file = `/repo/src/content/deep-${index}.ts`;
+      const next = createModule(file);
+      current.importedModules.add(next);
+      current = next;
+      expected.push(file);
+    }
+
+    const viteServer = createViteServerMock({
+      modulesByUrl: {
+        "./src/routes/deep.site-index.ts": entry as never,
+      },
+    });
+
+    vi.mocked(SiteIndex.main).mockImplementation(async (options) => {
+      await options.loadModule({
+        filePath: "/repo/src/routes/deep.site-index.ts",
+        importId: "./src/routes/deep.site-index.ts",
+      });
+
+      return { data: [], warnings: [] };
+    });
+
+    const runtime = createRuntimeService()
+      .withOptions({ siteUrl: "https://example.com" })
+      .build();
+
+    runtime.attachViteServer(viteServer.server);
+    await runtime.buildArtifacts();
+
+    expect(runtime.getWatchedFiles()).toEqual(new Set(expected));
+    expect(viteServer.lookedUpUrls).toEqual([
+      "./src/routes/deep.site-index.ts",
+    ]);
+  });
 });
