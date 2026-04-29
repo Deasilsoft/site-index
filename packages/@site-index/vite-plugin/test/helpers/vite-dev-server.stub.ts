@@ -15,4 +15,3 @@ export function createViteDevServerStub(): ViteDevServer {
     },
   } as unknown as ViteDevServer;
 }
-
