@@ -7,41 +7,35 @@ import { withProject } from "../../helpers/project.js";
 import { captureStreams } from "../../helpers/streams.js";
 
 const runtimeMocks = vi.hoisted(() => {
-  let warningListener:
-    | ((warning: { message: string; filePath?: string }) => void)
-    | undefined;
-
   const runtime = {
-    runSiteIndex: vi.fn(),
-    onWarning: vi.fn(
-      (listener: (warning: { message: string; filePath?: string }) => void) => {
-        warningListener = listener;
-
-        return () => {
-          warningListener = undefined;
-        };
-      },
-    ),
+    buildArtifacts: vi.fn(),
     close: vi.fn(async () => {}),
   };
 
+  const builder = {
+    withOptions: vi.fn(() => ({
+      withViteConfig: vi.fn(() => ({
+        build: vi.fn(() => runtime),
+      })),
+    })),
+  };
+
   return {
-    makeViteSiteIndexService: vi.fn(() => runtime),
+    createRuntimeService: vi.fn(() => builder),
     runtime,
-    emitWarning: (warning: { message: string; filePath?: string }) => {
-      warningListener?.(warning);
-    },
+    builder,
   };
 });
 
 vi.mock("@site-index/vite-runtime", () => ({
-  makeViteSiteIndexService: runtimeMocks.makeViteSiteIndexService,
+  createRuntimeService: runtimeMocks.createRuntimeService,
 }));
 
 beforeEach(() => {
-  runtimeMocks.runtime.runSiteIndex.mockReset();
-  runtimeMocks.runtime.onWarning.mockClear();
+  runtimeMocks.runtime.buildArtifacts.mockReset();
   runtimeMocks.runtime.close.mockReset();
+  runtimeMocks.builder.withOptions.mockClear();
+  runtimeMocks.createRuntimeService.mockClear();
 });
 
 afterEach(async () => {
@@ -65,9 +59,9 @@ describe("build service", () => {
         },
       ];
 
-      runtimeMocks.runtime.runSiteIndex.mockResolvedValue({
-        artifacts,
-        loadedModules: [],
+      runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
+        data: artifacts,
+        warnings: [],
       });
 
       await runBuild({
@@ -88,16 +82,9 @@ describe("build service", () => {
   it("prints warnings through logger.warn", async () => {
     const output = captureStreams();
 
-    runtimeMocks.runtime.runSiteIndex.mockImplementation(async () => {
-      runtimeMocks.emitWarning({
-        message: "Missing alternate",
-        filePath: "src/a.ts",
-      });
-
-      return {
-        artifacts: [],
-        loadedModules: [],
-      };
+    runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
+      data: [],
+      warnings: [{ message: "Missing alternate", filePath: "src/a.ts" }],
     });
 
     try {
@@ -115,9 +102,9 @@ describe("build service", () => {
   });
 
   it("rejects artifacts that escape output directory", async () => {
-    runtimeMocks.runtime.runSiteIndex.mockResolvedValue({
-      artifacts: [{ filePath: "../escape.txt", content: "oops" }],
-      loadedModules: [],
+    runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
+      data: [{ filePath: "../escape.txt", content: "oops" }],
+      warnings: [],
     });
 
     await expect(

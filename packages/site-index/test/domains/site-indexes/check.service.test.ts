@@ -3,41 +3,35 @@ import { runCheck } from "../../../src/domains/site-indexes/check.service.js";
 import { captureStreams } from "../../helpers/streams.js";
 
 const runtimeMocks = vi.hoisted(() => {
-  let warningListener:
-    | ((warning: { message: string; filePath?: string }) => void)
-    | undefined;
-
   const runtime = {
-    runSiteIndex: vi.fn(),
-    onWarning: vi.fn(
-      (listener: (warning: { message: string; filePath?: string }) => void) => {
-        warningListener = listener;
-
-        return () => {
-          warningListener = undefined;
-        };
-      },
-    ),
+    buildArtifacts: vi.fn(),
     close: vi.fn(async () => {}),
   };
 
+  const builder = {
+    withOptions: vi.fn(() => ({
+      withViteConfig: vi.fn(() => ({
+        build: vi.fn(() => runtime),
+      })),
+    })),
+  };
+
   return {
-    makeViteSiteIndexService: vi.fn(() => runtime),
+    createRuntimeService: vi.fn(() => builder),
     runtime,
-    emitWarning: (warning: { message: string; filePath?: string }) => {
-      warningListener?.(warning);
-    },
+    builder,
   };
 });
 
 vi.mock("@site-index/vite-runtime", () => ({
-  makeViteSiteIndexService: runtimeMocks.makeViteSiteIndexService,
+  createRuntimeService: runtimeMocks.createRuntimeService,
 }));
 
 beforeEach(() => {
-  runtimeMocks.runtime.runSiteIndex.mockReset();
-  runtimeMocks.runtime.onWarning.mockClear();
+  runtimeMocks.runtime.buildArtifacts.mockReset();
   runtimeMocks.runtime.close.mockReset();
+  runtimeMocks.builder.withOptions.mockClear();
+  runtimeMocks.createRuntimeService.mockClear();
 });
 
 afterEach(async () => {
@@ -46,9 +40,9 @@ afterEach(async () => {
 
 describe("check service", () => {
   it("succeeds when there are no warnings", async () => {
-    runtimeMocks.runtime.runSiteIndex.mockResolvedValue({
-      artifacts: [],
-      loadedModules: [],
+    runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
+      data: [],
+      warnings: [],
     });
 
     await expect(
@@ -62,14 +56,9 @@ describe("check service", () => {
   it("prints warnings and fails when warnings exist", async () => {
     const output = captureStreams();
 
-    runtimeMocks.runtime.runSiteIndex.mockImplementation(async () => {
-      runtimeMocks.emitWarning({ message: "A", filePath: "a.ts" });
-      runtimeMocks.emitWarning({ message: "B" });
-
-      return {
-        artifacts: [],
-        loadedModules: [],
-      };
+    runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
+      data: [],
+      warnings: [{ message: "A", filePath: "a.ts" }, { message: "B" }],
     });
 
     try {

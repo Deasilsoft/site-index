@@ -1,5 +1,5 @@
-import type { Artifact, Warning } from "@site-index/core";
-import { makeViteSiteIndexService } from "@site-index/vite-runtime";
+import type { Artifact } from "@site-index/core";
+import { createRuntimeService } from "@site-index/vite-runtime";
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import type * as Vite from "vite";
@@ -34,28 +34,23 @@ async function writeArtifacts(outPath: string, artifacts: Artifact[]) {
 }
 
 export async function runBuild(config: BuildConfig): Promise<void> {
-  const runtime = makeViteSiteIndexService({
-    viteConfig: makeResolvedViteConfig(config),
-  });
-  const warnings: Warning[] = [];
-  const unsubscribeWarning = runtime.onWarning((warning) => {
-    warnings.push(warning);
-  });
+  const runtime = createRuntimeService()
+    .withOptions({
+      siteUrl: config.siteUrl,
+      extensions: undefined,
+    })
+    .withViteConfig(makeResolvedViteConfig(config))
+    .build();
 
   try {
-    const result = await runtime.runSiteIndex({
-      siteUrl: config.siteUrl,
-      rootPath: config.rootPath,
-      extensions: undefined,
-    });
+    const result = await runtime.buildArtifacts();
 
-    for (const warning of warnings) {
+    for (const warning of result.warnings) {
       logger.warn(warning);
     }
 
-    await writeArtifacts(config.outPath, result.artifacts);
+    await writeArtifacts(config.outPath, result.data);
   } finally {
-    unsubscribeWarning();
     await runtime.close();
   }
 }

@@ -1,4 +1,4 @@
-export type TemplateContext = Record<string, string>;
+type TemplateContext = Record<string, string>;
 
 const TOKEN_PATTERN = /\{\{\s*([a-zA-Z0-9_]+)\s*}}/g;
 
