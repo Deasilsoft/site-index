@@ -18,9 +18,13 @@ export async function runMake(config: MakeConfig): Promise<void> {
 
   if (result.failures.length > 0) {
     for (const failure of result.failures) {
-      logger.error(`Failed to create file: ${failure.path || "(N/A)"}`);
-      logger.error(`  → ${failure.error}`);
-      logger.error(`  → ${failure.message}`);
+      logger.error(
+        [
+          `Failed to create file: ${failure.path || "(N/A)"}`,
+          `  → ${failure.error}`,
+          `  → ${failure.message}`,
+        ].join("\n"),
+      );
     }
 
     throw new Error(`Make failed with ${result.failures.length} failure(s)`);

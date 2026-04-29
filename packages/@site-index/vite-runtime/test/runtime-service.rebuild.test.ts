@@ -60,4 +60,50 @@ describe("RuntimeService build state", () => {
       ]),
     );
   });
+
+  it("serializes concurrent buildArtifacts calls", async () => {
+    let activeBuilds = 0;
+    let maxActiveBuilds = 0;
+    const releases: Array<() => void> = [];
+
+    vi.mocked(SiteIndex.main).mockImplementation(async () => {
+      activeBuilds += 1;
+      maxActiveBuilds = Math.max(maxActiveBuilds, activeBuilds);
+
+      await new Promise<void>((resolve) => {
+        releases.push(resolve);
+      });
+
+      activeBuilds -= 1;
+
+      return {
+        data: [],
+        warnings: [],
+      };
+    });
+
+    const runtime = createAttachedRuntimeSetup(createViteServerMock().server);
+
+    const firstBuild = runtime.buildArtifacts();
+    const secondBuild = runtime.buildArtifacts();
+
+    await vi.waitFor(() => {
+      expect(SiteIndex.main).toHaveBeenCalledTimes(1);
+    });
+    expect(releases).toHaveLength(1);
+
+    releases.shift()?.();
+
+    await vi.waitFor(() => {
+      expect(SiteIndex.main).toHaveBeenCalledTimes(2);
+    });
+    expect(releases).toHaveLength(1);
+
+    releases.shift()?.();
+
+    await Promise.all([firstBuild, secondBuild]);
+
+    expect(maxActiveBuilds).toBe(1);
+    expect(SiteIndex.main).toHaveBeenCalledTimes(2);
+  });
 });

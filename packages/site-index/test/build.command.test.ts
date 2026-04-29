@@ -1,6 +1,7 @@
 import NodePath from "node:path";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { cli } from "./helpers/cli.js";
+import { setupCommandMock } from "./helpers/command.setup.js";
 import { withProject } from "./helpers/project.js";
 
 const { runBuild } = vi.hoisted(() => ({
@@ -11,13 +12,7 @@ vi.mock("../src/domains/site-indexes/build.service.js", () => ({
   runBuild,
 }));
 
-beforeEach(() => {
-  runBuild.mockReset();
-});
-
-afterEach(async () => {
-  vi.restoreAllMocks();
-});
+setupCommandMock(runBuild);
 
 describe("build command", () => {
   it("parses options with default root and out directory", async () => {

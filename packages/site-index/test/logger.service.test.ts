@@ -49,7 +49,7 @@ describe("logger", () => {
     }
 
     const stderr = output.stderr();
-    expect(stderr).toContain("Validation error:");
+    expect(stderr).toContain("Validation error");
     expect(stderr).toContain(
       "siteUrl: Missing required option: --site-url <url>",
     );
@@ -58,7 +58,7 @@ describe("logger", () => {
     );
   });
 
-  it("reports Error.message by default and stack in verbose mode", () => {
+  it("reports Error output with message prefix and stack in verbose mode", () => {
     const error = new Error("boom");
     error.stack = "STACK_TRACE";
 
@@ -76,7 +76,7 @@ describe("logger", () => {
     }
 
     const stderr = output.stderr();
-    expect(stderr).toContain("boom");
+    expect(stderr).toContain("Error: boom");
     expect(stderr).toContain("STACK_TRACE");
   });
 
@@ -92,32 +92,43 @@ describe("logger", () => {
     expect(output.stderr()).toContain("[object Object]");
   });
 
-  it("prints warnings with location context", () => {
+  it.each([
+    {
+      name: "string warnings",
+      input: "Missing robots",
+      expected: "Warning: Missing robots\n",
+    },
+    {
+      name: "object warnings with source location",
+      input: { message: "Missing alternate", filePath: "src/a.ts" },
+      expected: "Warning: Missing alternate\n  at src/a.ts\n",
+    },
+    {
+      name: "warning arrays in stable order",
+      input: [{ message: "A", filePath: "a.ts" }, { message: "B" }],
+      expected: "Warning: A\n  at a.ts\nWarning: B\n",
+    },
+  ])("formats $name", ({ input, expected }) => {
     const output = captureStreams();
 
     try {
-      logger.warn({ message: "Missing alternate", filePath: "src/a.ts" });
+      logger.warn(input);
+    } finally {
+      output.restore();
+    }
+
+    expect(output.stderr()).toBe(expected);
+  });
+
+  it("does not emit trailing blank lines for warning-only calls", () => {
+    const output = captureStreams();
+
+    try {
       logger.warn({ message: "Missing robots" });
     } finally {
       output.restore();
     }
 
-    const stderr = output.stderr();
-    expect(stderr).toContain("Warning: Missing alternate");
-    expect(stderr).toContain("\tat src/a.ts");
-    expect(stderr).toContain("Warning: Missing robots");
-  });
-
-  it("treats malformed warning-like values as plain output", () => {
-    const output = captureStreams();
-
-    try {
-      logger.warn({ message: 123, filePath: "src/a.ts" });
-    } finally {
-      output.restore();
-    }
-
-    expect(output.stderr()).toContain("[object Object]");
-    expect(output.stderr()).not.toContain("Warning:");
+    expect(output.stderr()).toBe("Warning: Missing robots\n");
   });
 });

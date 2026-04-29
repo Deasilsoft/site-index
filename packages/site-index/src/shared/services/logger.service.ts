@@ -6,93 +6,82 @@ type LoggerOptions = {
   verbose?: boolean;
 };
 
-let quiet = false;
-let verbose = false;
+class Logger {
+  #quiet = false;
+  #verbose = false;
 
-function stringify(value: unknown): string {
-  return typeof value === "string" ? value : String(value);
-}
-
-function stringifyError(error: unknown): string {
-  if (error instanceof ZodError) {
-    const lines = error.issues.map((issue) => {
-      const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
-
-      return `${path}${issue.message}`;
-    });
-
-    return `Validation error:\n- ${lines.join("\n- ")}`;
+  configure(options: LoggerOptions): void {
+    this.#quiet = options.quiet === true;
+    this.#verbose = options.verbose === true;
   }
 
-  if (error instanceof Error) {
-    return verbose && error.stack ? error.stack : error.message;
-  }
-
-  return String(error);
-}
-
-function join(
-  values: unknown[],
-  formatter: (value: unknown) => string,
-): string {
-  if (values.length === 0) {
-    return "";
-  }
-
-  return values.map((value) => formatter(value)).join(" ");
-}
-
-function isWarning(value: unknown): value is Warning {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  if (!("message" in value) || typeof value.message !== "string") {
-    return false;
-  }
-
-  if (!("filePath" in value)) {
-    return true;
-  }
-
-  return (
-    value.filePath === undefined ||
-    typeof (value as { filePath?: unknown }).filePath === "string"
-  );
-}
-
-export const logger = {
-  configure: (options: LoggerOptions) => {
-    quiet = options.quiet === true;
-    verbose = options.verbose === true;
-  },
-  info: (...values: unknown[]) => {
-    if (quiet) {
+  info(message: string): void {
+    if (this.#quiet) {
       return;
     }
 
-    process.stdout.write(`${join(values, stringify)}\n`);
-  },
-  warn: (...values: unknown[]) => {
-    const nonWarningValues: unknown[] = [];
+    this.#write(process.stdout, message);
+  }
 
-    for (const value of values) {
-      if (isWarning(value)) {
-        process.stderr.write(`Warning: ${value.message}\n`);
-
-        if (value.filePath) {
-          process.stderr.write(`\tat ${value.filePath}\n`);
-        }
-
-        continue;
-      }
-
-      nonWarningValues.push(value);
+  warn(input: string | Warning | Warning[]): void {
+    if (typeof input === "string") {
+      this.#write(process.stderr, `Warning: ${input}`);
+      return;
     }
 
-    process.stderr.write(`${join(nonWarningValues, stringify)}\n`);
-  },
-  error: (...values: unknown[]) => {
-    process.stderr.write(`${join(values, stringifyError)}\n`);
-  },
-};
+    if (Array.isArray(input)) {
+      for (const warning of input) {
+        this.#write(process.stderr, this.#formatWarning(warning));
+      }
+      return;
+    }
+
+    this.#write(process.stderr, this.#formatWarning(input));
+  }
+
+  error(error: unknown): void {
+    this.#write(process.stderr, this.#formatError(error));
+  }
+
+  #formatWarning(warning: Warning): string {
+    if (warning.filePath === undefined) {
+      return `Warning: ${warning.message}`;
+    }
+
+    return `Warning: ${warning.message}\n  at ${warning.filePath}`;
+  }
+
+  #formatError(error: unknown): string {
+    if (error instanceof ZodError) {
+      const issues = error.issues.map((issue) => {
+        if (issue.path.length === 0) {
+          return `- ${issue.message}`;
+        }
+
+        return `- ${issue.path.join(".")}: ${issue.message}`;
+      });
+
+      return ["Validation error", ...issues].join("\n");
+    }
+
+    if (error instanceof Error) {
+      if (this.#verbose && error.stack !== undefined) {
+        return error.stack;
+      }
+
+      return `Error: ${error.message}`;
+    }
+
+    return `Error: ${String(error)}`;
+  }
+
+  #write(stream: NodeJS.WriteStream, message: string): void {
+    if (message.length === 0) {
+      return;
+    }
+
+    stream.write(`${message}\n`);
+  }
+}
+
+export const logger = new Logger();

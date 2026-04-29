@@ -31,4 +31,16 @@ describe("BuildConfigSchema", () => {
       );
     });
   });
+
+  it("accepts out set to root via --out .", async () => {
+    await withProject({}, async (project) => {
+      const config = BuildConfigSchema.parse({
+        siteUrl: "https://example.com",
+        root: project.root,
+        out: ".",
+      });
+
+      expect(config.outPath).toBe(NodePath.resolve(project.root));
+    });
+  });
 });

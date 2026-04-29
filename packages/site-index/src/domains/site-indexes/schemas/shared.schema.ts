@@ -10,11 +10,7 @@ export function isPathWithinRoot(rootPath: string, filePath: string): boolean {
   const resolvedPath = NodePath.resolve(resolvedRoot, filePath);
   const relativePath = NodePath.relative(resolvedRoot, resolvedPath);
 
-  return (
-    relativePath !== "" &&
-    !relativePath.startsWith("..") &&
-    !NodePath.isAbsolute(relativePath)
-  );
+  return !relativePath.startsWith("..") && !NodePath.isAbsolute(relativePath);
 }
 
 export const BaseOptionsSchema = Zod.object({

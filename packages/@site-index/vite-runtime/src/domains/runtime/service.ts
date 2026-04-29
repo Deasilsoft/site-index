@@ -10,6 +10,7 @@ export class RuntimeService {
   readonly #artifactsRepository: ArtifactsRepository;
   readonly #serverProvider: ViteServerProvider;
   readonly #moduleService: ModuleService;
+  #buildQueue: Promise<void> = Promise.resolve();
 
   constructor(options: Options, viteConfig?: Vite.ResolvedConfig) {
     this.#options = options;
@@ -29,6 +30,20 @@ export class RuntimeService {
   }
 
   async buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
+    const run = this.#buildQueue.then(
+      async () => this.#runBuildArtifacts(),
+      async () => this.#runBuildArtifacts(),
+    );
+
+    this.#buildQueue = run.then(
+      () => undefined,
+      () => undefined,
+    );
+
+    return run;
+  }
+
+  async #runBuildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
     this.#moduleService.reset();
 
     const result = await SiteIndex.main({

@@ -54,11 +54,17 @@ export function siteIndexServePlugin(options: Options): Vite.Plugin {
         return;
       }
 
-      const result = await runtime.buildArtifacts();
-      syncArtifacts();
+      try {
+        const result = await runtime.buildArtifacts();
+        syncArtifacts();
 
-      for (const warning of result.warnings) {
-        ctx.server.config.logger.warn(warning.message);
+        for (const warning of result.warnings) {
+          ctx.server.config.logger.warn(warning.message);
+        }
+      } catch (error) {
+        ctx.server.config.logger.error(
+          error instanceof Error ? error.message : String(error),
+        );
       }
     },
     async closeBundle() {

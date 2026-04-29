@@ -1,0 +1,68 @@
+import NodePath from "node:path";
+import { describe, expect, it } from "vitest";
+import { BuildConfigSchema } from "../src/domains/site-indexes/schemas/build.schema.js";
+import { CheckConfigSchema } from "../src/domains/site-indexes/schemas/check.schema.js";
+import { withProject } from "./helpers/project.js";
+
+const schemaParsers = [
+  ["build", BuildConfigSchema.parse.bind(BuildConfigSchema)],
+  ["check", CheckConfigSchema.parse.bind(CheckConfigSchema)],
+] as const;
+
+describe("Shared schema rejections", () => {
+  it.each(schemaParsers)(
+    "rejects missing site-url for %s",
+    async (_, parse) => {
+      await withProject({}, async (project) => {
+        project.chdir();
+        expect(() => parse({ root: project.root })).toThrow(
+          "Missing required option: --site-url <url>",
+        );
+      });
+    },
+  );
+
+  it.each(schemaParsers)(
+    "rejects invalid site-url for %s",
+    async (_, parse) => {
+      await withProject({}, async (project) => {
+        expect(() =>
+          parse({
+            siteUrl: "invalid",
+            root: project.root,
+          }),
+        ).toThrow("Invalid option: --site-url must be a valid URL");
+      });
+    },
+  );
+
+  it.each(schemaParsers)(
+    "rejects config paths that escape root for %s",
+    async (_, parse) => {
+      await withProject({}, async (project) => {
+        expect(() =>
+          parse({
+            siteUrl: "https://example.com",
+            root: project.root,
+            config: "../vite.config.ts",
+          }),
+        ).toThrow("Invalid option: --config must resolve within --root");
+      });
+    },
+  );
+
+  it.each(schemaParsers)(
+    "rejects absolute config paths outside root for %s",
+    async (_, parse) => {
+      await withProject({}, async (project) => {
+        expect(() =>
+          parse({
+            siteUrl: "https://example.com",
+            root: project.root,
+            config: NodePath.resolve(project.root, "..", "vite.config.ts"),
+          }),
+        ).toThrow("Invalid option: --config must resolve within --root");
+      });
+    },
+  );
+});
