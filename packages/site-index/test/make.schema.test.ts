@@ -1,7 +1,7 @@
 import NodePath from "node:path";
 import { describe, expect, it } from "vitest";
-import { MakeConfigSchema } from "../../../../src/domains/make/schemas/make.schema.js";
-import { withProject } from "../../../helpers/project.js";
+import { MakeConfigSchema } from "../src/domains/make/schemas/make.schema.js";
+import { withProject } from "./helpers/project.js";
 
 describe("MakeConfigSchema", () => {
   it("uses default format and force", async () => {

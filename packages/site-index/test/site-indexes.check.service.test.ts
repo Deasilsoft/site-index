@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { runCheck } from "../../../src/domains/site-indexes/check.service.js";
-import { captureStreams } from "../../helpers/streams.js";
+import { runCheck } from "../src/domains/site-indexes/check.service.js";
+import { captureStreams } from "./helpers/streams.js";
 
 const runtimeMocks = vi.hoisted(() => {
   const runtime = {

@@ -1,13 +1,13 @@
 import NodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cli } from "../../../helpers/cli.js";
-import { withProject } from "../../../helpers/project.js";
+import { cli } from "./helpers/cli.js";
+import { withProject } from "./helpers/project.js";
 
 const { runCheck } = vi.hoisted(() => ({
   runCheck: vi.fn(),
 }));
 
-vi.mock("../../../../src/domains/site-indexes/check.service.js", () => ({
+vi.mock("../src/domains/site-indexes/check.service.js", () => ({
   runCheck,
 }));
 

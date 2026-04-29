@@ -1,11 +1,11 @@
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { runMake } from "../../../../src/domains/make/make.service.js";
-import { MakeConfigSchema } from "../../../../src/domains/make/schemas/make.schema.js";
-import { cli } from "../../../helpers/cli.js";
-import { withProject } from "../../../helpers/project.js";
-import { captureStreams } from "../../../helpers/streams.js";
+import { runMake } from "../src/domains/make/make.service.js";
+import { MakeConfigSchema } from "../src/domains/make/schemas/make.schema.js";
+import { cli } from "./helpers/cli.js";
+import { withProject } from "./helpers/project.js";
+import { captureStreams } from "./helpers/streams.js";
 
 afterEach(async () => {
   vi.restoreAllMocks();
@@ -95,13 +95,13 @@ describe("make command rejections", () => {
         ],
       }));
 
-      vi.doMock("../../../../src/domains/make/adapters/site-index.js", () => ({
+      vi.doMock("../src/domains/make/adapters/site-index.js", () => ({
         scaffoldSiteIndexModule,
       }));
 
       const output = captureStreams();
       const { runMake: runMockedMake } =
-        await import("../../../../src/domains/make/make.service.js");
+        await import("../src/domains/make/make.service.js");
 
       try {
         await expect(

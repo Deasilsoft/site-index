@@ -1,7 +1,7 @@
 import NodePath from "node:path";
 import { describe, expect, it } from "vitest";
-import { BuildConfigSchema } from "../../../../src/domains/site-indexes/schemas/build.schema.js";
-import { withProject } from "../../../helpers/project.js";
+import { BuildConfigSchema } from "../src/domains/site-indexes/schemas/build.schema.js";
+import { withProject } from "./helpers/project.js";
 
 describe("BuildConfigSchema", () => {
   it("resolves root and default out path", async () => {

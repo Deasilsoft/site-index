@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { MakeConfigSchema } from "../../../../src/domains/make/schemas/make.schema.js";
-import { withProject } from "../../../helpers/project.js";
+import { MakeConfigSchema } from "../src/domains/make/schemas/make.schema.js";
+import { withProject } from "./helpers/project.js";
 
 describe("MakeConfigSchema rejections", () => {
   it("rejects empty file paths", async () => {

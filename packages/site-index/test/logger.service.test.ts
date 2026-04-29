@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { z as Zod } from "zod";
-import { logger } from "../../../src/shared/services/logger.service.js";
-import { captureStreams } from "../../helpers/streams.js";
+import { logger } from "../src/shared/services/logger.service.js";
+import { captureStreams } from "./helpers/streams.js";
 
 describe("logger", () => {
   afterEach(() => {

@@ -1,7 +1,7 @@
 import NodePath from "node:path";
 import { describe, expect, it } from "vitest";
-import { CheckConfigSchema } from "../../../../src/domains/site-indexes/schemas/check.schema.js";
-import { withProject } from "../../../helpers/project.js";
+import { CheckConfigSchema } from "../src/domains/site-indexes/schemas/check.schema.js";
+import { withProject } from "./helpers/project.js";
 
 describe("CheckConfigSchema rejections", () => {
   it("rejects missing site-url", async () => {

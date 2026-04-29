@@ -2,9 +2,9 @@ import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import type { Artifact } from "@site-index/core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { runBuild } from "../../../src/domains/site-indexes/build.service.js";
-import { withProject } from "../../helpers/project.js";
-import { captureStreams } from "../../helpers/streams.js";
+import { runBuild } from "../src/domains/site-indexes/build.service.js";
+import { withProject } from "./helpers/project.js";
+import { captureStreams } from "./helpers/streams.js";
 
 const runtimeMocks = vi.hoisted(() => {
   const runtime = {

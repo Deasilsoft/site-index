@@ -1,11 +1,11 @@
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { runMake } from "../../../../src/domains/make/make.service.js";
-import { MakeConfigSchema } from "../../../../src/domains/make/schemas/make.schema.js";
-import { cli } from "../../../helpers/cli.js";
-import { withProject } from "../../../helpers/project.js";
-import { captureStreams } from "../../../helpers/streams.js";
+import { runMake } from "../src/domains/make/make.service.js";
+import { MakeConfigSchema } from "../src/domains/make/schemas/make.schema.js";
+import { cli } from "./helpers/cli.js";
+import { withProject } from "./helpers/project.js";
+import { captureStreams } from "./helpers/streams.js";
 
 afterEach(async () => {
   vi.restoreAllMocks();
@@ -29,7 +29,9 @@ describe("make command", () => {
       );
       const content = await NodeFS.readFile(filePath, "utf8");
 
-      expect(content).toContain('import type { SiteIndex } from "site-index";');
+      expect(content).toContain(
+        'import type { SiteIndex } from "@site-index/core";',
+      );
       expect(content).toContain("export default { siteIndexes };");
       expect(output.stdout()).toContain(`Created file: ${filePath}`);
     });
@@ -47,7 +49,7 @@ describe("make command", () => {
       const content = await NodeFS.readFile(filePath, "utf8");
 
       expect(content).toContain(
-        '/** @type {import("site-index").SiteIndex[]} */',
+        '/** @type {import("@site-index/core").SiteIndex[]} */',
       );
     });
   });
