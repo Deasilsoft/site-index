@@ -20,6 +20,12 @@ const runtimeMocks = vi.hoisted(() => {
     createRuntimeService: vi.fn(() => builder),
     runtime,
     builder,
+    reset() {
+      runtime.buildArtifacts.mockReset();
+      runtime.close.mockReset();
+      builder.withOptions.mockClear();
+      this.createRuntimeService.mockClear();
+    },
   };
 });
 
@@ -28,10 +34,7 @@ vi.mock("@site-index/vite-runtime", () => ({
 }));
 
 beforeEach(() => {
-  runtimeMocks.runtime.buildArtifacts.mockReset();
-  runtimeMocks.runtime.close.mockReset();
-  runtimeMocks.builder.withOptions.mockClear();
-  runtimeMocks.createRuntimeService.mockClear();
+  runtimeMocks.reset();
 });
 
 afterEach(async () => {
@@ -76,5 +79,18 @@ describe("check service", () => {
     expect(stderr).toContain("Warning: A");
     expect(stderr).toContain("\tat a.ts");
     expect(stderr).toContain("Warning: B");
+  });
+
+  it("closes runtime when buildArtifacts throws", async () => {
+    runtimeMocks.runtime.buildArtifacts.mockRejectedValue(new Error("boom"));
+
+    await expect(
+      runCheck({
+        siteUrl: "https://example.com",
+        rootPath: "/project",
+      }),
+    ).rejects.toThrow("boom");
+
+    expect(runtimeMocks.runtime.close).toHaveBeenCalledTimes(1);
   });
 });

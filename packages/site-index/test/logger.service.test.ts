@@ -107,4 +107,17 @@ describe("logger", () => {
     expect(stderr).toContain("\tat src/a.ts");
     expect(stderr).toContain("Warning: Missing robots");
   });
+
+  it("treats malformed warning-like values as plain output", () => {
+    const output = captureStreams();
+
+    try {
+      logger.warn({ message: 123, filePath: "src/a.ts" });
+    } finally {
+      output.restore();
+    }
+
+    expect(output.stderr()).toContain("[object Object]");
+    expect(output.stderr()).not.toContain("Warning:");
+  });
 });
