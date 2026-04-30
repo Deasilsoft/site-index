@@ -2,10 +2,11 @@ name: Code Quality
 
 on:
   pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
-      - dev
 
 jobs:
   code-quality:
