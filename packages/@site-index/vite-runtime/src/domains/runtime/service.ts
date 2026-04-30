@@ -36,8 +36,8 @@ export class RuntimeService {
     );
 
     this.#buildQueue = run.then(
-      () => undefined,
-      () => undefined,
+      () => {},
+      () => {},
     );
 
     return run;
