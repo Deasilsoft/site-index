@@ -26,7 +26,7 @@ export class ModuleRepository {
 
     this.#nodes.add(node);
 
-    if (node.file !== null) {
+    if (typeof node.file === "string") {
       this.#watchedFiles.add(node.file);
     }
 

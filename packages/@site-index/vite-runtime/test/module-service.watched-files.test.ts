@@ -8,11 +8,11 @@ vi.mock("@site-index/core", () => ({
 }));
 
 type ModuleNode = {
-  file: string | null;
+  file?: string | undefined;
   importedModules: Set<ModuleNode>;
 };
 
-function createModule(file: string | null): ModuleNode {
+function createModule(file?: string): ModuleNode {
   return {
     file,
     importedModules: new Set(),
@@ -78,7 +78,7 @@ describe("RuntimeService watched-file graph", () => {
   it("handles aliases, unresolved ids, and virtual modules", async () => {
     const aliasEntry = createModule("/repo/src/routes/alias.site-index.ts");
     const aliasResolved = createModule("/repo/src/lib/real.ts");
-    const virtual = createModule(null);
+    const virtual = createModule();
 
     aliasEntry.importedModules.add(aliasResolved);
     aliasEntry.importedModules.add(virtual);
