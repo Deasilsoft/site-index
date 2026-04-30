@@ -10,6 +10,8 @@ const mainTestMocks = vi.hoisted<MainTestMocks>(() => {
     outputHelp: vi.fn(),
     parse: vi.fn((argv: string[]) => ({
       options: {
+        help: argv.includes("--help"),
+        version: argv.includes("--version"),
         quiet: argv.includes("--quiet"),
         verbose: argv.includes("--verbose"),
       },
@@ -103,12 +105,45 @@ describe("main CLI wiring", () => {
     expect(process.exitCode).toBeUndefined();
   });
 
+  it.each([["--quiet"], ["--verbose"], ["--quiet", "--verbose"]])(
+    "shows help for option-only invocation: %p",
+    async (...args) => {
+      await main(["node", "site-index", ...args]);
+
+      expect(mainTestMocks.cli.outputHelp).toHaveBeenCalledOnce();
+      expect(mainTestMocks.cli.runMatchedCommand).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not run matched command when --help is passed", async () => {
+    await main(["node", "site-index", "--help"]);
+
+    expect(mainTestMocks.cli.outputHelp).not.toHaveBeenCalled();
+    expect(mainTestMocks.cli.runMatchedCommand).not.toHaveBeenCalled();
+  });
+
+  it("does not run matched command when --version is passed", async () => {
+    await main(["node", "site-index", "--version"]);
+
+    expect(mainTestMocks.cli.outputHelp).not.toHaveBeenCalled();
+    expect(mainTestMocks.cli.runMatchedCommand).not.toHaveBeenCalled();
+  });
+
   it("passes parsed --verbose and --quiet through logger configuration", async () => {
+    mainTestMocks.cli.parse.mockReturnValueOnce({
+      options: {
+        help: false,
+        version: false,
+        quiet: true,
+        verbose: false,
+      },
+    });
+
     await main(["node", "site-index", "check", "--verbose", "--quiet"]);
 
     expect(mainTestMocks.configureLogger).toHaveBeenCalledWith({
       quiet: true,
-      verbose: true,
+      verbose: false,
     });
   });
 });

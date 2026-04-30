@@ -1,16 +1,17 @@
 import * as Vite from "vite";
+import type { RuntimeViteConfig } from "../../../types.js";
 import { makeServerConfig } from "./config.js";
 
 export class ViteServerProvider {
   #isServerOwner = false;
   #server: Vite.ViteDevServer | undefined;
-  #config: Vite.ResolvedConfig | undefined;
+  #config: RuntimeViteConfig | undefined;
 
-  constructor(config?: Vite.ResolvedConfig) {
+  constructor(config?: RuntimeViteConfig) {
     this.#config = config;
   }
 
-  setConfig(config: Vite.ResolvedConfig): void {
+  setConfig(config: RuntimeViteConfig): void {
     if (this.#server !== undefined) {
       throw new Error("Cannot set config if server is active");
     }

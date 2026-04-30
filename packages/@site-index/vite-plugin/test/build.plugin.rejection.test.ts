@@ -14,7 +14,7 @@ describe("siteIndexBuildPlugin rejections", () => {
     vi.clearAllMocks();
   });
 
-  it("bubbles buildArtifacts errors", async () => {
+  it("closes the runtime and bubbles buildArtifacts errors", async () => {
     const runtime = {
       setViteConfig: vi.fn(),
       buildArtifacts: vi.fn(async () => {
@@ -44,5 +44,15 @@ describe("siteIndexBuildPlugin rejections", () => {
         error: vi.fn(),
       }),
     ).rejects.toThrow("pipeline exploded");
+
+    expect(runtime.close).toHaveBeenCalledTimes(1);
+
+    const closeBundle = getPluginHookHandler<() => Promise<void> | void>(
+      plugin.closeBundle,
+    );
+
+    await closeBundle();
+
+    expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 });

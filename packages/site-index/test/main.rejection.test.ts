@@ -14,6 +14,8 @@ const mainTestMocks = vi.hoisted<MainTestMocks>(() => {
     outputHelp: vi.fn(),
     parse: vi.fn((argv: string[]) => ({
       options: {
+        help: argv.includes("--help"),
+        version: argv.includes("--version"),
         quiet: argv.includes("--quiet"),
         verbose: argv.includes("--verbose"),
       },

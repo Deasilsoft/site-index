@@ -106,4 +106,49 @@ describe("RuntimeService build state", () => {
     expect(maxActiveBuilds).toBe(1);
     expect(SiteIndex.main).toHaveBeenCalledTimes(2);
   });
+
+  it("replaces watched files after a successful rebuild", async () => {
+    vi.mocked(SiteIndex.main)
+      .mockImplementationOnce(async (options) => {
+        await options.loadModule({
+          filePath: "/repo/src/routes/a.site-index.ts",
+          importId: "./src/routes/a.site-index.ts",
+        });
+
+        return { data: [], warnings: [] };
+      })
+      .mockImplementationOnce(async (options) => {
+        await options.loadModule({
+          filePath: "/repo/src/routes/b.site-index.ts",
+          importId: "./src/routes/b.site-index.ts",
+        });
+
+        return { data: [], warnings: [] };
+      });
+
+    const viteServer = createViteServerMock({
+      modulesByUrl: {
+        "./src/routes/a.site-index.ts": createNode(
+          "/repo/src/routes/a.site-index.ts",
+          [createNode("/repo/src/deps/a-dep.ts")],
+        ),
+        "./src/routes/b.site-index.ts": createNode(
+          "/repo/src/routes/b.site-index.ts",
+          [createNode("/repo/src/deps/b-dep.ts")],
+        ),
+      },
+    });
+
+    const runtime = createAttachedRuntimeSetup(viteServer.server);
+
+    await runtime.buildArtifacts();
+    expect(runtime.getWatchedFiles()).toEqual(
+      new Set(["/repo/src/routes/a.site-index.ts", "/repo/src/deps/a-dep.ts"]),
+    );
+
+    await runtime.buildArtifacts();
+    expect(runtime.getWatchedFiles()).toEqual(
+      new Set(["/repo/src/routes/b.site-index.ts", "/repo/src/deps/b-dep.ts"]),
+    );
+  });
 });

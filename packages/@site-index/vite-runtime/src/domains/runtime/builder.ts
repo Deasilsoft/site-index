@@ -1,18 +1,19 @@
-import type * as Vite from "vite";
-import type { Options } from "../../types.js";
+import type { Options, RuntimeViteConfig } from "../../types.js";
 import { RuntimeService } from "./service.js";
 
 export class RuntimeServiceBuilder {
   #options: Options | undefined;
-  #viteConfig: Vite.ResolvedConfig | undefined;
+  #viteConfig: RuntimeViteConfig | undefined;
 
   withOptions(options: Options): this {
     this.#options = options;
+
     return this;
   }
 
-  withViteConfig(config: Vite.ResolvedConfig): this {
+  withViteConfig(config: RuntimeViteConfig): this {
     this.#viteConfig = config;
+
     return this;
   }
 

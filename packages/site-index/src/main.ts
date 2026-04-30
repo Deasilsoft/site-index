@@ -5,12 +5,11 @@ import { initBuildCommand } from "./domains/site-indexes/commands/build.command.
 import { initCheckCommand } from "./domains/site-indexes/commands/check.command.js";
 import { logger } from "./shared/services/logger.service.js";
 
-export async function main(argv: string[] = process.argv) {
-  logger.configure({
-    quiet: argv.includes("--quiet"),
-    verbose: argv.includes("--verbose"),
-  });
+function hasCommandToken(argv: string[]): boolean {
+  return argv.slice(2).some((argument) => !argument.startsWith("-"));
+}
 
+export async function main(argv: string[] = process.argv) {
   try {
     const cli = cac("site-index");
 
@@ -24,13 +23,24 @@ export async function main(argv: string[] = process.argv) {
     cli.help();
     cli.version(pkg.version);
 
-    cli.parse(argv, { run: false });
+    const parsed = cli.parse(argv, { run: false });
 
-    if (argv.length <= 2) {
-      cli.outputHelp();
-    } else {
-      await cli.runMatchedCommand();
+    logger.configure({
+      quiet: Boolean(parsed.options.quiet),
+      verbose: Boolean(parsed.options.verbose),
+    });
+
+    if (parsed.options.help || parsed.options.version) {
+      return;
     }
+
+    if (!hasCommandToken(argv)) {
+      cli.outputHelp();
+
+      return;
+    }
+
+    await cli.runMatchedCommand();
   } catch (error) {
     logger.error(error);
 

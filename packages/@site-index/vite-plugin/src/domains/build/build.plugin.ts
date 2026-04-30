@@ -7,6 +7,16 @@ type Options = Pick<CoreOptions, "siteUrl" | "extensions">;
 
 export function siteIndexBuildPlugin(options: Options): Vite.Plugin {
   const runtime = createRuntimeService().withOptions(options).build();
+  let isRuntimeClosed = false;
+
+  async function closeRuntime(): Promise<void> {
+    if (isRuntimeClosed) {
+      return;
+    }
+
+    isRuntimeClosed = true;
+    await runtime.close();
+  }
 
   return {
     name: `${pkg.name}:build`,
@@ -15,10 +25,16 @@ export function siteIndexBuildPlugin(options: Options): Vite.Plugin {
       runtime.setViteConfig(resolvedConfig);
     },
     async buildStart() {
-      const result = await runtime.buildArtifacts();
+      try {
+        const result = await runtime.buildArtifacts();
 
-      for (const warning of result.warnings) {
-        this.warn(warning.message);
+        for (const warning of result.warnings) {
+          this.warn(warning.message);
+        }
+      } catch (error) {
+        await closeRuntime();
+
+        throw error;
       }
     },
     generateBundle() {
@@ -31,7 +47,7 @@ export function siteIndexBuildPlugin(options: Options): Vite.Plugin {
       }
     },
     async closeBundle() {
-      await runtime.close();
+      await closeRuntime();
     },
   };
 }
