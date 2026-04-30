@@ -32,9 +32,9 @@
   "scripts": {
     "build": "tsc -b",
     "postbuild": "npm run build:executable && npm run build:templates",
-    "build:executable": "node ./scripts/build.executable.mjs",
-    "build:templates": "node ./scripts/build.templates.mjs",
-    "clean": "node ./scripts/clean.mjs",
+    "build:executable": "chmod +x ./dist/bin.js",
+    "build:templates": "mkdir -p dist/domains/make/templates && cp -R src/domains/make/templates/. dist/domains/make/templates/",
+    "clean": "rm -rf dist coverage",
     "precli": "npm run clean && npm run build",
     "cli": "node ./dist/bin.js",
     "prepack": "npm run clean && npm run build",
@@ -48,7 +48,7 @@
     "@site-index/vite-runtime": "0.0.0",
     "cac": "^7.0.0",
     "vite": "^8.0.10",
-    "zod": "^4.3.6"
+    "zod": "^4.4.1"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.5",
