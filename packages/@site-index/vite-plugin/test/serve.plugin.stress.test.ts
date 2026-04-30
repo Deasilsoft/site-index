@@ -57,8 +57,8 @@ describe("siteIndexServePlugin stress", () => {
         });
 
         buildQueue = run.then(
-          () => undefined,
-          () => undefined,
+          () => {},
+          () => {},
         );
 
         return run;

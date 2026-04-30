@@ -27,8 +27,8 @@ function normalizeBaseName(filePath: string): string {
   const name = NodePath.basename(filePath);
 
   return name
-    .replace(new RegExp(`\\.site-index\\.(${EXT_PATTERN})$`), "")
-    .replace(new RegExp(`\\.(${EXT_PATTERN})$`), "");
+    .replace(new RegExp(String.raw`\.site-index\.(${EXT_PATTERN})$`), "")
+    .replace(new RegExp(String.raw`\.(${EXT_PATTERN})$`), "");
 }
 
 const MakeOptionsSchema = Zod.object({

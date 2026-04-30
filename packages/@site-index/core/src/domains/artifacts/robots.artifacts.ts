@@ -2,9 +2,7 @@ import type { ResolvedSiteIndex } from "../site-indexes/schemas/site-indexes.sch
 import type { Artifact } from "./types.js";
 
 function renderRobotsTxt(siteUrl: string, disallowedPaths: string[]): string {
-  const lines: string[] = [];
-
-  lines.push("User-agent: *");
+  const lines: string[] = ["User-agent: *"];
 
   for (const path of disallowedPaths) {
     lines.push(`Disallow: ${path}`);
@@ -22,7 +20,7 @@ export function makeRobotsArtifact(
   const disallowed = siteIndexes
     .filter((siteIndex) => !siteIndex.index)
     .map((siteIndex) => siteIndex.url)
-    .sort((a, b) => a.localeCompare(b));
+    .toSorted((a, b) => a.localeCompare(b));
 
   return {
     filePath: "robots.txt",

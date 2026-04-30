@@ -36,6 +36,12 @@ type Harness = {
   expectLookupAndLoadCounts(lookups: number, loads: number): void;
 };
 
+function createSiteIndexModule(
+  siteIndexes: SiteIndex.SiteIndex[] = [{ url: "/a" }],
+): SiteIndexModule {
+  return { siteIndexes };
+}
+
 export function createModuleServiceSetup(): Harness {
   const getModuleByUrl = vi.fn();
   const ssrLoadModule = vi.fn();
@@ -63,12 +69,6 @@ export function createModuleServiceSetup(): Harness {
       filePath: input.filePath ?? defaultModule.filePath,
       importId: input.importId ?? defaultModule.importId,
     };
-  }
-
-  function createSiteIndexModule(
-    siteIndexes: SiteIndex.SiteIndex[] = [{ url: "/a" }],
-  ): SiteIndexModule {
-    return { siteIndexes };
   }
 
   function mockCacheableSuccess(
@@ -106,8 +106,11 @@ export function createModuleServiceSetup(): Harness {
     const module = input.module ?? createModuleInput();
     const node = input.node ?? createNode(module.filePath);
     const moduleExports = input.moduleExports ?? createSiteIndexModule();
+    const unresolvedModule: Vite.EnvironmentModuleNode | undefined = void 0;
 
-    getModuleByUrl.mockResolvedValueOnce(undefined).mockResolvedValueOnce(node);
+    getModuleByUrl
+      .mockResolvedValueOnce(unresolvedModule)
+      .mockResolvedValueOnce(node);
     ssrLoadModule.mockResolvedValue({ default: moduleExports });
 
     return { module, node, moduleExports };

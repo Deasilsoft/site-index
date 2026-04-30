@@ -18,7 +18,7 @@ describe("check command", () => {
   it("parses options with default root", async () => {
     await withProject({}, async (project) => {
       project.chdir();
-      runCheck.mockResolvedValue(undefined);
+      runCheck.mockImplementation(async () => {});
 
       await cli("check", "--site-url", "https://example.com");
 
@@ -32,7 +32,8 @@ describe("check command", () => {
   it("resolves config relative to root", async () => {
     await withProject({}, async (project) => {
       const root = project.path("project");
-      runCheck.mockResolvedValue(undefined);
+
+      runCheck.mockImplementation(async () => {});
 
       await cli(
         "check",

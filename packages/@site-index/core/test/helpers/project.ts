@@ -12,7 +12,7 @@ export async function createTempProject(tempRoots: string[]): Promise<string> {
 
 export async function cleanupTempProjects(tempRoots: string[]): Promise<void> {
   await Promise.all(
-    tempRoots.splice(0, tempRoots.length).map(async (root) => {
+    tempRoots.splice(0).map(async (root) => {
       await fs.rm(root, { recursive: true, force: true });
     }),
   );

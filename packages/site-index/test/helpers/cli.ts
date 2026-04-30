@@ -11,7 +11,7 @@ export async function cli(...args: string[]): Promise<void> {
 
   try {
     logger.error = (...values: unknown[]) => {
-      fatalError = values.map((value) => String(value)).join(" ");
+      fatalError = values.map(String).join(" ");
     };
 
     await main(["node", "site-index", ...args]);

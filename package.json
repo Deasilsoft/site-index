@@ -25,6 +25,7 @@
     "@types/node": "^25.6.0",
     "code-slicer": "^0.4.2",
     "eslint": "^10.2.1",
+    "eslint-plugin-unicorn": "^64.0.0",
     "knip": "^6.9.0",
     "prettier": "^3.8.3",
     "prettier-plugin-packagejson": "^3.0.2",

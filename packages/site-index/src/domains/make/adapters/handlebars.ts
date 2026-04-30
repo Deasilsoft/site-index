@@ -6,7 +6,7 @@ export function renderTemplate(
   template: string,
   context: TemplateContext,
 ): string {
-  return template.replace(TOKEN_PATTERN, (token, variableName: string) => {
+  return template.replaceAll(TOKEN_PATTERN, (token, variableName: string) => {
     return context[variableName] ?? token;
   });
 }

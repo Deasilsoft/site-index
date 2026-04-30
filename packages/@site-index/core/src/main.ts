@@ -28,9 +28,11 @@ export async function main(options: Options): Promise<Result<Artifact[]>> {
   const resolvedModules = resolveModules(loadedModules.data);
   const resolvedSiteIndexes = resolveSiteIndexes(resolvedModules.data);
 
-  warnings.push(...loadedModules.warnings);
-  warnings.push(...resolvedModules.warnings);
-  warnings.push(...resolvedSiteIndexes.warnings);
+  warnings.push(
+    ...loadedModules.warnings,
+    ...resolvedModules.warnings,
+    ...resolvedSiteIndexes.warnings,
+  );
 
   return {
     data: makeArtifacts(config.siteUrl, resolvedSiteIndexes.data),

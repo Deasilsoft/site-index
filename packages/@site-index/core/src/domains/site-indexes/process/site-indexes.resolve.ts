@@ -30,7 +30,7 @@ export function resolveSiteIndexes(
   }
 
   return {
-    data: [...data.values()].sort(
+    data: [...data.values()].toSorted(
       (a, b) =>
         a.sitemap.localeCompare(b.sitemap) || a.url.localeCompare(b.url),
     ),

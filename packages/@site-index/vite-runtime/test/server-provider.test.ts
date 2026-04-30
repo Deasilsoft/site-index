@@ -127,7 +127,7 @@ describe("RuntimeService Vite server lifecycle", () => {
       environments: {
         ssr: {
           moduleGraph: {
-            getModuleByUrl: vi.fn(async () => undefined),
+            getModuleByUrl: vi.fn(async () => {}),
           },
         },
       },

@@ -18,7 +18,7 @@ describe("build command", () => {
   it("parses options with default root and out directory", async () => {
     await withProject({}, async (project) => {
       project.chdir();
-      runBuild.mockResolvedValue(undefined);
+      runBuild.mockImplementation(async () => {});
 
       await cli("build", "--site-url", "https://example.com");
 
@@ -34,7 +34,7 @@ describe("build command", () => {
     await withProject({}, async (project) => {
       const root = project.path("project");
 
-      runBuild.mockResolvedValue(undefined);
+      runBuild.mockImplementation(async () => {});
 
       await cli(
         "build",

@@ -56,7 +56,8 @@ describe("artifacts", () => {
     expect(result.warnings).toEqual([]);
 
     const artifacts = artifactMap(result.data);
-    expect([...artifacts.keys()].sort()).toEqual([
+
+    expect([...artifacts.keys()].toSorted()).toEqual([
       "robots.txt",
       "sitemap-blog.xml",
       "sitemap-pages.xml",
