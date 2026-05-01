@@ -1,9 +1,9 @@
 import { describe, it } from "vitest";
-import { createModuleServiceSetup } from "./helpers/module-service.setup.js";
+import { createModuleLoaderSetup } from "./helpers/module-loader.setup.js";
 
-describe("ModuleService", () => {
+describe("ModuleLoader", () => {
   it("reuses cached modules for repeated import ids", async () => {
-    const setup = createModuleServiceSetup();
+    const setup = createModuleLoaderSetup();
     const { module } = setup.mockCacheableSuccess();
 
     await setup.loadTwice(module);

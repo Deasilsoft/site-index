@@ -118,7 +118,7 @@ describe("RuntimeService Vite server lifecycle", () => {
     await runtime.close();
   });
 
-  it("does not close externally attached servers", async () => {
+  it("does not close externally provided servers", async () => {
     vi.mocked(SiteIndex.main).mockResolvedValue({ data: [], warnings: [] });
 
     const externalClose = vi.fn(async () => {});
@@ -137,9 +137,9 @@ describe("RuntimeService Vite server lifecycle", () => {
 
     const runtime = createRuntimeService()
       .withOptions({ siteUrl: "https://example.com" })
+      .withViteServer(externalServer as never)
       .build();
 
-    runtime.attachViteServer(externalServer as never);
     await runtime.buildArtifacts();
     await runtime.close();
 

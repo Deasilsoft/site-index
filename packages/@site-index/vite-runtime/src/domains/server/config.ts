@@ -1,5 +1,5 @@
 import * as Vite from "vite";
-import type { RuntimeViteConfig } from "../../../types.js";
+import type { RuntimeViteConfig } from "../../types.js";
 
 export function makeServerConfig(input: RuntimeViteConfig): Vite.InlineConfig {
   const output: Vite.InlineConfig = {

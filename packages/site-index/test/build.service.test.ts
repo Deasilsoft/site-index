@@ -76,8 +76,7 @@ describe("build service", () => {
       output.restore();
     }
 
-    expect(output.stderr()).toContain("Warning: Missing alternate");
-    expect(output.stderr()).toContain("  at src/a.ts");
+    expect(output.stderr()).toContain("Warning: src/a.ts: Missing alternate");
   });
 
   it("rejects artifacts that escape output directory", async () => {

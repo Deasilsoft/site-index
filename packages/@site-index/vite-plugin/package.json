@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@site-index/core": "0.0.0",
+    "@site-index/observability": "0.0.0",
     "@site-index/vite-runtime": "0.0.0"
   },
   "devDependencies": {

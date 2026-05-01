@@ -22,11 +22,16 @@ describe("siteIndexServePlugin", () => {
     const runtime = createServeRuntimeMock({
       buildArtifacts: async () => ({
         data: [],
-        warnings: [{ message: "Duplicate URL: /a" }],
+        warnings: [
+          {
+            message: "Duplicate URL: /a",
+            filePath: "/repo/src/routes/a.site-index.ts",
+          },
+        ],
       }),
       getArtifacts: () => [
         {
-          filePath: "/robots.txt",
+          filePath: "robots.txt",
           content: "ROBOTS",
           contentType: "text/plain; charset=utf-8",
         },
@@ -34,28 +39,30 @@ describe("siteIndexServePlugin", () => {
       getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
     });
 
-    const { plugin, server, resolvedConfig, withOptions } = setupServePlugin({
-      runtime,
-      createRuntimeServiceMock,
-    });
-    await Promise.resolve();
+    const { plugin, server, withOptions, withViteServer } =
+      await setupServePlugin({
+        runtime,
+        createRuntimeServiceMock,
+      });
 
     await triggerHotUpdate({
       plugin,
       file: "/repo/src/routes/a.site-index.ts",
       server,
     });
+
     await triggerCloseBundle(plugin);
 
     expect(createRuntimeServiceMock).toHaveBeenCalledTimes(1);
     expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
-    expect(runtime.setViteConfig).toHaveBeenCalledWith(resolvedConfig);
-    expect(runtime.attachViteServer).toHaveBeenCalledWith(server);
+    expect(withViteServer).toHaveBeenCalledWith(server);
     expect(server.middlewares.use).toHaveBeenCalledTimes(1);
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(2);
-    expect(server.config.logger.warn).toHaveBeenCalledWith("Duplicate URL: /a");
+    expect(server.config.logger.warn).toHaveBeenCalledWith(
+      "Warning: /repo/src/routes/a.site-index.ts: Duplicate URL: /a",
+    );
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 
@@ -64,11 +71,10 @@ describe("siteIndexServePlugin", () => {
       getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
     });
 
-    const { plugin, server } = setupServePlugin({
+    const { plugin, server } = await setupServePlugin({
       runtime,
       createRuntimeServiceMock,
     });
-    await Promise.resolve();
 
     await triggerHotUpdate({
       plugin,
@@ -109,11 +115,10 @@ describe("siteIndexServePlugin", () => {
       getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
     });
 
-    const { plugin, server } = setupServePlugin({
+    const { plugin, server } = await setupServePlugin({
       runtime,
       createRuntimeServiceMock,
     });
-    await Promise.resolve();
 
     const use = server.middlewares.use as unknown as ReturnType<typeof vi.fn>;
     const middleware = getRegisteredMiddleware(server);

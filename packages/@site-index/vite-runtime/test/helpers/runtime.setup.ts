@@ -4,9 +4,8 @@ import { createRuntimeService } from "../../src/index.js";
 export function createAttachedRuntimeSetup(server: Vite.ViteDevServer) {
   const runtime = createRuntimeService()
     .withOptions({ siteUrl: "https://example.com" })
+    .withViteServer(server)
     .build();
-
-  runtime.attachViteServer(server);
 
   return runtime;
 }

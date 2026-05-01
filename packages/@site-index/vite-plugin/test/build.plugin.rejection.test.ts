@@ -1,3 +1,4 @@
+import type { ResolvedConfig } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { siteIndexBuildPlugin } from "../src/index.js";
 import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
@@ -16,7 +17,6 @@ describe("siteIndexBuildPlugin rejections", () => {
 
   it("closes the runtime and bubbles buildArtifacts errors", async () => {
     const runtime = {
-      setViteConfig: vi.fn(),
       buildArtifacts: vi.fn(async () => {
         throw new Error("pipeline exploded");
       }),
@@ -29,6 +29,23 @@ describe("siteIndexBuildPlugin rejections", () => {
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
     const plugin = siteIndexBuildPlugin({ siteUrl: "https://example.com" });
+    const resolvedConfig = {
+      command: "build",
+      root: "/repo",
+      mode: "production",
+      logger: {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      },
+    } as unknown as ResolvedConfig;
+
+    const configResolved = getPluginHookHandler<
+      (resolved: ResolvedConfig) => void | Promise<void>
+    >(plugin.configResolved);
+
+    configResolved(resolvedConfig);
+
     const buildStart = getPluginHookHandler<
       (this: {
         info(message: string): void;

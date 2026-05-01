@@ -2,7 +2,7 @@ import type { Artifact } from "@site-index/core";
 import { createRuntimeService } from "@site-index/vite-runtime";
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
-import { logger } from "../../shared/services/logger.service.js";
+import { logger } from "../../shared/logging/logger.js";
 import type { BuildConfig } from "./types.js";
 import { makeResolvedViteConfig } from "./vite.config.js";
 
@@ -37,9 +37,7 @@ export async function runBuild(config: BuildConfig): Promise<void> {
   try {
     const result = await runtime.buildArtifacts();
 
-    if (result.warnings.length > 0) {
-      logger.warn(result.warnings);
-    }
+    logger.warn(result.warnings);
 
     await writeArtifacts(config.outPath, result.data);
   } finally {

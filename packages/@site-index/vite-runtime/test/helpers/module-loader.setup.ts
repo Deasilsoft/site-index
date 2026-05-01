@@ -1,14 +1,15 @@
 import type * as SiteIndex from "@site-index/core";
 import type * as Vite from "vite";
 import { expect, vi } from "vitest";
-import { ModuleService } from "../../src/domains/vite/modules/service.js";
+import { ModuleLoader } from "../../src/domains/module/loader.js";
+import { WatchedFilesBuilder } from "../../src/domains/module/watched-files.builder.js";
 import { createNode } from "./module-node.factory.js";
 
 type ModuleInput = SiteIndex.Module;
-type SiteIndexModule = SiteIndex.SiteIndexModule;
+type SiteIndexModule = SiteIndex.ModuleExports;
 
 type Harness = {
-  service: ModuleService;
+  service: ModuleLoader;
   getModuleByUrl: ReturnType<typeof vi.fn>;
   ssrLoadModule: ReturnType<typeof vi.fn>;
   createModuleInput(input?: Partial<ModuleInput>): ModuleInput;
@@ -42,7 +43,7 @@ function createSiteIndexModule(
   return { siteIndexes };
 }
 
-export function createModuleServiceSetup(): Harness {
+export function createModuleLoaderSetup(): Harness {
   const getModuleByUrl = vi.fn();
   const ssrLoadModule = vi.fn();
   const defaultModule = {
@@ -50,8 +51,8 @@ export function createModuleServiceSetup(): Harness {
     importId: "./src/routes/a.site-index.ts",
   } satisfies ModuleInput;
 
-  const service = new ModuleService(
-    async () =>
+  const service = new ModuleLoader({
+    getServer: async () =>
       ({
         ssrLoadModule,
         environments: {
@@ -62,7 +63,8 @@ export function createModuleServiceSetup(): Harness {
           },
         },
       }) as unknown as Vite.ViteDevServer,
-  );
+    watchedFilesBuilder: new WatchedFilesBuilder(),
+  });
 
   function createModuleInput(input: Partial<ModuleInput> = {}): ModuleInput {
     return {

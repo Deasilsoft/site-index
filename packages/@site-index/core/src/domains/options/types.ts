@@ -1,10 +1,10 @@
-import type { Module, SiteIndexModule } from "../site-indexes/types.js";
+import type { Module, ModuleExports } from "../site-indexes/types.js";
 
-export type LoadSiteIndexModule = (module: Module) => Promise<SiteIndexModule>;
+export type LoadModule = (module: Module) => Promise<ModuleExports>;
 
 export type Options = {
   siteUrl: string;
   rootPath: string;
   extensions?: string[] | undefined;
-  loadModule: LoadSiteIndexModule;
+  loadModule: LoadModule;
 };

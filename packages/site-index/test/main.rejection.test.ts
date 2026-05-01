@@ -44,7 +44,7 @@ vi.mock("../src/domains/site-indexes/commands/check.command.js", () => ({
 vi.mock("../src/domains/make/commands/make.command.js", () => ({
   initMakeCommand: mainTestMocks.initMakeCommand,
 }));
-vi.mock("../src/shared/services/logger.service.js", () => ({
+vi.mock("../src/shared/logging/logger.js", () => ({
   logger: {
     configure: mainTestMocks.configureLogger,
     error: mainTestMocks.loggerError,
@@ -66,6 +66,7 @@ describe("main error handling", () => {
     await main(["node", "site-index", "check"]);
 
     expect(mainTestMocks.loggerError).toHaveBeenCalledWith(expect.any(Error));
+    expect(mainTestMocks.loggerError).toHaveBeenCalledTimes(1);
     expect(process.exitCode).toBe(1);
   });
 
@@ -77,6 +78,7 @@ describe("main error handling", () => {
     await main(["node", "site-index", "check"]);
 
     expect(mainTestMocks.loggerError).toHaveBeenCalledWith(42);
+    expect(mainTestMocks.loggerError).toHaveBeenCalledTimes(1);
     expect(process.exitCode).toBe(1);
   });
 });

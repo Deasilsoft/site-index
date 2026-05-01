@@ -40,7 +40,7 @@ vi.mock("../src/domains/site-indexes/commands/check.command.js", () => ({
 vi.mock("../src/domains/make/commands/make.command.js", () => ({
   initMakeCommand: mainTestMocks.initMakeCommand,
 }));
-vi.mock("../src/shared/services/logger.service.js", () => ({
+vi.mock("../src/shared/logging/logger.js", () => ({
   logger: {
     configure: mainTestMocks.configureLogger,
     error: mainTestMocks.loggerError,

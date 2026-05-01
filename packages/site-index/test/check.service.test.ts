@@ -52,8 +52,7 @@ describe("check service", () => {
     }
 
     const stderr = output.stderr();
-    expect(stderr).toContain("Warning: A");
-    expect(stderr).toContain("  at a.ts");
+    expect(stderr).toContain("Warning: a.ts: A");
     expect(stderr).toContain("Warning: B");
   });
 

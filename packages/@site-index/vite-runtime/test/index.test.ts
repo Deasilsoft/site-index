@@ -12,6 +12,10 @@ describe("@site-index/vite-runtime contract", () => {
         siteUrl: "https://example.com",
         extensions: [".ts", ".tsx"],
       })
+      .withViteConfig({
+        root: "/repo",
+        mode: "test",
+      })
       .build();
 
     expect(runtime.getArtifacts()).toEqual([]);

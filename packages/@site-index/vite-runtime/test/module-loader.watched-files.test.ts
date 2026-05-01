@@ -19,7 +19,7 @@ function createModule(file?: string): ModuleNode {
   };
 }
 
-describe("RuntimeService watched-file graph", () => {
+describe("ModuleLoader watched-file graph", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -56,9 +56,8 @@ describe("RuntimeService watched-file graph", () => {
 
     const runtime = createRuntimeService()
       .withOptions({ siteUrl: "https://example.com" })
+      .withViteServer(viteServer.server)
       .build();
-
-    runtime.attachViteServer(viteServer.server);
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -100,9 +99,8 @@ describe("RuntimeService watched-file graph", () => {
 
     const runtime = createRuntimeService()
       .withOptions({ siteUrl: "https://example.com" })
+      .withViteServer(viteServer.server)
       .build();
-
-    runtime.attachViteServer(viteServer.server);
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -140,9 +138,8 @@ describe("RuntimeService watched-file graph", () => {
 
     const runtime = createRuntimeService()
       .withOptions({ siteUrl: "https://example.com" })
+      .withViteServer(viteServer.server)
       .build();
-
-    runtime.attachViteServer(viteServer.server);
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -185,9 +182,8 @@ describe("RuntimeService watched-file graph", () => {
 
     const runtime = createRuntimeService()
       .withOptions({ siteUrl: "https://example.com" })
+      .withViteServer(viteServer.server)
       .build();
-
-    runtime.attachViteServer(viteServer.server);
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(new Set(expected));

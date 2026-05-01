@@ -26,15 +26,13 @@ describe("siteIndexServePlugin rejections", () => {
         },
       });
 
-      const { server } = setupServePlugin({
+      const { server } = await setupServePlugin({
         runtime,
         createRuntimeServiceMock,
       });
 
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
       expect(server.config.logger.error).toHaveBeenCalledWith(
-        input instanceof Error ? input.message : String(input),
+        `Error: ${input instanceof Error ? input.message : String(input)}`,
       );
     },
   );
@@ -43,7 +41,16 @@ describe("siteIndexServePlugin rejections", () => {
     const runtime = createServeRuntimeMock({
       buildArtifacts: vi
         .fn()
-        .mockResolvedValueOnce({ data: [], warnings: [] })
+        .mockResolvedValueOnce({
+          data: [
+            {
+              filePath: "robots.txt",
+              content: "FIRST",
+              contentType: "text/plain; charset=utf-8",
+            },
+          ],
+          warnings: [],
+        })
         .mockRejectedValueOnce(new Error("hmr exploded")),
       getArtifacts: () => [
         {
@@ -55,11 +62,10 @@ describe("siteIndexServePlugin rejections", () => {
       getWatchedFiles: () => new Set(["/repo/src/routes/a.site-index.ts"]),
     });
 
-    const { plugin, server } = setupServePlugin({
+    const { plugin, server } = await setupServePlugin({
       runtime,
       createRuntimeServiceMock,
     });
-    await new Promise((resolve) => setTimeout(resolve, 0));
 
     const middleware = getRegisteredMiddleware(server);
 
@@ -83,6 +89,8 @@ describe("siteIndexServePlugin rejections", () => {
 
     middleware({ url: "/robots.txt", method: "GET" }, res, next);
     expect(res.end).toHaveBeenLastCalledWith("FIRST");
-    expect(server.config.logger.error).toHaveBeenCalledWith("hmr exploded");
+    expect(server.config.logger.error).toHaveBeenCalledWith(
+      "Error: hmr exploded",
+    );
   });
 });

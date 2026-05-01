@@ -1,7 +1,7 @@
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import { fileURLToPath } from "node:url";
-import type { Format, ScaffoldFailure } from "../types.js";
+import type { Format } from "../types.js";
 import { renderTemplate } from "./handlebars.js";
 
 type TemplateData = {
@@ -17,31 +17,13 @@ const TEMPLATES: Record<Format, string> = {
   ts: NodePath.resolve(DIR, "../templates/site-index.ts.hbs"),
 };
 
-export async function scaffoldSiteIndexModule(
-  data: TemplateData,
-): Promise<{ failures: ScaffoldFailure[] }> {
-  try {
-    const templatePath = TEMPLATES[data.format];
-    const template = await NodeFS.readFile(templatePath, "utf8");
-    const content = renderTemplate(template, {
-      lastModified: data.lastModified,
-    });
+export async function makeSiteIndexModule(data: TemplateData): Promise<void> {
+  const templatePath = TEMPLATES[data.format];
+  const template = await NodeFS.readFile(templatePath, "utf8");
+  const content = renderTemplate(template, {
+    lastModified: data.lastModified,
+  });
 
-    await NodeFS.mkdir(NodePath.dirname(data.filePath), { recursive: true });
-    await NodeFS.writeFile(data.filePath, content, "utf8");
-
-    return { failures: [] };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-
-    return {
-      failures: [
-        {
-          path: data.filePath,
-          error: message,
-          message,
-        },
-      ],
-    };
-  }
+  await NodeFS.mkdir(NodePath.dirname(data.filePath), { recursive: true });
+  await NodeFS.writeFile(data.filePath, content, "utf8");
 }

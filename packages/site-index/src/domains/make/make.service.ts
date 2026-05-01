@@ -1,6 +1,6 @@
-import { logger } from "../../shared/services/logger.service.js";
-import { fileExists } from "./adapters/fs.js";
-import { scaffoldSiteIndexModule } from "./adapters/site-index.js";
+import { logger } from "../../shared/logging/logger.js";
+import { fileExists } from "../../shared/utils/fs.js";
+import { makeSiteIndexModule } from "./adapters/site-index.js";
 import type { MakeConfig } from "./types.js";
 
 export async function runMake(config: MakeConfig): Promise<void> {
@@ -10,25 +10,11 @@ export async function runMake(config: MakeConfig): Promise<void> {
     );
   }
 
-  const result = await scaffoldSiteIndexModule({
+  await makeSiteIndexModule({
     filePath: config.outputFilePath,
     format: config.format,
     lastModified: new Date().toISOString(),
   });
-
-  if (result.failures.length > 0) {
-    for (const failure of result.failures) {
-      logger.error(
-        [
-          `Failed to create file: ${failure.path || "(N/A)"}`,
-          `  → ${failure.error}`,
-          `  → ${failure.message}`,
-        ].join("\n"),
-      );
-    }
-
-    throw new Error(`Make failed with ${result.failures.length} failure(s)`);
-  }
 
   logger.info(`Created file: ${config.outputFilePath}`);
 }

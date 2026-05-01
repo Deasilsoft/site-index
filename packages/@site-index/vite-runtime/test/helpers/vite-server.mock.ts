@@ -24,12 +24,12 @@ export function createViteServerMock(input: Input = {}) {
     return moduleNodesByUrl.get(url);
   });
 
-  const defaultModule: SiteIndex.SiteIndexModule = {
+  const defaultModule: SiteIndex.ModuleExports = {
     siteIndexes: [{ url: "/default" }],
   };
   type SsrLoadModule = (
     importId: string,
-  ) => Promise<{ default: SiteIndex.SiteIndexModule }>;
+  ) => Promise<{ default: SiteIndex.ModuleExports }>;
 
   const ssrLoadModule = vi.fn<SsrLoadModule>();
   ssrLoadModule.mockResolvedValue({
@@ -60,10 +60,10 @@ export function createViteServerMock(input: Input = {}) {
     lookedUpUrls,
     createSiteIndexModule(
       siteIndexes: SiteIndex.SiteIndex[] = [{ url: "/default" }],
-    ): SiteIndex.SiteIndexModule {
+    ): SiteIndex.ModuleExports {
       return { siteIndexes };
     },
-    queueSsrLoadedModules(modules: SiteIndex.SiteIndexModule[]): void {
+    queueSsrLoadedModules(modules: SiteIndex.ModuleExports[]): void {
       ssrLoadModule.mockReset();
 
       for (const module of modules) {

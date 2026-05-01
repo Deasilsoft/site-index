@@ -8,9 +8,3 @@ export type MakeConfig = {
   force: boolean;
   outputFilePath: string;
 };
-
-export type ScaffoldFailure = {
-  path: string;
-  error: string;
-  message: string;
-};

@@ -83,20 +83,14 @@ describe("make command rejections", () => {
     });
   });
 
-  it("logs each scaffold failure and throws aggregate error", async () => {
+  it("propagates makeSiteIndexModule failures without extra logging", async () => {
     await withProject({}, async (project) => {
-      const scaffoldSiteIndexModule = vi.fn(async () => ({
-        failures: [
-          {
-            path: "",
-            error: "File already exists",
-            message: "File already exists",
-          },
-        ],
-      }));
+      const makeSiteIndexModule = vi.fn(async () => {
+        throw new Error("template read failed");
+      });
 
       vi.doMock("../src/domains/make/adapters/site-index.js", () => ({
-        scaffoldSiteIndexModule,
+        makeSiteIndexModule,
       }));
 
       const output = captureStreams();
@@ -114,14 +108,13 @@ describe("make command rejections", () => {
               "content/a.site-index.ts",
             ),
           }),
-        ).rejects.toThrow("Make failed with 1 failure(s)");
+        ).rejects.toThrow("template read failed");
       } finally {
         output.restore();
       }
 
-      const stderr = output.stderr();
-      expect(stderr).toContain("Failed to create file: (N/A)");
-      expect(stderr).toContain("  → File already exists");
+      expect(output.stderr()).not.toContain("Failed to create file:");
+      expect(output.stdout()).not.toContain("Created file:");
     });
   });
 

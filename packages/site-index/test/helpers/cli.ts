@@ -1,5 +1,5 @@
 import { main } from "../../src/main.js";
-import { logger } from "../../src/shared/services/logger.service.js";
+import { logger } from "../../src/shared/logging/logger.js";
 
 export async function cli(...args: string[]): Promise<void> {
   const previousExitCode = process.exitCode;

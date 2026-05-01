@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type LoadSiteIndexModule, main, type Module } from "../src/index.js";
+import { type LoadModule, main, type Module } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
@@ -13,7 +13,7 @@ afterEach(async () => {
 describe("modules discovery", () => {
   it("returns warning when no modules are found", async () => {
     const root = await createTempProject(tempRoots);
-    const loadModule = vi.fn<LoadSiteIndexModule>(async () => ({
+    const loadModule = vi.fn<LoadModule>(async () => ({
       siteIndexes: [],
     }));
 
@@ -42,7 +42,7 @@ describe("modules discovery", () => {
     ]);
 
     const receivedModules: Module[] = [];
-    const loadModule: LoadSiteIndexModule = async (module) => {
+    const loadModule: LoadModule = async (module) => {
       receivedModules.push(module);
 
       return { siteIndexes: [] };

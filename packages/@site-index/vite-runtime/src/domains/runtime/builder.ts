@@ -1,9 +1,13 @@
+import type * as Vite from "vite";
 import type { Options, RuntimeViteConfig } from "../../types.js";
+import { CreatedServerConnection } from "../server/created.connection.js";
+import { ExistingServerConnection } from "../server/existing.connection.js";
+import type { ServerConnection } from "../server/connection.js";
 import { RuntimeService } from "./service.js";
 
 export class RuntimeServiceBuilder {
   #options: Options | undefined;
-  #viteConfig: RuntimeViteConfig | undefined;
+  #serverConnection: ServerConnection | undefined;
 
   withOptions(options: Options): this {
     this.#options = options;
@@ -12,7 +16,13 @@ export class RuntimeServiceBuilder {
   }
 
   withViteConfig(config: RuntimeViteConfig): this {
-    this.#viteConfig = config;
+    this.#serverConnection = new CreatedServerConnection(config);
+
+    return this;
+  }
+
+  withViteServer(server: Vite.ViteDevServer): this {
+    this.#serverConnection = new ExistingServerConnection(server);
 
     return this;
   }
@@ -22,6 +32,12 @@ export class RuntimeServiceBuilder {
       throw new Error("Options must be provided to build the RuntimeService.");
     }
 
-    return new RuntimeService(this.#options, this.#viteConfig);
+    if (this.#serverConnection === undefined) {
+      throw new Error(
+        "Vite server or config must be provided to build the RuntimeService.",
+      );
+    }
+
+    return new RuntimeService(this.#options, this.#serverConnection);
   }
 }

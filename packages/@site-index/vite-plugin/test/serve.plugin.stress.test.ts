@@ -67,7 +67,7 @@ describe("siteIndexServePlugin stress", () => {
       getWatchedFiles: () => new Set([watchedFile]),
     });
 
-    const { plugin, server } = setupServePlugin({
+    const { plugin, server } = await setupServePlugin({
       runtime,
       createRuntimeServiceMock,
     });

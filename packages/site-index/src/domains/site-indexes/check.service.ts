@@ -1,5 +1,5 @@
 import { createRuntimeService } from "@site-index/vite-runtime";
-import { logger } from "../../shared/services/logger.service.js";
+import { logger } from "../../shared/logging/logger.js";
 import type { CheckConfig } from "./types.js";
 import { makeResolvedViteConfig } from "./vite.config.js";
 

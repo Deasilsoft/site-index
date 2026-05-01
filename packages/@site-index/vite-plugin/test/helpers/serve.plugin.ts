@@ -1,4 +1,4 @@
-import type { Plugin, ResolvedConfig, ViteDevServer } from "vite";
+import type { Plugin, ViteDevServer } from "vite";
 import { vi } from "vitest";
 import { siteIndexServePlugin } from "../../src/index.js";
 import { getPluginHookHandler } from "./plugin-hooks.js";
@@ -7,7 +7,7 @@ import { createViteDevServerMock } from "./vite-dev-server.mock.js";
 
 type BuildArtifactsResult = {
   data: unknown[];
-  warnings: Array<{ message: string }>;
+  warnings: Array<{ message: string; filePath?: string | undefined }>;
 };
 
 type RuntimeInput = {
@@ -28,8 +28,6 @@ type MiddlewareResponse = {
 
 export function createServeRuntimeMock(input?: RuntimeInput) {
   return {
-    setViteConfig: vi.fn(),
-    attachViteServer: vi.fn(),
     buildArtifacts: vi.fn(
       input?.buildArtifacts ?? (async () => ({ data: [], warnings: [] })),
     ),
@@ -39,38 +37,26 @@ export function createServeRuntimeMock(input?: RuntimeInput) {
   };
 }
 
-export function setupServePlugin(input: {
+export async function setupServePlugin(input: {
   runtime: ReturnType<typeof createServeRuntimeMock>;
   createRuntimeServiceMock: ReturnType<typeof vi.fn>;
   configureServer?: boolean;
 }) {
-  const { builder, withOptions } = createRuntimeBuilderMock(input.runtime);
+  const { builder, withOptions, withViteServer } = createRuntimeBuilderMock(
+    input.runtime,
+  );
   input.createRuntimeServiceMock.mockReturnValue(builder as never);
 
   const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
   const server = createViteDevServerMock();
-  const resolvedConfig = {
-    command: "serve",
-    root: "/repo",
-    mode: "development",
-    logger: {
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-    },
-  } as unknown as ResolvedConfig;
-
-  getPluginHookHandler<(resolved: ResolvedConfig) => void>(
-    plugin.configResolved,
-  )(resolvedConfig);
 
   if (input.configureServer !== false) {
-    getPluginHookHandler<(current: ViteDevServer) => void>(
-      plugin.configureServer,
-    )(server);
+    await getPluginHookHandler<
+      (current: ViteDevServer) => Promise<void> | void
+    >(plugin.configureServer)(server);
   }
 
-  return { plugin, server, resolvedConfig, withOptions };
+  return { plugin, server, withOptions, withViteServer };
 }
 
 export function getRegisteredMiddleware(

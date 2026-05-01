@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { resolveOptions } from "../src/domains/options/options.resolve.js";
-import { type LoadSiteIndexModule, main } from "../src/index.js";
+import { type LoadModule, main } from "../src/index.js";
 
 type InvalidOptionsCase = {
   name: string;
@@ -15,7 +15,7 @@ type InvalidOptionsCase = {
   message: string;
 };
 
-const validLoader: LoadSiteIndexModule = async () => ({
+const validLoader: LoadModule = async () => ({
   siteIndexes: [],
 });
 
@@ -69,7 +69,7 @@ describe("options rejections", () => {
     it.each(invalidOptionsCases)(
       "rejects before pipeline work for invalid input ($name)",
       async ({ input, message }) => {
-        const loadModule = vi.fn<LoadSiteIndexModule>(async () => ({
+        const loadModule = vi.fn<LoadModule>(async () => ({
           siteIndexes: [],
         }));
 

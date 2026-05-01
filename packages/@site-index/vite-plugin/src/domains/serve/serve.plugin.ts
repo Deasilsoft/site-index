@@ -1,5 +1,7 @@
 import type * as SiteIndex from "@site-index/core";
 import type { Options as CoreOptions } from "@site-index/core";
+import { Logger } from "@site-index/observability";
+import type { RuntimeService } from "@site-index/vite-runtime";
 import { createRuntimeService } from "@site-index/vite-runtime";
 import * as Vite from "vite";
 import pkg from "../../../package.json" with { type: "json" };
@@ -8,67 +10,57 @@ import { makeArtifactsMiddleware } from "./artifacts.middleware.js";
 type Options = Pick<CoreOptions, "siteUrl" | "extensions">;
 
 export function siteIndexServePlugin(options: Options): Vite.Plugin {
-  const runtime = createRuntimeService().withOptions(options).build();
+  const logger = new Logger();
+  let runtime: RuntimeService | undefined;
   const artifacts = new Map<string, SiteIndex.Artifact>();
 
-  function syncArtifacts(): void {
-    artifacts.clear();
+  async function buildArtifacts(): Promise<void> {
+    if (!runtime) {
+      return;
+    }
 
-    for (const artifact of runtime.getArtifacts()) {
-      artifacts.set(
-        artifact.filePath.startsWith("/")
-          ? artifact.filePath
-          : `/${artifact.filePath}`,
-        artifact,
-      );
+    try {
+      const result = await runtime.buildArtifacts();
+
+      artifacts.clear();
+
+      for (const artifact of result.data) {
+        artifacts.set(`/${artifact.filePath}`, artifact);
+      }
+
+      logger.warn(result.warnings);
+    } catch (error) {
+      logger.error(error);
     }
   }
 
   return {
     name: `${pkg.name}:serve`,
     apply: "serve",
-    configResolved(resolvedConfig) {
-      runtime.setViteConfig(resolvedConfig);
-    },
-    configureServer(server) {
-      runtime.attachViteServer(server);
+    async configureServer(server) {
+      runtime = createRuntimeService()
+        .withOptions(options)
+        .withViteServer(server)
+        .build();
+
+      logger.configure({ writer: server.config.logger });
       server.middlewares.use(makeArtifactsMiddleware(artifacts));
 
-      void runtime
-        .buildArtifacts()
-        .then((result) => {
-          syncArtifacts();
-
-          for (const warning of result.warnings) {
-            server.config.logger.warn(warning.message);
-          }
-        })
-        .catch((error) => {
-          server.config.logger.error(
-            error instanceof Error ? error.message : String(error),
-          );
-        });
+      await buildArtifacts();
     },
     async handleHotUpdate(ctx) {
+      if (runtime === undefined) {
+        return;
+      }
+
       if (!runtime.getWatchedFiles().has(ctx.file)) {
         return;
       }
 
-      try {
-        const result = await runtime.buildArtifacts();
-        syncArtifacts();
-
-        for (const warning of result.warnings) {
-          ctx.server.config.logger.warn(warning.message);
-        }
-      } catch (error) {
-        ctx.server.config.logger.error(
-          error instanceof Error ? error.message : String(error),
-        );
-      }
+      await buildArtifacts();
     },
     async closeBundle() {
-      await runtime.close();
+      await runtime?.close();
     },
   };
 }

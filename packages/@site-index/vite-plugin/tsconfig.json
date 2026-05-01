@@ -7,9 +7,14 @@
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "paths": {
       "@site-index/core": ["../core/src/index.ts"],
+      "@site-index/observability": ["../observability/src/index.ts"],
       "@site-index/vite-runtime": ["../vite-runtime/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],
-  "references": [{ "path": "../core" }, { "path": "../vite-runtime" }]
+  "references": [
+    { "path": "../core" },
+    { "path": "../observability" },
+    { "path": "../vite-runtime" }
+  ]
 }

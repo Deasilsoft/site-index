@@ -17,7 +17,6 @@ describe("siteIndexBuildPlugin", () => {
 
   it("builds artifacts, forwards warnings, and emits runtime artifacts", async () => {
     const runtime = {
-      setViteConfig: vi.fn(),
       buildArtifacts: vi.fn(async () => ({
         data: [
           {
@@ -48,7 +47,8 @@ describe("siteIndexBuildPlugin", () => {
       close: vi.fn(async () => {}),
     };
 
-    const { builder, withOptions } = createRuntimeBuilderMock(runtime);
+    const { builder, withOptions, withViteConfig } =
+      createRuntimeBuilderMock(runtime);
 
     createRuntimeServiceMock.mockReturnValue(builder as never);
 
@@ -70,7 +70,6 @@ describe("siteIndexBuildPlugin", () => {
 
     configResolved(resolvedConfig);
 
-    const warn = vi.fn();
     const buildStart = getPluginHookHandler<
       (this: {
         info(message: string): void;
@@ -81,7 +80,7 @@ describe("siteIndexBuildPlugin", () => {
 
     await buildStart.call({
       info: vi.fn(),
-      warn,
+      warn: vi.fn(),
       error: vi.fn(),
     });
 
@@ -108,9 +107,11 @@ describe("siteIndexBuildPlugin", () => {
     expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
-    expect(runtime.setViteConfig).toHaveBeenCalledWith(resolvedConfig);
+    expect(withViteConfig).toHaveBeenCalledWith(resolvedConfig);
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(1);
-    expect(warn).toHaveBeenCalledWith("Duplicate URL: /about");
+    expect(resolvedConfig.logger.warn).toHaveBeenCalledWith(
+      "Warning: Duplicate URL: /about",
+    );
     expect(emitFile).toHaveBeenCalledTimes(2);
     expect(emitFile).toHaveBeenNthCalledWith(1, {
       type: "asset",

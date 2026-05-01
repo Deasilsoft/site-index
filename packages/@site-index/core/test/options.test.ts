@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { resolveOptions } from "../src/domains/options/options.resolve.js";
-import { type LoadSiteIndexModule } from "../src/index.js";
+import { type LoadModule } from "../src/index.js";
 
-const validLoader: LoadSiteIndexModule = async () => ({
+const validLoader: LoadModule = async () => ({
   siteIndexes: [],
 });
 

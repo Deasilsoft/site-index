@@ -3,7 +3,7 @@ import pkg from "../package.json" with { type: "json" };
 import { initMakeCommand } from "./domains/make/commands/make.command.js";
 import { initBuildCommand } from "./domains/site-indexes/commands/build.command.js";
 import { initCheckCommand } from "./domains/site-indexes/commands/check.command.js";
-import { logger } from "./shared/services/logger.service.js";
+import { logger } from "./shared/logging/logger.js";
 
 function hasCommandToken(argv: string[]): boolean {
   return argv.slice(2).some((argument) => !argument.startsWith("-"));

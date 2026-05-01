@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { createModuleServiceSetup } from "./helpers/module-service.setup.js";
+import { createModuleLoaderSetup } from "./helpers/module-loader.setup.js";
 
-describe("ModuleService rejections", () => {
+describe("ModuleLoader rejections", () => {
   it("throws when module graph lookup is unresolved and retries on the next load", async () => {
-    const setup = createModuleServiceSetup();
+    const setup = createModuleLoaderSetup();
     const { module, moduleExports } = setup.mockUnresolvedThenResolved();
 
     await expect(setup.loadOnce(module)).rejects.toThrow(

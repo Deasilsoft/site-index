@@ -1,30 +1,19 @@
 import * as SiteIndex from "@site-index/core";
-import type * as Vite from "vite";
-import type { Options, RuntimeViteConfig } from "../../types.js";
-import { ArtifactsRepository } from "../artifacts/repository.js";
-import { ModuleService } from "../vite/modules/service.js";
-import { ViteServerProvider } from "../vite/server/provider.js";
+import type { Options } from "../../types.js";
+import { ModuleLoader } from "../module/loader.js";
+import { WatchedFilesBuilder } from "../module/watched-files.builder.js";
+import type { ServerConnection } from "../server/connection.js";
+import { RuntimeSnapshot } from "./snapshot.js";
 
 export class RuntimeService {
   readonly #options: Options;
-  readonly #artifactsRepository: ArtifactsRepository;
-  readonly #serverProvider: ViteServerProvider;
-  #moduleService: ModuleService;
+  readonly #serverConnection: ServerConnection;
+  #snapshot = RuntimeSnapshot.empty();
   #buildQueue: Promise<void> = Promise.resolve();
 
-  constructor(options: Options, viteConfig?: RuntimeViteConfig) {
+  constructor(options: Options, serverConnection: ServerConnection) {
     this.#options = options;
-    this.#artifactsRepository = new ArtifactsRepository();
-    this.#serverProvider = new ViteServerProvider(viteConfig);
-    this.#moduleService = this.#createModuleService();
-  }
-
-  setViteConfig(config: RuntimeViteConfig): void {
-    this.#serverProvider.setConfig(config);
-  }
-
-  attachViteServer(server: Vite.ViteDevServer): void {
-    this.#serverProvider.attachServer(server);
+    this.#serverConnection = serverConnection;
   }
 
   async buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
@@ -42,38 +31,38 @@ export class RuntimeService {
   }
 
   async #runBuildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
-    const moduleService = this.#createModuleService();
+    const watchedFilesBuilder = new WatchedFilesBuilder();
+    const moduleLoader = new ModuleLoader({
+      getServer: () => this.#serverConnection.getServer(),
+      watchedFilesBuilder,
+    });
 
     const result = await SiteIndex.main({
       siteUrl: this.#options.siteUrl,
-      rootPath: this.#serverProvider.getRootPath(),
+      rootPath: this.#serverConnection.getRootPath(),
       extensions: this.#options.extensions,
-      loadModule: moduleService.loadModule.bind(moduleService),
+      loadModule: moduleLoader.loadModule.bind(moduleLoader),
     });
 
-    this.#moduleService = moduleService;
-    this.#artifactsRepository.setArtifacts(result.data);
+    this.#snapshot = new RuntimeSnapshot({
+      artifacts: result.data,
+      watchedFiles: watchedFilesBuilder.build(),
+    });
 
     return result;
   }
 
-  #createModuleService(): ModuleService {
-    return new ModuleService(() => {
-      return this.#serverProvider.getServer();
-    });
-  }
-
   getArtifacts(): readonly SiteIndex.Artifact[] {
-    return this.#artifactsRepository.getArtifacts();
+    return this.#snapshot.getArtifacts();
   }
 
   getWatchedFiles(): ReadonlySet<string> {
-    return this.#moduleService.getWatchedFiles();
+    return this.#snapshot.getWatchedFiles();
   }
 
   async close(): Promise<void> {
-    this.#artifactsRepository.reset();
-    this.#moduleService.reset();
-    await this.#serverProvider.close();
+    this.#snapshot = RuntimeSnapshot.empty();
+
+    await this.#serverConnection.close();
   }
 }
