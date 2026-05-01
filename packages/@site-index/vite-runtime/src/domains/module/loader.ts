@@ -1,6 +1,5 @@
 import type * as SiteIndex from "@site-index/core";
 import type * as Vite from "vite";
-import type { LoadedViteModule } from "./types.js";
 import type { WatchedFilesBuilder } from "./watched-files.builder.js";
 
 type Input = {
@@ -9,7 +8,7 @@ type Input = {
 };
 
 export class ModuleLoader {
-  readonly #modules = new Map<string, LoadedViteModule>();
+  readonly #moduleExports = new Map<string, SiteIndex.ModuleExports>();
   readonly #getServer: () => Promise<Vite.ViteDevServer>;
   readonly #watchedFilesBuilder: WatchedFilesBuilder;
 
@@ -19,10 +18,10 @@ export class ModuleLoader {
   }
 
   async loadModule(module: SiteIndex.Module): Promise<SiteIndex.ModuleExports> {
-    const cachedModule = this.#modules.get(module.importId);
+    const cachedModuleExports = this.#moduleExports.get(module.importId);
 
-    if (cachedModule !== undefined) {
-      return cachedModule;
+    if (cachedModuleExports !== undefined) {
+      return cachedModuleExports;
     }
 
     const server = await this.#getServer();
@@ -35,7 +34,7 @@ export class ModuleLoader {
       throw new Error(`Unable to resolve loaded module "${module.importId}"`);
     }
 
-    this.#modules.set(module.importId, { ...module, ...moduleExports, node });
+    this.#moduleExports.set(module.importId, moduleExports);
     this.#watchedFilesBuilder.addModuleNode(node);
 
     return moduleExports;
