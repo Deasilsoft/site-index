@@ -27,6 +27,7 @@ describe("modules discovery", () => {
       data: [],
       warnings: [{ message: `No modules found in: ${root}` }],
     });
+
     expect(loadModule).not.toHaveBeenCalled();
   });
 

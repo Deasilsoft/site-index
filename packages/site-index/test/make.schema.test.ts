@@ -7,6 +7,7 @@ describe("MakeConfigSchema", () => {
   it("uses default format and force", async () => {
     await withProject({}, async (project) => {
       project.chdir();
+
       const config = MakeConfigSchema.parse({ filePath: "content/about" });
 
       expect(config.format).toBe("ts");
@@ -42,6 +43,7 @@ describe("MakeConfigSchema", () => {
       expect(fromPlain.outputFilePath).toBe(
         NodePath.resolve(project.root, "about.site-index.ts"),
       );
+
       expect(fromTs.outputFilePath).toBe(
         NodePath.resolve(project.root, "about.site-index.ts"),
       );
@@ -80,6 +82,7 @@ describe("MakeConfigSchema", () => {
       expect(fromSiteIndex.outputFilePath).toBe(
         NodePath.resolve(project.root, "nested/page.site-index.ts"),
       );
+
       expect(fromRegular.outputFilePath).toBe(
         NodePath.resolve(project.root, "nested/page.site-index.mjs"),
       );

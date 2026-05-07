@@ -4,9 +4,17 @@ import { createNode } from "./helpers/module-node.factory.js";
 import { createAttachedRuntimeSetup } from "./helpers/runtime.setup.js";
 import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
-vi.mock("@site-index/core", () => ({
-  main: vi.fn(),
-}));
+vi.mock("@site-index/core", async () => {
+  const actual =
+    await vi.importActual<typeof import("@site-index/core")>(
+      "@site-index/core",
+    );
+
+  return {
+    ...actual,
+    main: vi.fn(),
+  };
+});
 
 describe("RuntimeService rebuild rejections", () => {
   beforeEach(() => {
@@ -23,11 +31,10 @@ describe("RuntimeService rebuild rejections", () => {
 
         return {
           data: [
-            {
+            new SiteIndex.Artifact({
               filePath: "sitemap.xml",
               content: "STABLE_XML",
-              contentType: "application/xml; charset=utf-8",
-            },
+            }),
           ],
           warnings: [],
         };
@@ -56,6 +63,7 @@ describe("RuntimeService rebuild rejections", () => {
         contentType: "application/xml; charset=utf-8",
       },
     ]);
+
     expect(runtime.getWatchedFiles()).toEqual(
       new Set([
         "/repo/src/routes/a.site-index.ts",

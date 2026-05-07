@@ -9,6 +9,7 @@ const hoisted = vi.hoisted(() => {
     file: "/project/src/routes/a.site-index.ts",
     importedModules: new Set(),
   };
+
   const createServer = vi.fn(async () => ({
     config: { root: "/project" },
     environments: {

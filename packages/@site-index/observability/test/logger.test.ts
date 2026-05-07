@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z as Zod } from "zod";
 import { Logger } from "../src/index.js";
+import { getFirstMockArgument } from "./helpers/mock.js";
 
 describe("Logger", () => {
   afterEach(() => {
@@ -56,6 +57,7 @@ describe("Logger", () => {
     const logger = new Logger({
       writer: { info: vi.fn(), warn: vi.fn(), error },
     });
+
     const schema = Zod.object({
       siteUrl: Zod.string({
         error: "Missing required option: --site-url <url>",
@@ -68,7 +70,8 @@ describe("Logger", () => {
       logger.error(error_);
     }
 
-    const message = error.mock.calls[0]?.[0] as string;
+    const message = getFirstMockArgument<string>(error, "logger.error");
+
     expect(message).toContain("Error: Validation failed");
     expect(message).toContain(
       "- siteUrl: Missing required option: --site-url <url>",
@@ -80,7 +83,9 @@ describe("Logger", () => {
     const logger = new Logger({
       writer: { info: vi.fn(), warn: vi.fn(), error: errorSink },
     });
+
     const error = new Error("boom");
+
     error.stack = "STACK_TRACE";
 
     logger.error(error);
@@ -95,9 +100,11 @@ describe("Logger", () => {
     const stdout = vi
       .spyOn(process.stdout, "write")
       .mockImplementation(() => true);
+
     const stderr = vi
       .spyOn(process.stderr, "write")
       .mockImplementation(() => true);
+
     const logger = new Logger();
 
     logger.info("info");

@@ -107,22 +107,26 @@ describe("siteIndexBuildPlugin", () => {
     expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
+
     expect(withViteConfig).toHaveBeenCalledWith(resolvedConfig);
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(1);
     expect(resolvedConfig.logger.warn).toHaveBeenCalledWith(
       "Warning: Duplicate URL: /about",
     );
+
     expect(emitFile).toHaveBeenCalledTimes(2);
     expect(emitFile).toHaveBeenNthCalledWith(1, {
       type: "asset",
       fileName: "robots.txt",
       source: "ROBOTS",
     });
+
     expect(emitFile).toHaveBeenNthCalledWith(2, {
       type: "asset",
       fileName: "bad-path?x=y#z",
       source: "BAD",
     });
+
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 });

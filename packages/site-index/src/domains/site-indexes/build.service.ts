@@ -10,11 +10,10 @@ async function writeArtifacts(outPath: string, artifacts: Artifact[]) {
   const resolvedOutPath = NodePath.resolve(outPath);
 
   for (const artifact of artifacts) {
-    const relativePath = artifact.filePath.replace(/^[/\\]+/, "");
-    const filePath = NodePath.resolve(resolvedOutPath, relativePath);
-    const relative = NodePath.relative(resolvedOutPath, filePath);
+    const filePath = NodePath.resolve(resolvedOutPath, artifact.filePath);
+    const relativePath = NodePath.relative(resolvedOutPath, filePath);
 
-    if (relative.startsWith("..") || NodePath.isAbsolute(relative)) {
+    if (relativePath.startsWith("..") || NodePath.isAbsolute(relativePath)) {
       throw new Error(
         `Artifact path escapes output directory: ${artifact.filePath}`,
       );

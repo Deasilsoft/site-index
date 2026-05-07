@@ -1,6 +1,8 @@
+import type { Mock } from "vitest";
 import type { Plugin, ViteDevServer } from "vite";
 import { vi } from "vitest";
 import { siteIndexServePlugin } from "../../src/index.js";
+import { getFirstMockArgument } from "./mock.js";
 import { getPluginHookHandler } from "./plugin-hooks.js";
 import { createRuntimeBuilderMock } from "./runtime.builder.mock.js";
 import { createViteDevServerMock } from "./vite-dev-server.mock.js";
@@ -45,6 +47,7 @@ export async function setupServePlugin(input: {
   const { builder, withOptions, withViteServer } = createRuntimeBuilderMock(
     input.runtime,
   );
+
   input.createRuntimeServiceMock.mockReturnValue(builder as never);
 
   const plugin = siteIndexServePlugin({ siteUrl: "https://example.com" });
@@ -66,12 +69,17 @@ export function getRegisteredMiddleware(
   res: MiddlewareResponse,
   next: () => void,
 ) => void {
-  const use = server.middlewares.use as unknown as ReturnType<typeof vi.fn>;
-  return use.mock.calls[0]?.[0] as (
+  type Middleware = (
     req: { url?: string; method?: string },
     res: MiddlewareResponse,
     next: () => void,
   ) => void;
+
+  const use = server.middlewares.use as unknown as Mock<
+    (middleware: Middleware) => unknown
+  >;
+
+  return getFirstMockArgument<Middleware>(use, "server.middlewares.use");
 }
 
 export async function triggerHotUpdate(input: {

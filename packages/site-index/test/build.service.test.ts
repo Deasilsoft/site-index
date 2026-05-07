@@ -1,17 +1,26 @@
+import { Artifact } from "@site-index/core";
+import * as ViteRuntime from "@site-index/vite-runtime";
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
-import type { Artifact } from "@site-index/core";
-import * as ViteRuntime from "@site-index/vite-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runBuild } from "../src/domains/site-indexes/build.service.js";
+import { getFirstMockArgument } from "./helpers/mock.js";
 import { withProject } from "./helpers/project.js";
 import { createRuntimeServiceMock } from "./helpers/runtime.service.mock.js";
 import { captureStreams } from "./helpers/streams.js";
 
 const runtimeMocks = createRuntimeServiceMock();
 
+function getFirstResolvedViteConfig(): Record<string, unknown> {
+  return getFirstMockArgument<Record<string, unknown>>(
+    runtimeMocks.withViteConfig,
+    "withViteConfig",
+  );
+}
+
 beforeEach(() => {
   runtimeMocks.reset();
+
   vi.spyOn(ViteRuntime, "createRuntimeService").mockImplementation(
     runtimeMocks.createRuntimeService as never,
   );
@@ -22,20 +31,18 @@ afterEach(async () => {
 });
 
 describe("build service", () => {
-  it("writes artifacts to disk and strips leading slashes", async () => {
+  it("writes artifacts to disk", async () => {
     await withProject({}, async (project) => {
       const outPath = project.path("dist");
-      const artifacts: Artifact[] = [
-        {
-          filePath: "/robots.txt",
+      const artifacts = [
+        new Artifact({
+          filePath: "robots.txt",
           content: "robots",
-          contentType: "text/plain; charset=utf-8",
-        },
-        {
+        }),
+        new Artifact({
           filePath: "nested/sitemap.xml",
           content: "sitemap",
-          contentType: "application/xml; charset=utf-8",
-        },
+        }),
       ];
 
       runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
@@ -52,6 +59,7 @@ describe("build service", () => {
       await expect(
         NodeFS.readFile(NodePath.join(outPath, "robots.txt"), "utf8"),
       ).resolves.toBe("robots");
+
       await expect(
         NodeFS.readFile(NodePath.join(outPath, "nested/sitemap.xml"), "utf8"),
       ).resolves.toBe("sitemap");
@@ -79,9 +87,14 @@ describe("build service", () => {
     expect(output.stderr()).toContain("Warning: src/a.ts: Missing alternate");
   });
 
-  it("rejects artifacts that escape output directory", async () => {
+  it("rejects artifact paths that escape output directory", async () => {
     runtimeMocks.runtime.buildArtifacts.mockResolvedValue({
-      data: [{ filePath: "../escape.txt", content: "oops" }],
+      data: [
+        new Artifact({
+          filePath: "../escape.txt",
+          content: "oops",
+        }),
+      ],
       warnings: [],
     });
 
@@ -120,16 +133,13 @@ describe("build service", () => {
       outPath: "/project/dist",
     });
 
-    const resolvedConfig = (
-      runtimeMocks.withViteConfig.mock.calls as unknown as Array<
-        [Record<string, unknown>]
-      >
-    )[0]?.[0];
+    const resolvedConfig = getFirstResolvedViteConfig();
 
     expect(resolvedConfig).toMatchObject({
       root: "/project",
       mode: "production",
     });
+
     expect(resolvedConfig).not.toHaveProperty("configFile");
   });
 
@@ -146,11 +156,8 @@ describe("build service", () => {
       configFile: "/project/vite.config.ts",
     });
 
-    const resolvedConfig = (
-      runtimeMocks.withViteConfig.mock.calls as unknown as Array<
-        [Record<string, unknown>]
-      >
-    )[0]?.[0];
+    const resolvedConfig = getFirstResolvedViteConfig();
+
     expect(resolvedConfig).toMatchObject({
       root: "/project",
       mode: "production",

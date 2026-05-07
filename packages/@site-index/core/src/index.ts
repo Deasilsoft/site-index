@@ -1,4 +1,4 @@
-export type { Artifact } from "./domains/artifacts/types.js";
+export { Artifact } from "./domains/artifacts/artifact.js";
 export type { LoadModule, Options } from "./domains/options/types.js";
 export type * from "./domains/site-indexes/types.js";
 export type { Warning, Result } from "./types.js";

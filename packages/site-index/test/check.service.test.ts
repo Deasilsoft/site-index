@@ -1,13 +1,22 @@
 import * as ViteRuntime from "@site-index/vite-runtime";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runCheck } from "../src/domains/site-indexes/check.service.js";
+import { getFirstMockArgument } from "./helpers/mock.js";
 import { createRuntimeServiceMock } from "./helpers/runtime.service.mock.js";
 import { captureStreams } from "./helpers/streams.js";
 
 const runtimeMocks = createRuntimeServiceMock();
 
+function getFirstResolvedViteConfig(): Record<string, unknown> {
+  return getFirstMockArgument<Record<string, unknown>>(
+    runtimeMocks.withViteConfig,
+    "withViteConfig",
+  );
+}
+
 beforeEach(() => {
   runtimeMocks.reset();
+
   vi.spyOn(ViteRuntime, "createRuntimeService").mockImplementation(
     runtimeMocks.createRuntimeService as never,
   );
@@ -52,6 +61,7 @@ describe("check service", () => {
     }
 
     const stderr = output.stderr();
+
     expect(stderr).toContain("Warning: a.ts: A");
     expect(stderr).toContain("Warning: B");
   });
@@ -80,16 +90,13 @@ describe("check service", () => {
       rootPath: "/project",
     });
 
-    const resolvedConfig = (
-      runtimeMocks.withViteConfig.mock.calls as unknown as Array<
-        [Record<string, unknown>]
-      >
-    )[0]?.[0];
+    const resolvedConfig = getFirstResolvedViteConfig();
 
     expect(resolvedConfig).toMatchObject({
       root: "/project",
       mode: "production",
     });
+
     expect(resolvedConfig).not.toHaveProperty("configFile");
   });
 
@@ -105,11 +112,8 @@ describe("check service", () => {
       configFile: "/project/vite.config.ts",
     });
 
-    const resolvedConfig = (
-      runtimeMocks.withViteConfig.mock.calls as unknown as Array<
-        [Record<string, unknown>]
-      >
-    )[0]?.[0];
+    const resolvedConfig = getFirstResolvedViteConfig();
+
     expect(resolvedConfig).toMatchObject({
       root: "/project",
       mode: "production",

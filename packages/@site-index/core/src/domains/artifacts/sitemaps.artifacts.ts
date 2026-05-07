@@ -1,5 +1,5 @@
 import type { ResolvedSiteIndex } from "../site-indexes/schemas/site-indexes.schema.js";
-import type { Artifact } from "./types.js";
+import { Artifact } from "./artifact.js";
 
 const XML_VERSION_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
 const SITEMAP_XML_NAMESPACE = "https://www.sitemaps.org/schemas/sitemap/0.9";
@@ -49,11 +49,13 @@ export function makeSitemapArtifacts(
     a.localeCompare(b),
   );
 
-  return sortedSitemaps.map(([sitemap, siteIndexes]) => ({
-    filePath: `sitemap-${sitemap}.xml`,
-    content: renderSitemapXml(siteIndexes, siteUrl),
-    contentType: "application/xml; charset=utf-8",
-  }));
+  return sortedSitemaps.map(
+    ([sitemap, siteIndexes]) =>
+      new Artifact({
+        filePath: `sitemap-${sitemap}.xml`,
+        content: renderSitemapXml(siteIndexes, siteUrl),
+      }),
+  );
 }
 
 function renderSitemapIndexXml(paths: string[], siteUrl: string): string {
@@ -81,9 +83,8 @@ export function makeSitemapIndexArtifact(
     .map((artifact) => artifact.filePath)
     .toSorted((a, b) => a.localeCompare(b));
 
-  return {
+  return new Artifact({
     filePath: "sitemap.xml",
     content: renderSitemapIndexXml(paths, siteUrl),
-    contentType: "application/xml; charset=utf-8",
-  };
+  });
 }

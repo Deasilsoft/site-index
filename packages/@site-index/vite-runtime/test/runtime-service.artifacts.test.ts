@@ -4,9 +4,17 @@ import { createNode } from "./helpers/module-node.factory.js";
 import { createAttachedRuntimeSetup } from "./helpers/runtime.setup.js";
 import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
-vi.mock("@site-index/core", () => ({
-  main: vi.fn(),
-}));
+vi.mock("@site-index/core", async () => {
+  const actual =
+    await vi.importActual<typeof import("@site-index/core")>(
+      "@site-index/core",
+    );
+
+  return {
+    ...actual,
+    main: vi.fn(),
+  };
+});
 
 describe("RuntimeService", () => {
   beforeEach(() => {
@@ -27,11 +35,10 @@ describe("RuntimeService", () => {
 
       return {
         data: [
-          {
+          new SiteIndex.Artifact({
             filePath: "sitemap.xml",
             content: "INDEX_XML",
-            contentType: "application/xml; charset=utf-8",
-          },
+          }),
         ],
         warnings: [{ message: "Duplicate URL: /blog" }],
       };
@@ -58,7 +65,6 @@ describe("RuntimeService", () => {
     });
 
     const runtime = createAttachedRuntimeSetup(viteServer.server);
-
     const result = await runtime.buildArtifacts();
 
     expect(viteServer.ssrLoadModule).toHaveBeenNthCalledWith(
@@ -102,11 +108,10 @@ describe("RuntimeService", () => {
 
       return {
         data: [
-          {
+          new SiteIndex.Artifact({
             filePath: "sitemap.xml",
             content: "ORIGINAL",
-            contentType: "application/xml; charset=utf-8",
-          },
+          }),
         ],
         warnings: [],
       };
@@ -115,6 +120,7 @@ describe("RuntimeService", () => {
     const watchedNode = createNode("/repo/src/routes/a.site-index.ts", [
       createNode("/repo/src/deps/shared.ts"),
     ]);
+
     const viteServer = createViteServerMock({
       modulesByUrl: {
         "./src/routes/a.site-index.ts": watchedNode,
@@ -122,17 +128,20 @@ describe("RuntimeService", () => {
     });
 
     const runtime = createAttachedRuntimeSetup(viteServer.server);
+
     await runtime.buildArtifacts();
 
     const artifacts = runtime.getArtifacts() as SiteIndex.Artifact[];
-    artifacts[0]!.content = "MUTATED";
-    artifacts.push({
-      filePath: "robots.txt",
-      content: "MUTATED",
-      contentType: "text/plain; charset=utf-8",
-    });
+
+    artifacts.push(
+      new SiteIndex.Artifact({
+        filePath: "robots.txt",
+        content: "MUTATED",
+      }),
+    );
 
     const watchedFiles = runtime.getWatchedFiles() as Set<string>;
+
     watchedFiles.clear();
     watchedFiles.add("/tmp/fake.ts");
 
@@ -143,6 +152,7 @@ describe("RuntimeService", () => {
         contentType: "application/xml; charset=utf-8",
       },
     ]);
+
     expect(runtime.getWatchedFiles()).toEqual(
       new Set(["/repo/src/routes/a.site-index.ts", "/repo/src/deps/shared.ts"]),
     );

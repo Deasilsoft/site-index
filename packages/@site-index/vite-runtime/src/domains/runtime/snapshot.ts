@@ -11,12 +11,12 @@ export class RuntimeSnapshot {
   readonly #watchedFiles: WatchedFiles;
 
   constructor(input: Input) {
-    this.#artifacts = input.artifacts.map((artifact) => ({ ...artifact }));
+    this.#artifacts = [...input.artifacts];
     this.#watchedFiles = input.watchedFiles;
   }
 
   getArtifacts(): readonly SiteIndex.Artifact[] {
-    return this.#artifacts.map((artifact) => ({ ...artifact }));
+    return [...this.#artifacts];
   }
 
   getWatchedFiles(): ReadonlySet<string> {

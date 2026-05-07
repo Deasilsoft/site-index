@@ -74,6 +74,7 @@ describe("siteIndexServePlugin rejections", () => {
       statusCode: 0,
       end: vi.fn(),
     };
+
     const next = vi.fn();
 
     middleware({ url: "/robots.txt", method: "GET" }, res, next);

@@ -17,6 +17,12 @@ function createLoadedModule(
   };
 }
 
+function getOnlyWarning(result: { warnings: Array<{ message: string }> }) {
+  expect(result.warnings).toHaveLength(1);
+
+  return result.warnings[0]!;
+}
+
 describe("modules resolve", () => {
   it("returns resolved modules for valid default exports", () => {
     const loadedModules: LoadedModule[] = [
@@ -81,12 +87,15 @@ describe("modules resolve", () => {
         siteIndexes: [{ url: "/valid", sitemap: "pages", index: true }],
       },
     ]);
-    expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0]).toMatchObject({
+
+    const warning = getOnlyWarning(result);
+
+    expect(warning).toMatchObject({
       filePath: "/test-fixtures/bad.site-index.ts",
     });
-    expect(result.warnings[0]?.message).toContain("Invalid module");
-    expect(result.warnings[0]?.message).toContain("Invalid url");
+
+    expect(warning.message).toContain("Invalid module");
+    expect(warning.message).toContain("Invalid url");
   });
 
   it.each([
@@ -126,12 +135,14 @@ describe("modules resolve", () => {
       ]);
 
       expect(result.data).toEqual([]);
-      expect(result.warnings).toHaveLength(1);
-      expect(result.warnings[0]).toMatchObject({
+      const warning = getOnlyWarning(result);
+
+      expect(warning).toMatchObject({
         filePath: "/test-fixtures/invalid.site-index.ts",
       });
-      expect(result.warnings[0]?.message).toContain("Invalid module");
-      expect(result.warnings[0]?.message).toContain(expectedDetail);
+
+      expect(warning.message).toContain("Invalid module");
+      expect(warning.message).toContain(expectedDetail);
     },
   );
 

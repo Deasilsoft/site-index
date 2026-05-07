@@ -4,9 +4,27 @@ import { createNode } from "./helpers/module-node.factory.js";
 import { createAttachedRuntimeSetup } from "./helpers/runtime.setup.js";
 import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
-vi.mock("@site-index/core", () => ({
-  main: vi.fn(),
-}));
+vi.mock("@site-index/core", async () => {
+  const actual =
+    await vi.importActual<typeof import("@site-index/core")>(
+      "@site-index/core",
+    );
+
+  return {
+    ...actual,
+    main: vi.fn(),
+  };
+});
+
+function releaseNextBuild(releases: Array<() => void>): void {
+  const release = releases.shift();
+
+  if (!release) {
+    throw new Error("Expected pending build release");
+  }
+
+  release();
+}
 
 describe("RuntimeService build state", () => {
   beforeEach(() => {
@@ -22,11 +40,10 @@ describe("RuntimeService build state", () => {
 
       return {
         data: [
-          {
+          new SiteIndex.Artifact({
             filePath: "sitemap.xml",
             content: "STABLE_XML",
-            contentType: "application/xml; charset=utf-8",
-          },
+          }),
         ],
         warnings: [],
       };
@@ -53,6 +70,7 @@ describe("RuntimeService build state", () => {
         contentType: "application/xml; charset=utf-8",
       },
     ]);
+
     expect(runtime.getWatchedFiles()).toEqual(
       new Set([
         "/repo/src/routes/a.site-index.ts",
@@ -83,23 +101,24 @@ describe("RuntimeService build state", () => {
     });
 
     const runtime = createAttachedRuntimeSetup(createViteServerMock().server);
-
     const firstBuild = runtime.buildArtifacts();
     const secondBuild = runtime.buildArtifacts();
 
     await vi.waitFor(() => {
       expect(SiteIndex.main).toHaveBeenCalledTimes(1);
     });
+
     expect(releases).toHaveLength(1);
 
-    releases.shift()?.();
+    releaseNextBuild(releases);
 
     await vi.waitFor(() => {
       expect(SiteIndex.main).toHaveBeenCalledTimes(2);
     });
+
     expect(releases).toHaveLength(1);
 
-    releases.shift()?.();
+    releaseNextBuild(releases);
 
     await Promise.all([firstBuild, secondBuild]);
 
@@ -142,11 +161,13 @@ describe("RuntimeService build state", () => {
     const runtime = createAttachedRuntimeSetup(viteServer.server);
 
     await runtime.buildArtifacts();
+
     expect(runtime.getWatchedFiles()).toEqual(
       new Set(["/repo/src/routes/a.site-index.ts", "/repo/src/deps/a-dep.ts"]),
     );
 
     await runtime.buildArtifacts();
+
     expect(runtime.getWatchedFiles()).toEqual(
       new Set(["/repo/src/routes/b.site-index.ts", "/repo/src/deps/b-dep.ts"]),
     );

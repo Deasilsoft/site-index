@@ -46,6 +46,7 @@ describe("ModuleLoader watched-file graph", () => {
         filePath: "/repo/src/routes/blog.site-index.ts",
         importId: "./src/routes/blog.site-index.ts",
       });
+
       await options.loadModule({
         filePath: "/repo/src/routes/docs.site-index.ts",
         importId: "./src/routes/docs.site-index.ts",
@@ -58,6 +59,7 @@ describe("ModuleLoader watched-file graph", () => {
       .withOptions({ siteUrl: "https://example.com" })
       .withViteServer(viteServer.server)
       .build();
+
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -68,6 +70,7 @@ describe("ModuleLoader watched-file graph", () => {
         "/repo/src/content/shared.ts",
       ]),
     );
+
     expect(viteServer.lookedUpUrls).toEqual([
       "./src/routes/blog.site-index.ts",
       "./src/routes/docs.site-index.ts",
@@ -101,6 +104,7 @@ describe("ModuleLoader watched-file graph", () => {
       .withOptions({ siteUrl: "https://example.com" })
       .withViteServer(viteServer.server)
       .build();
+
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -109,6 +113,7 @@ describe("ModuleLoader watched-file graph", () => {
         "/repo/src/lib/real.ts",
       ]),
     );
+
     expect(viteServer.lookedUpUrls).toEqual(["@/routes/alias.site-index.ts"]);
   });
 
@@ -140,6 +145,7 @@ describe("ModuleLoader watched-file graph", () => {
       .withOptions({ siteUrl: "https://example.com" })
       .withViteServer(viteServer.server)
       .build();
+
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(
@@ -157,12 +163,15 @@ describe("ModuleLoader watched-file graph", () => {
     const expected = [entry.file!];
 
     let current = entry;
+
     for (let index = 0; index < depth; index += 1) {
       const file = `/repo/src/content/deep-${index}.ts`;
       const next = createModule(file);
+
       current.importedModules.add(next);
-      current = next;
       expected.push(file);
+
+      current = next;
     }
 
     const viteServer = createViteServerMock({
@@ -184,6 +193,7 @@ describe("ModuleLoader watched-file graph", () => {
       .withOptions({ siteUrl: "https://example.com" })
       .withViteServer(viteServer.server)
       .build();
+
     await runtime.buildArtifacts();
 
     expect(runtime.getWatchedFiles()).toEqual(new Set(expected));

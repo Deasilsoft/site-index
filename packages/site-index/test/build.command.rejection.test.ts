@@ -38,6 +38,7 @@ describe("build command rejections", () => {
     await expect(cli("build")).rejects.toThrow(
       "Missing required option: --site-url <url>",
     );
+
     expect(runBuild).not.toHaveBeenCalled();
   });
 });

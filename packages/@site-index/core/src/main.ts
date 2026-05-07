@@ -1,5 +1,5 @@
+import type { Artifact } from "./domains/artifacts/artifact.js";
 import { makeArtifacts } from "./domains/artifacts/make.artifacts.js";
-import type { Artifact } from "./domains/artifacts/types.js";
 import { resolveOptions } from "./domains/options/options.resolve.js";
 import type { Options } from "./domains/options/types.js";
 import { discoverModules } from "./domains/site-indexes/process/modules.discovery.js";

@@ -34,6 +34,7 @@ describe("check command rejections", () => {
     await expect(cli("check")).rejects.toThrow(
       "Missing required option: --site-url <url>",
     );
+
     expect(runCheck).not.toHaveBeenCalled();
   });
 });

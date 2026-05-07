@@ -39,6 +39,7 @@ describe("createArtifactsMiddleware", () => {
       "Content-Type",
       "application/xml; charset=utf-8",
     );
+
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith("INDEX_XML");
   });
@@ -68,6 +69,7 @@ describe("createArtifactsMiddleware", () => {
       "Content-Type",
       "text/plain; charset=utf-8",
     );
+
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith("User-agent: *");
   });
@@ -97,6 +99,7 @@ describe("createArtifactsMiddleware", () => {
       "Content-Type",
       "application/xml; charset=utf-8",
     );
+
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith("BLOG_XML");
   });
@@ -126,6 +129,7 @@ describe("createArtifactsMiddleware", () => {
       "Content-Type",
       "application/xml; charset=utf-8",
     );
+
     expect(res.statusCode).toBe(200);
     expect(res.end).toHaveBeenCalledWith();
   });

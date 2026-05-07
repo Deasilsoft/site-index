@@ -30,6 +30,7 @@ describe("siteIndexServePlugin stress", () => {
         contentType: "text/plain; charset=utf-8",
       },
     ];
+
     let nextBuildNumber = 0;
     let buildQueue: Promise<void> = Promise.resolve();
 
@@ -72,8 +73,14 @@ describe("siteIndexServePlugin stress", () => {
       createRuntimeServiceMock,
     });
 
-    const initialBuildPromise = runtime.buildArtifacts.mock.results[0]
-      ?.value as Promise<unknown>;
+    const initialBuildResult = runtime.buildArtifacts.mock.results[0];
+
+    if (!initialBuildResult) {
+      throw new Error("Expected initial build to run during server setup");
+    }
+
+    const initialBuildPromise = initialBuildResult.value as Promise<unknown>;
+
     await initialBuildPromise;
     await Promise.resolve();
 
@@ -88,7 +95,9 @@ describe("siteIndexServePlugin stress", () => {
 
     const serveRobots = () => {
       const response = createResponse();
+
       middleware({ url: "/robots.txt", method: "GET" }, response, next);
+
       return response;
     };
 

@@ -34,12 +34,15 @@ vi.mock("cac", () => ({ cac: mainTestMocks.cacMock }));
 vi.mock("../src/domains/site-indexes/commands/build.command.js", () => ({
   initBuildCommand: mainTestMocks.initBuildCommand,
 }));
+
 vi.mock("../src/domains/site-indexes/commands/check.command.js", () => ({
   initCheckCommand: mainTestMocks.initCheckCommand,
 }));
+
 vi.mock("../src/domains/make/commands/make.command.js", () => ({
   initMakeCommand: mainTestMocks.initMakeCommand,
 }));
+
 vi.mock("../src/shared/logging/logger.js", () => ({
   logger: {
     configure: mainTestMocks.configureLogger,
@@ -50,6 +53,7 @@ vi.mock("../src/shared/logging/logger.js", () => ({
 afterEach(() => {
   resetMainTestMocks(mainTestMocks);
   vi.restoreAllMocks();
+
   process.exitCode = undefined;
 });
 
@@ -61,20 +65,25 @@ describe("main CLI wiring", () => {
     expect(mainTestMocks.initBuildCommand).toHaveBeenCalledWith(
       mainTestMocks.cli,
     );
+
     expect(mainTestMocks.initCheckCommand).toHaveBeenCalledWith(
       mainTestMocks.cli,
     );
+
     expect(mainTestMocks.initMakeCommand).toHaveBeenCalledWith(
       mainTestMocks.cli,
     );
+
     expect(mainTestMocks.cli.option).toHaveBeenCalledWith(
       "--quiet",
       "Suppress informational output",
     );
+
     expect(mainTestMocks.cli.option).toHaveBeenCalledWith(
       "--verbose",
       "Enable verbose logging",
     );
+
     expect(mainTestMocks.cli.version).toHaveBeenCalledWith("0.0.0");
     expect(mainTestMocks.cli.help).toHaveBeenCalled();
     expect(mainTestMocks.cli.outputHelp).toHaveBeenCalledOnce();
@@ -82,11 +91,13 @@ describe("main CLI wiring", () => {
       ["node", "site-index"],
       { run: false },
     );
+
     expect(mainTestMocks.cli.runMatchedCommand).not.toHaveBeenCalled();
     expect(mainTestMocks.configureLogger).toHaveBeenCalledWith({
       quiet: false,
       verbose: false,
     });
+
     expect(process.exitCode).toBeUndefined();
   });
 
@@ -97,11 +108,13 @@ describe("main CLI wiring", () => {
       ["node", "site-index", "build", "--site-url", "https://a.com"],
       { run: false },
     );
+
     expect(mainTestMocks.cli.runMatchedCommand).toHaveBeenCalledOnce();
     expect(mainTestMocks.configureLogger).toHaveBeenCalledWith({
       quiet: false,
       verbose: false,
     });
+
     expect(process.exitCode).toBeUndefined();
   });
 

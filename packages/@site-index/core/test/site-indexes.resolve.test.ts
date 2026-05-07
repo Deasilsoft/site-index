@@ -74,6 +74,7 @@ describe("site-indexes resolve", () => {
         filePath: "/test-fixtures/private.site-index.ts",
       },
     ]);
+
     expect(result.warnings).toEqual([
       {
         message:
@@ -92,6 +93,7 @@ describe("site-indexes resolve", () => {
         },
       ]),
     ];
+
     const before = structuredClone(modules);
     const result = resolveSiteIndexes(modules);
 
@@ -107,6 +109,7 @@ describe("site-indexes resolve", () => {
       ],
       warnings: [],
     });
+
     expect(modules).toEqual(before);
   });
 
@@ -137,6 +140,7 @@ describe("site-indexes resolve", () => {
         filePath: "/test-fixtures/duplicates.site-index.ts",
       },
     ]);
+
     expect(result.warnings).toEqual([
       {
         message:

@@ -54,6 +54,7 @@ describe("main", () => {
         expect.stringContaining('Duplicate URL "/about"'),
       ]),
     );
+
     expect(result.data.map((artifact) => artifact.filePath)).toEqual(
       expect.arrayContaining([
         "robots.txt",

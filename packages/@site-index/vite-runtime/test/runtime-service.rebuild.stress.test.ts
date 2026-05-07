@@ -3,9 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createAttachedRuntimeSetup } from "./helpers/runtime.setup.js";
 import { createViteServerMock } from "./helpers/vite-server.mock.js";
 
-vi.mock("@site-index/core", () => ({
-  main: vi.fn(),
-}));
+vi.mock("@site-index/core", async () => {
+  const actual =
+    await vi.importActual<typeof import("@site-index/core")>(
+      "@site-index/core",
+    );
+
+  return {
+    ...actual,
+    main: vi.fn(),
+  };
+});
 
 describe("RuntimeService rebuild stress", () => {
   beforeEach(() => {
@@ -35,11 +43,10 @@ describe("RuntimeService rebuild stress", () => {
 
         return {
           data: [
-            {
+            new SiteIndex.Artifact({
               filePath: `sitemap-${currentBuildNumber}.xml`,
               content: `XML_${currentBuildNumber}`,
-              contentType: "application/xml; charset=utf-8",
-            },
+            }),
           ],
           warnings: [],
         };
@@ -49,11 +56,11 @@ describe("RuntimeService rebuild stress", () => {
     });
 
     const runtime = createAttachedRuntimeSetup(createViteServerMock().server);
-
     const burstSize = 12;
     const burst = Array.from({ length: burstSize }, () =>
       runtime.buildArtifacts(),
     );
+
     const settled = await Promise.allSettled(burst);
 
     expect(maxActiveBuilds).toBe(1);
@@ -72,8 +79,14 @@ describe("RuntimeService rebuild stress", () => {
     for (const result of fulfilled) {
       if (result.status === "fulfilled") {
         expect(result.value.data).toHaveLength(1);
-        expect(result.value.data[0]?.filePath).toMatch(/^sitemap-\d+\.xml$/);
-        expect(result.value.data[0]?.content).toMatch(/^XML_\d+$/);
+        const artifact = result.value.data[0];
+
+        if (!artifact) {
+          throw new Error("Expected artifact in fulfilled build result");
+        }
+
+        expect(artifact.filePath).toMatch(/^sitemap-\d+\.xml$/);
+        expect(artifact.content).toMatch(/^XML_\d+$/);
       }
     }
 
@@ -95,6 +108,7 @@ describe("RuntimeService rebuild stress", () => {
         contentType: "application/xml; charset=utf-8",
       },
     ]);
+
     expect(SiteIndex.main).toHaveBeenCalledTimes(13);
     expect(maxActiveBuilds).toBe(1);
   });

@@ -6,6 +6,19 @@ import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
 const tempRoots: string[] = [];
 
+function getArtifactContent(
+  artifacts: Map<string, string>,
+  filePath: string,
+): string {
+  const content = artifacts.get(filePath);
+
+  if (content === undefined) {
+    throw new Error(`Missing artifact: ${filePath}`);
+  }
+
+  return content;
+}
+
 afterEach(async () => {
   await cleanupTempProjects(tempRoots);
 });
@@ -64,18 +77,21 @@ describe("artifacts", () => {
       "sitemap.xml",
     ]);
 
-    const robots = artifacts.get("robots.txt");
+    const robots = getArtifactContent(artifacts, "robots.txt");
+
     expect(robots).toContain("Disallow: /admin");
     expect(robots).toContain("Sitemap: https://example.com/sitemap.xml");
 
-    const sitemapBlog = artifacts.get("sitemap-blog.xml");
+    const sitemapBlog = getArtifactContent(artifacts, "sitemap-blog.xml");
+
     expect(sitemapBlog).toContain("https://example.com/blog/first-post");
     expect(sitemapBlog).toContain("https://example.com/blog/second-post");
     expect(sitemapBlog).toContain(
       "<lastmod>2026-04-22T10:15:00.000Z</lastmod>",
     );
 
-    const sitemapPages = artifacts.get("sitemap-pages.xml");
+    const sitemapPages = getArtifactContent(artifacts, "sitemap-pages.xml");
+
     expect(sitemapPages).toContain("https://example.com/about");
     expect(sitemapPages).not.toContain("https://example.com/admin");
   });
@@ -121,16 +137,17 @@ describe("artifacts", () => {
     ]);
 
     const artifacts = artifactMap(result.data);
+    const sitemapPages = getArtifactContent(artifacts, "sitemap-pages.xml");
 
-    const sitemapPages = artifacts.get("sitemap-pages.xml");
     expect(sitemapPages).toContain("https://example.com/a-first");
     expect(sitemapPages).toContain("https://example.com/z-last");
 
-    const robots = artifacts.get("robots.txt");
+    const robots = getArtifactContent(artifacts, "robots.txt");
+
     expect(robots).toContain("Disallow: /private-a");
     expect(robots).toContain("Disallow: /private-b");
-    expect(robots?.indexOf("Disallow: /private-a")).toBeLessThan(
-      robots?.indexOf("Disallow: /private-b") ?? 0,
+    expect(robots.indexOf("Disallow: /private-a")).toBeLessThan(
+      robots.indexOf("Disallow: /private-b"),
     );
   });
 });

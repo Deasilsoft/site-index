@@ -38,12 +38,15 @@ vi.mock("cac", () => ({ cac: mainTestMocks.cacMock }));
 vi.mock("../src/domains/site-indexes/commands/build.command.js", () => ({
   initBuildCommand: mainTestMocks.initBuildCommand,
 }));
+
 vi.mock("../src/domains/site-indexes/commands/check.command.js", () => ({
   initCheckCommand: mainTestMocks.initCheckCommand,
 }));
+
 vi.mock("../src/domains/make/commands/make.command.js", () => ({
   initMakeCommand: mainTestMocks.initMakeCommand,
 }));
+
 vi.mock("../src/shared/logging/logger.js", () => ({
   logger: {
     configure: mainTestMocks.configureLogger,
@@ -54,6 +57,7 @@ vi.mock("../src/shared/logging/logger.js", () => ({
 afterEach(() => {
   resetMainTestMocks(mainTestMocks);
   vi.restoreAllMocks();
+
   process.exitCode = undefined;
 });
 

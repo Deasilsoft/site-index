@@ -1,10 +1,10 @@
 import type { ResolvedSiteIndex } from "../site-indexes/schemas/site-indexes.schema.js";
+import type { Artifact } from "./artifact.js";
 import { makeRobotsArtifact } from "./robots.artifacts.js";
 import {
   makeSitemapArtifacts,
   makeSitemapIndexArtifact,
 } from "./sitemaps.artifacts.js";
-import type { Artifact } from "./types.js";
 
 function makeSitemapGroups(
   siteIndexes: ResolvedSiteIndex[],

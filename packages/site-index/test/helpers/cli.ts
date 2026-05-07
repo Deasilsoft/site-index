@@ -21,7 +21,6 @@ export async function cli(...args: string[]): Promise<void> {
     }
   } finally {
     logger.error = previousLoggerError;
-
     process.exitCode = previousExitCode;
   }
 }

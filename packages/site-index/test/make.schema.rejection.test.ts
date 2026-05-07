@@ -6,6 +6,7 @@ describe("MakeConfigSchema rejections", () => {
   it("rejects empty file paths", async () => {
     await withProject({}, async (project) => {
       project.chdir();
+
       expect(() => MakeConfigSchema.parse({ filePath: "   " })).toThrow(
         "File path is required",
       );
@@ -15,6 +16,7 @@ describe("MakeConfigSchema rejections", () => {
   it("rejects file paths outside cwd", async () => {
     await withProject({}, async (project) => {
       project.chdir();
+
       expect(() => MakeConfigSchema.parse({ filePath: "../outside" })).toThrow(
         "File path must stay within the current working directory",
       );
@@ -24,6 +26,7 @@ describe("MakeConfigSchema rejections", () => {
   it("rejects cwd root itself", async () => {
     await withProject({}, async (project) => {
       project.chdir();
+
       expect(() => MakeConfigSchema.parse({ filePath: "." })).toThrow(
         "File path must stay within the current working directory",
       );

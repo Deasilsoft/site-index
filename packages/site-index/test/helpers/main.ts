@@ -19,6 +19,27 @@ export type MainTestMocks = {
   loggerError: ReturnType<typeof vi.fn>;
 };
 
+function resetCommandMocks(mainTestMocks: MainTestMocks): void {
+  mainTestMocks.initBuildCommand.mockClear();
+  mainTestMocks.initCheckCommand.mockClear();
+  mainTestMocks.initMakeCommand.mockClear();
+}
+
+function resetLoggerMocks(mainTestMocks: MainTestMocks): void {
+  mainTestMocks.configureLogger.mockClear();
+  mainTestMocks.loggerError.mockClear();
+}
+
+function resetCliMocks(mainTestMocks: MainTestMocks): void {
+  mainTestMocks.cli.option.mockClear();
+  mainTestMocks.cli.version.mockClear();
+  mainTestMocks.cli.help.mockClear();
+  mainTestMocks.cli.outputHelp.mockClear();
+  mainTestMocks.cli.parse.mockClear();
+  mainTestMocks.cli.runMatchedCommand.mockClear();
+  mainTestMocks.cli.runMatchedCommand.mockImplementation(async () => {});
+}
+
 export function setRunMatchedCommandImpl(
   mainTestMocks: MainTestMocks,
   implementation: RunMatchedCommandImpl,
@@ -28,17 +49,7 @@ export function setRunMatchedCommandImpl(
 
 export function resetMainTestMocks(mainTestMocks: MainTestMocks): void {
   mainTestMocks.cacMock.mockClear();
-  mainTestMocks.initBuildCommand.mockClear();
-  mainTestMocks.initCheckCommand.mockClear();
-  mainTestMocks.initMakeCommand.mockClear();
-  mainTestMocks.configureLogger.mockClear();
-  mainTestMocks.loggerError.mockClear();
-
-  mainTestMocks.cli.option.mockClear();
-  mainTestMocks.cli.version.mockClear();
-  mainTestMocks.cli.help.mockClear();
-  mainTestMocks.cli.outputHelp.mockClear();
-  mainTestMocks.cli.parse.mockClear();
-  mainTestMocks.cli.runMatchedCommand.mockClear();
-  mainTestMocks.cli.runMatchedCommand.mockImplementation(async () => {});
+  resetCommandMocks(mainTestMocks);
+  resetLoggerMocks(mainTestMocks);
+  resetCliMocks(mainTestMocks);
 }

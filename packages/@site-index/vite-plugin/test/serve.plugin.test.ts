@@ -57,12 +57,14 @@ describe("siteIndexServePlugin", () => {
     expect(withOptions).toHaveBeenCalledWith({
       siteUrl: "https://example.com",
     });
+
     expect(withViteServer).toHaveBeenCalledWith(server);
     expect(server.middlewares.use).toHaveBeenCalledTimes(1);
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(2);
     expect(server.config.logger.warn).toHaveBeenCalledWith(
       "Warning: /repo/src/routes/a.site-index.ts: Duplicate URL: /a",
     );
+
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 
@@ -94,6 +96,7 @@ describe("siteIndexServePlugin", () => {
         contentType: "text/plain; charset=utf-8",
       },
     ];
+
     const secondArtifacts = [
       {
         filePath: "robots.txt",
@@ -101,6 +104,7 @@ describe("siteIndexServePlugin", () => {
         contentType: "text/plain; charset=utf-8",
       },
     ];
+
     let currentArtifacts = firstArtifacts;
 
     const runtime = createServeRuntimeMock({
@@ -122,7 +126,6 @@ describe("siteIndexServePlugin", () => {
 
     const use = server.middlewares.use as unknown as ReturnType<typeof vi.fn>;
     const middleware = getRegisteredMiddleware(server);
-
     const res = { setHeader: vi.fn(), statusCode: 0, end: vi.fn() };
     const next = vi.fn();
 

@@ -1,5 +1,5 @@
 import type { ResolvedSiteIndex } from "../site-indexes/schemas/site-indexes.schema.js";
-import type { Artifact } from "./types.js";
+import { Artifact } from "./artifact.js";
 
 function renderRobotsTxt(siteUrl: string, disallowedPaths: string[]): string {
   const lines: string[] = ["User-agent: *"];
@@ -22,9 +22,8 @@ export function makeRobotsArtifact(
     .map((siteIndex) => siteIndex.url)
     .toSorted((a, b) => a.localeCompare(b));
 
-  return {
+  return new Artifact({
     filePath: "robots.txt",
     content: renderRobotsTxt(siteUrl, disallowed),
-    contentType: "text/plain; charset=utf-8",
-  };
+  });
 }
