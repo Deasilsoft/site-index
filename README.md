@@ -1,152 +1,131 @@
-# Official site-index packages
+# site-index
 
-Generate deterministic sitemaps and robots.txt from code or data.
+Deterministic sitemap and robots.txt generation for TypeScript, Vite, and CLI workflows.
 
-Define your site structure once using `*.site-index.*` modules, and generate identical artifacts across build tools, CLI workflows, and programmatic integrations.
+`site-index` is an npm workspaces monorepo for generating SEO artifacts from file-based site indexing modules. It gives you one shared content model and consistent outputs across CLI and Vite integrations.
 
-The system is split into three focused packages:
+Use it to keep sitemap generation and robots.txt generation deterministic across local development, CI, and build pipelines.
 
-- `site-index`: core pipeline library (framework-agnostic)
-- `site-index-cli`: CLI wrapper for Node/CI/cron usage
-- `vite-plugin-site-index`: Vite integration built on top of `site-index`
+## What problem it solves
 
-All packages share the same module contract and produce the same output artifacts.
+Maintaining `sitemap.xml`, segmented sitemaps, and `robots.txt` manually is error-prone as sites grow.
+
+`site-index` provides:
+
+- file-based site indexing via `*.site-index.*` modules
+- deterministic generation of sitemap and robots.txt artifacts
+- validation and deduplication in a shared core pipeline
+- both CLI and Vite plugin workflows for static sites and web apps
 
 ## Package map
 
-| Package                  | Purpose                                        | Best for                                                   |
-| ------------------------ | ---------------------------------------------- | ---------------------------------------------------------- |
-| `site-index`             | Discovery, validation, and artifact generation | Programmatic integration in any Node app                   |
-| `site-index-cli`         | Run the pipeline from terminal/CI/cron         | Scheduled jobs, static generation without custom glue code |
-| `vite-plugin-site-index` | Vite build + dev integration                   | Vite apps that want sitemap + robots automatically         |
+| Package                     | Role                                                                                                                  | Best for                                                |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `site-index`                | CLI for creating site-index modules and generating/checking sitemap + robots.txt artifacts.                           | CI pipelines and terminal-driven workflows              |
+| `@site-index/vite-plugin`   | Vite plugin for serving generated artifacts in dev and emitting them during build.                                    | Vite apps                                               |
+| `@site-index/core`          | Deterministic framework-agnostic pipeline for discovery, loading, validation, deduplication, and artifact generation. | Custom integrations and programmatic usage              |
+| `@site-index/vite-runtime`  | Vite-backed runtime for executing the core pipeline through Vite module loading.                                      | Integration authors who need direct runtime control     |
+| `@site-index/observability` | Shared logging and observability utilities used by the packages.                                                      | Consistent logging/formatting across site-index tooling |
 
-## Install
+## Package documentation
 
-Install based on your use case:
+- [`packages/site-index/README.md`](packages/site-index/README.md)
+- [`packages/@site-index/vite-plugin/README.md`](packages/@site-index/vite-plugin/README.md)
+- [`packages/@site-index/core/README.md`](packages/@site-index/core/README.md)
+- [`packages/@site-index/vite-runtime/README.md`](packages/@site-index/vite-runtime/README.md)
+- [`packages/@site-index/observability/README.md`](packages/@site-index/observability/README.md)
 
-**Vite app**
+## Shared content model (high-level)
 
-```bash
-npm install -D vite-plugin-site-index
-```
+Discovered files:
 
-**CLI / CI / cron**
+- `**/*.site-index.js`
+- `**/*.site-index.mjs`
+- `**/*.site-index.ts`
 
-```bash
-npm install -D site-index-cli
-```
+Default ignored paths:
 
-**Programmatic usage**
+- `**/node_modules/**`
+- `**/dist/**`
+- `**/coverage/**`
+- `**/.git/**`
 
-```bash
-npm install site-index
-```
-
-## Shared content model (`*.site-index.*`)
-
-Each module must export a default array:
+Default supported extensions:
 
 ```ts
-import type { SiteIndex } from "site-index";
+[".js", ".mjs", ".ts"];
+```
 
-export default [
-  { url: "/" },
-  { url: "/about" },
-  { url: "/blog/first-post", sitemap: "blog" },
-  { url: "/admin", index: false },
+TypeScript module shape:
+
+```ts
+import type { SiteIndex } from "@site-index/core";
+
+const siteIndexes = [
+  {
+    url: "/",
+    lastModified: "2026-04-01T00:00:00.000Z",
+  },
 ] satisfies SiteIndex[];
+
+export default { siteIndexes };
 ```
 
-Dynamic data is supported:
+ESM/JavaScript module shape:
 
-```ts
-import type { SiteIndex } from "site-index";
+```js
+/** @type {import("@site-index/core").SiteIndex[]} */
+const siteIndexes = [
+  {
+    url: "/",
+    lastModified: "2026-04-01T00:00:00.000Z",
+  },
+];
 
-const rows = [{ slug: "first-post", updatedAt: "2026-04-01T00:00:00.000Z" }];
-
-export default rows.map((row) => ({
-  url: `/blog/${row.slug}`,
-  sitemap: "blog",
-  lastModified: row.updatedAt,
-})) satisfies SiteIndex[];
+export default { siteIndexes };
 ```
 
-## Output artifacts
+Generated artifacts:
 
-All packages produce the same artifact set:
-
-- `sitemap.xml` (index)
+- `sitemap.xml`
 - `sitemap-<name>.xml`
 - `robots.txt`
 
-## Flow 1: Vite plugin (`vite-plugin-site-index`)
+For exact validation and pipeline details, see [`packages/@site-index/core/README.md`](packages/@site-index/core/README.md).
 
-```ts
-import { defineConfig } from "vite";
-import { siteIndexPlugin } from "vite-plugin-site-index";
+## Monorepo development
 
-export default defineConfig({
-  plugins: [
-    siteIndexPlugin({
-      siteUrl: "https://example.com",
-    }),
-  ],
-});
-```
+Requirements:
 
-Behavior:
+- Node.js `>=22`
+- npm workspaces
 
-- `vite build` emits artifacts into the output bundle
-- `vite dev` serves up-to-date artifacts:
-  - `/sitemap.xml`
-  - `/sitemap-<name>.xml`
-  - `/robots.txt`
-
-## Flow 2: CLI (`site-index-cli`)
-
-For CI, cron jobs, or manual builds.
-
-```bash
-npx site-index build --site-url https://example.com --root .
-```
-
-## Flow 3: Core library (`site-index`)
-
-```ts
-import { runSiteIndexPipeline } from "site-index";
-
-const result = await runSiteIndexPipeline({
-  siteUrl: "https://example.com",
-  discoveryRoot: process.cwd(),
-  loadDiscoveredModules: async (modules) => {
-    const data = await Promise.all(
-      modules.map(async (module) => ({
-        module,
-        exports: (await import(module.filePath)) as { default: unknown[] },
-      })),
-    );
-
-    return { data, warnings: [] };
-  },
-});
-```
-
-## Constraints
-
-- Requires Node.js
-- Uses file-based discovery via `*.site-index.*` modules
-- Module loading relies on runtime execution (e.g. Vite SSR or native import)
-
-## Workspace development
-
-This repository is an npm workspaces monorepo (`packages/*`).
+Install:
 
 ```bash
 npm install
-npm run build
-npm run typecheck
-npm run lint
-npm run test
 ```
 
-Per-package scripts are available under each `packages/*/package.json`.
+Run from repository root:
+
+```bash
+npm run build
+npm run format
+npm run format:check
+npm run lint
+npm run lint:fix
+npm run typecheck
+npm run test
+npm run knip
+npm run clean
+```
+
+Run the CLI workspace from the monorepo:
+
+```bash
+npm run cli -- build --site-url https://example.com
+```
+
+## License
+
+MIT
