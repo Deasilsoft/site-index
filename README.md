@@ -126,6 +126,11 @@ Run the CLI workspace from the monorepo:
 npm run cli -- build --site-url https://example.com
 ```
 
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for process, standards, and testing
+expectations.
+
 ## License
 
 MIT
