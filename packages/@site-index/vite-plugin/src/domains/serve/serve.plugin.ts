@@ -61,6 +61,8 @@ export function siteIndexServePlugin(options: Options): Vite.Plugin {
     },
     async closeBundle() {
       await runtime?.close();
+
+      runtime = undefined;
     },
   };
 }
