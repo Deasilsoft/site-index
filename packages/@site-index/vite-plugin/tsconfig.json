@@ -1,0 +1,20 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "paths": {
+      "@site-index/core": ["../core/src/index.ts"],
+      "@site-index/observability": ["../observability/src/index.ts"],
+      "@site-index/vite-runtime": ["../vite-runtime/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../core" },
+    { "path": "../observability" },
+    { "path": "../vite-runtime" }
+  ]
+}

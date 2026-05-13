@@ -1,19 +1,48 @@
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
+import NodeFS from "node:fs/promises";
+import NodeOS from "node:os";
+import NodePath from "node:path";
+import pkg from "../../package.json" with { type: "json" };
 
-export async function createTempProject(tempRoots: string[]): Promise<string> {
-  const root = await fs.mkdtemp(
-    path.join(os.tmpdir(), "site-index-main-test-"),
-  );
-  tempRoots.push(root);
-  return root;
-}
+type ProjectContext = {
+  root: string;
+  path: (relativeFilePath: string) => string;
+  chdir: () => void;
+};
 
-export async function cleanupTempProjects(tempRoots: string[]): Promise<void> {
-  await Promise.all(
-    tempRoots.splice(0, tempRoots.length).map(async (root) => {
-      await fs.rm(root, { recursive: true, force: true });
-    }),
+export async function withProject<T>(
+  files: Record<string, string>,
+  run: (project: ProjectContext) => Promise<T>,
+): Promise<T> {
+  const initialCwd = process.cwd();
+  const root = await NodeFS.realpath(
+    await NodeFS.mkdtemp(NodePath.join(NodeOS.tmpdir(), `${pkg.name}-`)),
   );
+
+  const project: ProjectContext = {
+    root,
+    path: (relativeFilePath) => {
+      if (NodePath.isAbsolute(relativeFilePath)) {
+        throw new Error("Project file path must be relative");
+      }
+
+      return NodePath.join(root, relativeFilePath);
+    },
+    chdir: () => {
+      process.chdir(root);
+    },
+  };
+
+  try {
+    for (const [relativeFilePath, content] of Object.entries(files)) {
+      const filePath = project.path(relativeFilePath);
+
+      await NodeFS.mkdir(NodePath.dirname(filePath), { recursive: true });
+      await NodeFS.writeFile(filePath, content, "utf8");
+    }
+
+    return await run(project);
+  } finally {
+    process.chdir(initialCwd);
+    await NodeFS.rm(root, { recursive: true, force: true });
+  }
 }
