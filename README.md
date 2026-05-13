@@ -100,11 +100,14 @@ Requirements:
 - Node.js `>=22`
 - npm workspaces
 
-Install:
+Install dependencies for general local development:
 
 ```bash
 npm install
 ```
+
+For contribution checks that should match CI more closely, use `npm ci` as
+documented in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 Run from repository root:
 
