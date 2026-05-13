@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import pkg from "../package.json" with { type: "json" };
 import { main } from "../src/main.js";
 import { type MainTestMocks, resetMainTestMocks } from "./helpers/main.js";
 
@@ -84,7 +85,7 @@ describe("main CLI wiring", () => {
       "Enable verbose logging",
     );
 
-    expect(mainTestMocks.cli.version).toHaveBeenCalledWith("0.0.0");
+    expect(mainTestMocks.cli.version).toHaveBeenCalledWith(pkg.version);
     expect(mainTestMocks.cli.help).toHaveBeenCalled();
     expect(mainTestMocks.cli.outputHelp).toHaveBeenCalledOnce();
     expect(mainTestMocks.cli.parse).toHaveBeenCalledWith(

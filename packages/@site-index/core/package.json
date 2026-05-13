@@ -1,6 +1,6 @@
 {
   "name": "@site-index/core",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Deterministic site-index pipeline: config, discovery, loading, validation, and artifact generation.",
   "keywords": [
     "site-index",
@@ -43,11 +43,11 @@
   },
   "dependencies": {
     "tinyglobby": "^0.2.16",
-    "zod": "^4.4.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.5",
-    "vitest": "^4.1.5"
+    "@vitest/coverage-v8": "^4.1.6",
+    "vitest": "^4.1.6"
   },
   "engines": {
     "node": ">=22"
