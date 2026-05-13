@@ -13,9 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         package:
+          - "@site-index/core"
+          - "@site-index/observability"
+          - "@site-index/vite-plugin"
+          - "@site-index/vite-runtime"
           - site-index
-          - site-index-cli
-          - vite-plugin-site-index
 
     steps:
       - name: Check out repository
