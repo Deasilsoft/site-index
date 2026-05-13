@@ -1,8 +1,7 @@
 import NodePath from "node:path";
 import { z as Zod } from "zod";
+import { isRelativePathEscapingRoot } from "../../../shared/utils/path.js";
 import { type Format, FORMATS, type MakeConfig } from "../types.js";
-
-const INVALID_FORMAT_ERROR = "Invalid option: --format must be one of: ts, esm";
 
 const EXTENSIONS: Record<Format, string> = {
   ts: "ts",
@@ -16,11 +15,7 @@ function isWithinCurrentWorkingDirectory(filePath: string): boolean {
   const resolved = NodePath.resolve(filePath);
   const relative = NodePath.relative(cwd, resolved);
 
-  return (
-    relative !== "" &&
-    !relative.startsWith("..") &&
-    !NodePath.isAbsolute(relative)
-  );
+  return relative !== "" && !isRelativePathEscapingRoot(relative);
 }
 
 function normalizeBaseName(filePath: string): string {
@@ -38,7 +33,9 @@ const MakeOptionsSchema = Zod.object({
     .refine(isWithinCurrentWorkingDirectory, {
       error: "File path must stay within the current working directory",
     }),
-  format: Zod.enum(FORMATS, { error: INVALID_FORMAT_ERROR }).default("ts"),
+  format: Zod.enum(FORMATS, {
+    error: "Invalid option: --format must be one of: ts, esm",
+  }).default("ts"),
   force: Zod.boolean().default(false),
 });
 

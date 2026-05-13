@@ -27,8 +27,9 @@ export class ModuleLoader {
     const server = await this.#getServer();
     const loadedModule = await server.ssrLoadModule(module.importId);
     const moduleExports = loadedModule.default as SiteIndex.ModuleExports;
-    const getModuleByUrl = server.environments.ssr.moduleGraph.getModuleByUrl;
-    const node = await getModuleByUrl(module.importId);
+    const node = await server.environments.ssr.moduleGraph.getModuleByUrl(
+      module.importId,
+    );
 
     if (node === undefined) {
       throw new Error(`Unable to resolve loaded module "${module.importId}"`);

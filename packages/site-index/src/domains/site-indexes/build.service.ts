@@ -3,6 +3,7 @@ import { createRuntimeService } from "@site-index/vite-runtime";
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import { logger } from "../../shared/logging/logger.js";
+import { isRelativePathEscapingRoot } from "../../shared/utils/path.js";
 import type { BuildConfig } from "./types.js";
 import { makeResolvedViteConfig } from "./vite.config.js";
 
@@ -13,7 +14,7 @@ async function writeArtifacts(outPath: string, artifacts: Artifact[]) {
     const filePath = NodePath.resolve(resolvedOutPath, artifact.filePath);
     const relativePath = NodePath.relative(resolvedOutPath, filePath);
 
-    if (relativePath.startsWith("..") || NodePath.isAbsolute(relativePath)) {
+    if (isRelativePathEscapingRoot(relativePath)) {
       throw new Error(
         `Artifact path escapes output directory: ${artifact.filePath}`,
       );

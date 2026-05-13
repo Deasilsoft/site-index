@@ -7,9 +7,6 @@ import {
   resolveBaseConfig,
 } from "./shared.schema.js";
 
-const INVALID_OUT_PATH_ERROR =
-  "Invalid option: --out must resolve within --root";
-
 const BuildOptionsSchema = BaseOptionsSchema.extend({
   out: Zod.string().trim().min(1).default("dist"),
 }).superRefine((options, context) => {
@@ -19,7 +16,7 @@ const BuildOptionsSchema = BaseOptionsSchema.extend({
     context.addIssue({
       code: "custom",
       path: ["out"],
-      message: INVALID_OUT_PATH_ERROR,
+      message: "Invalid option: --out must resolve within --root",
     });
   }
 });

@@ -1,16 +1,14 @@
 import NodePath from "node:path";
 import { z as Zod } from "zod";
+import { isRelativePathEscapingRoot } from "../../../shared/utils/path.js";
 import type { BaseConfig } from "../types.js";
-
-const INVALID_CONFIG_PATH_ERROR =
-  "Invalid option: --config must resolve within --root";
 
 export function isPathWithinRoot(rootPath: string, filePath: string): boolean {
   const resolvedRoot = NodePath.resolve(rootPath);
   const resolvedPath = NodePath.resolve(resolvedRoot, filePath);
   const relativePath = NodePath.relative(resolvedRoot, resolvedPath);
 
-  return !relativePath.startsWith("..") && !NodePath.isAbsolute(relativePath);
+  return !isRelativePathEscapingRoot(relativePath);
 }
 
 export const BaseOptionsSchema = Zod.object({
@@ -35,7 +33,7 @@ export const BaseOptionsSchema = Zod.object({
     context.addIssue({
       code: "custom",
       path: ["config"],
-      message: INVALID_CONFIG_PATH_ERROR,
+      message: "Invalid option: --config must resolve within --root",
     });
   }
 });
@@ -45,11 +43,16 @@ type BaseOptions = Zod.output<typeof BaseOptionsSchema>;
 export function resolveBaseConfig(options: BaseOptions): BaseConfig {
   const rootPath = NodePath.resolve(options.root ?? process.cwd());
 
+  if (options.config) {
+    return {
+      siteUrl: options.siteUrl,
+      rootPath,
+      configFile: NodePath.resolve(rootPath, options.config),
+    };
+  }
+
   return {
     siteUrl: options.siteUrl,
     rootPath,
-    ...(options.config
-      ? { configFile: NodePath.resolve(rootPath, options.config) }
-      : {}),
   };
 }
