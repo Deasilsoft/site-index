@@ -36,7 +36,13 @@ describe("siteIndexPlugin", () => {
     const plugins = siteIndexPlugin(options);
 
     expect(plugins).toStrictEqual([hoisted.servePlugin, hoisted.buildPlugin]);
-    expect(hoisted.siteIndexServePluginMock).toHaveBeenNthCalledWith(1, options);
-    expect(hoisted.siteIndexBuildPluginMock).toHaveBeenNthCalledWith(1, options);
+    expect(hoisted.siteIndexServePluginMock).toHaveBeenNthCalledWith(
+      1,
+      options,
+    );
+    expect(hoisted.siteIndexBuildPluginMock).toHaveBeenNthCalledWith(
+      1,
+      options,
+    );
   });
 });
