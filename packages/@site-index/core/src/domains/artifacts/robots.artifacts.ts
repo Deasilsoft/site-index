@@ -10,7 +10,7 @@ function renderRobotsTxt(siteUrl: string, disallowedPaths: string[]): string {
 
   lines.push(`Sitemap: ${siteUrl}/sitemap.xml`);
 
-  return lines.join("\n");
+  return `${lines.join("\n")}\n`;
 }
 
 export function makeRobotsArtifact(

@@ -2,10 +2,13 @@ import { z as Zod } from "zod";
 import type { LoadModule, Options } from "./types.js";
 
 const OptionsSchema = Zod.object({
-  siteUrl: Zod.url({
-    protocol: /^https?$/,
-    hostname: Zod.regexes.domain,
-  }).transform((url) => url.trim().replace(/\/+$/, "")),
+  siteUrl: Zod.preprocess(
+    (value) => (typeof value === "string" ? value.trim() : value),
+    Zod.url({
+      protocol: /^https?$/,
+      hostname: Zod.regexes.domain,
+    }).transform((url) => url.replace(/\/+$/, "")),
+  ),
   rootPath: Zod.string().trim().min(1),
   extensions: Zod.array(Zod.string().regex(/^\.\w+$/))
     .optional()

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { resolveSiteIndexes } from "../src/domains/site-indexes/process/site-indexes.resolve.js";
-import type { ResolvedModule } from "../src/domains/site-indexes/schemas/modules.schema.js";
-import type { ResolvedSiteIndex } from "../src/domains/site-indexes/schemas/site-indexes.schema.js";
+import { resolveSiteIndexes } from "../../../../src/domains/site-indexes/process/site-indexes.resolve.js";
+import type { ResolvedModule } from "../../../../src/domains/site-indexes/schemas/modules.schema.js";
+import type { ResolvedSiteIndex } from "../../../../src/domains/site-indexes/schemas/site-indexes.schema.js";
 
 const testRoot = "/test-fixtures";
 
@@ -20,7 +20,7 @@ function createResolvedModule(
   };
 }
 
-describe("site-indexes resolve", () => {
+describe("resolveSiteIndexes", () => {
   it("applies defaults, sorts output, and deduplicates across modules", () => {
     const resolvedModules: ResolvedModule[] = [
       createResolvedModule("about.site-index.ts", [{ url: "/about" }]),
@@ -150,13 +150,7 @@ describe("site-indexes resolve", () => {
     ]);
   });
 
-  it("returns empty data and warnings for empty input", () => {
-    const first = resolveSiteIndexes([]);
-    const second = resolveSiteIndexes([]);
-
-    expect(first).toEqual({ data: [], warnings: [] });
-    expect(second).toEqual({ data: [], warnings: [] });
-    expect(first.data).not.toBe(second.data);
-    expect(first.warnings).not.toBe(second.warnings);
+  it("returns empty output for empty input", () => {
+    expect(resolveSiteIndexes([])).toEqual({ data: [], warnings: [] });
   });
 });

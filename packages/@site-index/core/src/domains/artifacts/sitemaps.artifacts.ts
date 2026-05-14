@@ -38,7 +38,7 @@ function renderSitemapXml(
 
   lines.push("</urlset>");
 
-  return lines.join("\n");
+  return `${lines.join("\n")}\n`;
 }
 
 export function makeSitemapArtifacts(
@@ -65,14 +65,15 @@ function renderSitemapIndexXml(paths: string[], siteUrl: string): string {
   ];
 
   for (const path of paths) {
-    const loc = escapeXml(`${siteUrl}${path}`);
+    const normalizedPath = path.replace(/^\/+/, "");
+    const loc = escapeXml(`${siteUrl}/${normalizedPath}`);
 
     lines.push("  <sitemap>", `    <loc>${loc}</loc>`, "  </sitemap>");
   }
 
   lines.push("</sitemapindex>");
 
-  return lines.join("\n");
+  return `${lines.join("\n")}\n`;
 }
 
 export function makeSitemapIndexArtifact(

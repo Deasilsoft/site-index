@@ -1,3 +1,4 @@
 {
+  "ignore": ["packages/**/test/**/snapshots/**"],
   "ignoreDependencies": ["code-slicer"]
 }

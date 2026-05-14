@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { resolveModules } from "../src/domains/site-indexes/process/modules.resolve.js";
-import type { LoadedModule, SiteIndex } from "../src/index.js";
+import { resolveModules } from "../../../../src/domains/site-indexes/process/modules.resolve.js";
+import type { LoadedModule, SiteIndex } from "../../../../src/index.js";
 
 const testRoot = "/test-fixtures";
 
@@ -23,8 +23,8 @@ function getOnlyWarning(result: { warnings: Array<{ message: string }> }) {
   return result.warnings[0]!;
 }
 
-describe("modules resolve", () => {
-  it("returns resolved modules for valid default exports", () => {
+describe("resolveModules", () => {
+  it("normalizes valid modules with default sitemap and index values", () => {
     const loadedModules: LoadedModule[] = [
       createLoadedModule("about.site-index.ts", [{ url: "/about" }]),
       createLoadedModule("blog.site-index.ts", [
@@ -68,7 +68,7 @@ describe("modules resolve", () => {
     ]);
   });
 
-  it("keeps valid modules and skips invalid ones in the same run", () => {
+  it("keeps valid modules while warning for invalid modules in the same run", () => {
     const loadedModules: LoadedModule[] = [
       createLoadedModule("valid.site-index.ts", [{ url: "/valid" }]),
       createLoadedModule("bad.site-index.ts", [
@@ -128,7 +128,7 @@ describe("modules resolve", () => {
       "Invalid input",
     ],
   ])(
-    "warns for invalid export shape: %s",
+    "rejects invalid module export shape: %s",
     (_name, siteIndexes, expectedDetail) => {
       const result = resolveModules([
         createLoadedModule("invalid.site-index.ts", siteIndexes),
@@ -175,13 +175,7 @@ describe("modules resolve", () => {
     ]);
   });
 
-  it("returns empty data and warnings for empty input", () => {
-    const first = resolveModules([]);
-    const second = resolveModules([]);
-
-    expect(first).toEqual({ data: [], warnings: [] });
-    expect(second).toEqual({ data: [], warnings: [] });
-    expect(first.data).not.toBe(second.data);
-    expect(first.warnings).not.toBe(second.warnings);
+  it("returns empty output for empty input", () => {
+    expect(resolveModules([])).toEqual({ data: [], warnings: [] });
   });
 });

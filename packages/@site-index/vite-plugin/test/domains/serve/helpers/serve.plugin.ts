@@ -1,10 +1,10 @@
 import type { Mock } from "vitest";
 import type { Plugin, ViteDevServer } from "vite";
 import { vi } from "vitest";
-import { siteIndexServePlugin } from "../../src/index.js";
-import { getFirstMockArgument } from "./mock.js";
-import { getPluginHookHandler } from "./plugin-hooks.js";
-import { createRuntimeBuilderMock } from "./runtime.builder.mock.js";
+import { siteIndexServePlugin } from "../../../../src/index.js";
+import { getFirstMockArgument } from "../../../helpers/mock.js";
+import { getPluginHookHandler } from "../../../helpers/plugin-hooks.js";
+import { createRuntimeBuilderMock } from "../../../helpers/runtime.builder.mock.js";
 import { createViteDevServerMock } from "./vite-dev-server.mock.js";
 
 type BuildArtifactsResult = {

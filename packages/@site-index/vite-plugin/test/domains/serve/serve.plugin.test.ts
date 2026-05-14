@@ -142,4 +142,45 @@ describe("siteIndexServePlugin", () => {
     expect(res.end).toHaveBeenLastCalledWith("SECOND");
     expect(use).toHaveBeenCalledTimes(1);
   });
+
+  it("keeps serving the last artifacts but ignores hot updates after closeBundle", async () => {
+    const watchedFile = "/repo/src/routes/a.site-index.ts";
+    const runtime = createServeRuntimeMock({
+      buildArtifacts: async () => ({
+        data: [
+          {
+            filePath: "robots.txt",
+            content: "INITIAL",
+            contentType: "text/plain; charset=utf-8",
+          },
+        ],
+        warnings: [],
+      }),
+      getWatchedFiles: () => new Set([watchedFile]),
+    });
+
+    const { plugin, server } = await setupServePlugin({
+      runtime,
+      createRuntimeServiceMock,
+    });
+
+    const middleware = getRegisteredMiddleware(server);
+    const res = { setHeader: vi.fn(), statusCode: 0, end: vi.fn() };
+    const next = vi.fn();
+
+    expect(runtime.buildArtifacts).toHaveBeenCalledTimes(1);
+
+    await triggerCloseBundle(plugin);
+
+    await triggerHotUpdate({
+      plugin,
+      file: watchedFile,
+      server,
+    });
+
+    expect(runtime.buildArtifacts).toHaveBeenCalledTimes(1);
+
+    middleware({ url: "/robots.txt", method: "GET" }, res, next);
+    expect(res.end).toHaveBeenLastCalledWith("INITIAL");
+  });
 });

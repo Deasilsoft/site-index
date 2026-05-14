@@ -1,6 +1,6 @@
 import type { Artifact } from "@site-index/core";
 import { describe, expect, it, vi } from "vitest";
-import { makeArtifactsMiddleware } from "../src/domains/serve/artifacts.middleware.js";
+import { makeArtifactsMiddleware } from "../../../src/domains/serve/artifacts.middleware.js";
 import { createResponseMock } from "./helpers/http.mock.js";
 
 function toRequestPath(filePath: string): string {

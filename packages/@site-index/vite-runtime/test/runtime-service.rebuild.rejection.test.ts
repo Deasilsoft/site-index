@@ -115,4 +115,66 @@ describe("RuntimeService rebuild rejections", () => {
       ]),
     );
   });
+
+  it("allows a later build to succeed after an initial build failure", async () => {
+    vi.mocked(SiteIndex.main)
+      .mockRejectedValueOnce(new Error("initial build exploded"))
+      .mockImplementationOnce(async (options) => {
+        await options.loadModule({
+          filePath: "/repo/src/routes/a.site-index.ts",
+          importId: "./src/routes/a.site-index.ts",
+        });
+
+        return {
+          data: [
+            new SiteIndex.Artifact({
+              filePath: "sitemap.xml",
+              content: "RECOVERED_XML",
+            }),
+          ],
+          warnings: [],
+        };
+      });
+
+    const viteServer = createViteServerMock({
+      modulesByUrl: {
+        "./src/routes/a.site-index.ts": createNode(
+          "/repo/src/routes/a.site-index.ts",
+          [createNode("/repo/src/deps/a-dep.ts")],
+        ),
+      },
+    });
+
+    const runtime = createAttachedRuntimeSetup(viteServer.server);
+
+    await expect(runtime.buildArtifacts()).rejects.toThrow(
+      "initial build exploded",
+    );
+
+    expect(runtime.getArtifacts()).toEqual([]);
+    expect(runtime.getWatchedFiles()).toEqual(new Set());
+
+    await expect(runtime.buildArtifacts()).resolves.toEqual({
+      data: [
+        {
+          filePath: "sitemap.xml",
+          content: "RECOVERED_XML",
+          contentType: "application/xml; charset=utf-8",
+        },
+      ],
+      warnings: [],
+    });
+
+    expect(runtime.getArtifacts()).toEqual([
+      {
+        filePath: "sitemap.xml",
+        content: "RECOVERED_XML",
+        contentType: "application/xml; charset=utf-8",
+      },
+    ]);
+
+    expect(runtime.getWatchedFiles()).toEqual(
+      new Set(["/repo/src/routes/a.site-index.ts", "/repo/src/deps/a-dep.ts"]),
+    );
+  });
 });

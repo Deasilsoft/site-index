@@ -12,9 +12,13 @@ afterEach(async () => {
 });
 
 describe("make command", () => {
-  it("creates a TypeScript file by default", async () => {
+  it("creates a TypeScript module with the expected generated contract", async () => {
     await withProject({}, async (project) => {
       project.chdir();
+
+      vi.spyOn(Date.prototype, "toISOString").mockReturnValue(
+        "2026-01-01T00:00:00.000Z",
+      );
 
       const output = captureStreams();
 
@@ -28,33 +32,52 @@ describe("make command", () => {
         project.root,
         "content/about.site-index.ts",
       );
-
+      const stats = await NodeFS.stat(filePath);
       const content = await NodeFS.readFile(filePath, "utf8");
 
-      expect(content).toContain(
-        'import type { SiteIndex } from "@site-index/core";',
-      );
-
-      expect(content).toContain("export default { siteIndexes };");
+      expect(filePath).toBe(project.path("content/about.site-index.ts"));
+      expect(stats.isFile()).toBe(true);
+      expect(content.endsWith("\n")).toBe(true);
       expect(output.stdout()).toContain(`Created file: ${filePath}`);
+      expect(output.stderr()).toBe("");
+
+      await expect(content).toMatchFileSnapshot(
+        "./domains/make/snapshots/site-index.default.ts",
+      );
     });
   });
 
-  it("creates an ESM file when --format esm is passed", async () => {
+  it("creates an ESM module with the expected generated contract", async () => {
     await withProject({}, async (project) => {
       project.chdir();
 
-      await cli("make", "content/blog", "--format", "esm");
+      vi.spyOn(Date.prototype, "toISOString").mockReturnValue(
+        "2026-01-01T00:00:00.000Z",
+      );
+
+      const output = captureStreams();
+
+      try {
+        await cli("make", "content/blog", "--format", "esm");
+      } finally {
+        output.restore();
+      }
 
       const filePath = NodePath.resolve(
         project.root,
         "content/blog.site-index.mjs",
       );
-
+      const stats = await NodeFS.stat(filePath);
       const content = await NodeFS.readFile(filePath, "utf8");
 
-      expect(content).toContain(
-        '/** @type {import("@site-index/core").SiteIndex[]} */',
+      expect(filePath).toBe(project.path("content/blog.site-index.mjs"));
+      expect(stats.isFile()).toBe(true);
+      expect(content.endsWith("\n")).toBe(true);
+      expect(output.stdout()).toContain(`Created file: ${filePath}`);
+      expect(output.stderr()).toBe("");
+
+      await expect(content).toMatchFileSnapshot(
+        "./domains/make/snapshots/site-index.default.mjs",
       );
     });
   });
@@ -102,9 +125,11 @@ describe("make command", () => {
       const content = await NodeFS.readFile(config.outputFilePath, "utf8");
 
       expect(content).not.toBe("ORIGINAL");
+      expect(content.endsWith("\n")).toBe(true);
       expect(output.stdout()).toContain(
         `Created file: ${config.outputFilePath}`,
       );
+      expect(output.stderr()).toBe("");
     });
   });
 

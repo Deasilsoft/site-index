@@ -1,12 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { createRuntimeService } from "../src/index.js";
+import {
+  createRuntimeService,
+  RuntimeService,
+  RuntimeServiceBuilder,
+} from "../src/index.js";
 
 describe("@site-index/vite-runtime contract", () => {
-  it("exports createRuntimeService", () => {
-    expect(typeof createRuntimeService).toBe("function");
+  it("creates independent RuntimeServiceBuilder instances from factory calls", () => {
+    const first = createRuntimeService();
+    const second = createRuntimeService();
+
+    expect(first).toBeInstanceOf(RuntimeServiceBuilder);
+    expect(second).toBeInstanceOf(RuntimeServiceBuilder);
+    expect(first).not.toBe(second);
   });
 
-  it("builds a runtime service when options are provided", () => {
+  it("builds a RuntimeService from factory + builder configuration", () => {
     const runtime = createRuntimeService()
       .withOptions({
         siteUrl: "https://example.com",
@@ -18,6 +27,7 @@ describe("@site-index/vite-runtime contract", () => {
       })
       .build();
 
+    expect(runtime).toBeInstanceOf(RuntimeService);
     expect(runtime.getArtifacts()).toEqual([]);
     expect(runtime.getWatchedFiles()).toEqual(new Set());
   });

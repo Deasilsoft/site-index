@@ -1,8 +1,8 @@
 import type { ResolvedConfig } from "vite";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { siteIndexBuildPlugin } from "../src/index.js";
-import { getPluginHookHandler } from "./helpers/plugin-hooks.js";
-import { createRuntimeBuilderMock } from "./helpers/runtime.builder.mock.js";
+import { siteIndexBuildPlugin } from "../../../src/index.js";
+import { getPluginHookHandler } from "../../helpers/plugin-hooks.js";
+import { createRuntimeBuilderMock } from "../../helpers/runtime.builder.mock.js";
 
 const createRuntimeServiceMock = vi.hoisted(() => vi.fn());
 
@@ -13,6 +13,28 @@ vi.mock("@site-index/vite-runtime", () => ({
 describe("siteIndexBuildPlugin rejections", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("throws the lifecycle safety error when runtime hooks run before configResolved", async () => {
+    const plugin = siteIndexBuildPlugin({ siteUrl: "https://example.com" });
+
+    const buildStart = getPluginHookHandler<
+      (this: {
+        info(message: string): void;
+        warn(message: string): void;
+        error(message: string): void;
+      }) => void | Promise<void>
+    >(plugin.buildStart);
+
+    await expect(
+      buildStart.call({
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      }),
+    ).rejects.toThrow("Vite config could not be resolved");
+
+    expect(createRuntimeServiceMock).not.toHaveBeenCalled();
   });
 
   it("closes the runtime and bubbles buildArtifacts errors", async () => {
