@@ -7,6 +7,10 @@ import {
 } from "../../helpers/project.js";
 
 const tempRoots: string[] = [];
+const CANONICAL_SITEMAP_NAMESPACE =
+  'xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"';
+const INVALID_SITEMAP_NAMESPACE =
+  'xmlns="https://www.sitemaps.org/schemas/sitemap/0.9"';
 
 const DEFAULT_ARTIFACTS_BY_IMPORT_ID = new Map<string, unknown>([
   ["./about.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
@@ -100,18 +104,24 @@ describe("generated artifacts", () => {
 
     expect(sitemapBlog.filePath).toBe("sitemap-blog.xml");
     expect(sitemapBlog.contentType).toBe("application/xml; charset=utf-8");
+    expect(sitemapBlog.content).toContain(CANONICAL_SITEMAP_NAMESPACE);
+    expect(sitemapBlog.content).not.toContain(INVALID_SITEMAP_NAMESPACE);
     await expect(sitemapBlog.content).toMatchFileSnapshot(
       "./snapshots/sitemap-blog.default.xml",
     );
 
     expect(sitemapPages.filePath).toBe("sitemap-pages.xml");
     expect(sitemapPages.contentType).toBe("application/xml; charset=utf-8");
+    expect(sitemapPages.content).toContain(CANONICAL_SITEMAP_NAMESPACE);
+    expect(sitemapPages.content).not.toContain(INVALID_SITEMAP_NAMESPACE);
     await expect(sitemapPages.content).toMatchFileSnapshot(
       "./snapshots/sitemap-pages.default.xml",
     );
 
     expect(sitemapIndex.filePath).toBe("sitemap.xml");
     expect(sitemapIndex.contentType).toBe("application/xml; charset=utf-8");
+    expect(sitemapIndex.content).toContain(CANONICAL_SITEMAP_NAMESPACE);
+    expect(sitemapIndex.content).not.toContain(INVALID_SITEMAP_NAMESPACE);
     await expect(sitemapIndex.content).toMatchFileSnapshot(
       "./snapshots/sitemap-index.default.xml",
     );

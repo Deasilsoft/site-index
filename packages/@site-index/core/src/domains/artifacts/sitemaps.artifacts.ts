@@ -2,7 +2,7 @@ import type { ResolvedSiteIndex } from "../site-indexes/schemas/site-indexes.sch
 import { Artifact } from "./artifact.js";
 
 const XML_VERSION_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
-const SITEMAP_XML_NAMESPACE = "https://www.sitemaps.org/schemas/sitemap/0.9";
+const SITEMAP_XML_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
 
 function escapeXml(value: string): string {
   return value
