@@ -17,10 +17,7 @@ export class RuntimeService {
   }
 
   async buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
-    const run = this.#buildQueue.then(
-      async () => this.#runBuildArtifacts(),
-      async () => this.#runBuildArtifacts(),
-    );
+    const run = this.#buildQueue.then(async () => this.#runBuildArtifacts());
 
     this.#buildQueue = run.then(
       () => {},

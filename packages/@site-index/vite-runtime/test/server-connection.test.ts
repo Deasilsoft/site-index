@@ -57,7 +57,16 @@ describe("RuntimeService Vite server lifecycle", () => {
         importId: "./src/routes/a.site-index.ts",
       });
 
-      return { data: [], warnings: [] };
+      return {
+        data: [
+          {
+            filePath: "sitemap.xml",
+            content: "INDEX_XML",
+            contentType: "application/xml; charset=utf-8",
+          },
+        ],
+        warnings: [],
+      };
     });
 
     const runtime = createRuntimeService()
@@ -82,7 +91,22 @@ describe("RuntimeService Vite server lifecycle", () => {
       configFile: false,
     });
 
+    expect(runtime.getArtifacts()).toEqual([
+      {
+        filePath: "sitemap.xml",
+        content: "INDEX_XML",
+        contentType: "application/xml; charset=utf-8",
+      },
+    ]);
+
+    expect(runtime.getWatchedFiles()).toEqual(
+      new Set(["/project/src/routes/a.site-index.ts"]),
+    );
+
     await runtime.close();
+
+    expect(runtime.getArtifacts()).toEqual([]);
+    expect(runtime.getWatchedFiles()).toEqual(new Set());
     expect(hoisted.close).toHaveBeenCalledOnce();
   });
 
@@ -120,7 +144,16 @@ describe("RuntimeService Vite server lifecycle", () => {
   });
 
   it("does not close externally provided servers", async () => {
-    vi.mocked(SiteIndex.main).mockResolvedValue({ data: [], warnings: [] });
+    vi.mocked(SiteIndex.main).mockResolvedValue({
+      data: [
+        {
+          filePath: "sitemap.xml",
+          content: "INDEX_XML",
+          contentType: "application/xml; charset=utf-8",
+        },
+      ],
+      warnings: [],
+    });
 
     const externalClose = vi.fn(async () => {});
     const externalServer = {
@@ -142,8 +175,19 @@ describe("RuntimeService Vite server lifecycle", () => {
       .build();
 
     await runtime.buildArtifacts();
+
+    expect(runtime.getArtifacts()).toEqual([
+      {
+        filePath: "sitemap.xml",
+        content: "INDEX_XML",
+        contentType: "application/xml; charset=utf-8",
+      },
+    ]);
+
     await runtime.close();
 
+    expect(runtime.getArtifacts()).toEqual([]);
+    expect(runtime.getWatchedFiles()).toEqual(new Set());
     expect(externalClose).not.toHaveBeenCalled();
     expect(hoisted.createServer).not.toHaveBeenCalled();
   });
