@@ -2,10 +2,10 @@
 
 Deterministic site-index pipeline for config resolution, discovery, loading, validation, deduplication, and artifact generation.
 
-[![npm version](https://img.shields.io/npm/v/%40site-index%2Fcore)](https://www.npmjs.com/package/%40site-index%2Fcore)
+[![npm version](https://img.shields.io/npm/v/@site-index/core)](https://www.npmjs.com/package/@site-index/core)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
-[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fcore)](https://codecov.io/gh/Deasilsoft/site-index)
-[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fcore)](https://socket.dev/npm/package/%40site-index%2Fcore)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=@site-index/core)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/@site-index/core)](https://socket.dev/npm/package/@site-index/core)
 
 [Repository README](../../../)
 

@@ -2,10 +2,10 @@
 
 Observability and logging utilities for site-index packages.
 
-[![npm version](https://img.shields.io/npm/v/%40site-index%2Fobservability)](https://www.npmjs.com/package/%40site-index%2Fobservability)
+[![npm version](https://img.shields.io/npm/v/@site-index/observability)](https://www.npmjs.com/package/@site-index/observability)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
-[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fobservability)](https://codecov.io/gh/Deasilsoft/site-index)
-[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fobservability)](https://socket.dev/npm/package/%40site-index%2Fobservability)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=@site-index/observability)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/@site-index/observability)](https://socket.dev/npm/package/@site-index/observability)
 
 [Repository README](../../../)
 

@@ -2,10 +2,10 @@
 
 Vite-backed runtime for executing site-index pipelines through Vite SSR module loading.
 
-[![npm version](https://img.shields.io/npm/v/%40site-index%2Fvite-runtime)](https://www.npmjs.com/package/%40site-index%2Fvite-runtime)
+[![npm version](https://img.shields.io/npm/v/@site-index/vite-runtime)](https://www.npmjs.com/package/@site-index/vite-runtime)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
-[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fvite-runtime)](https://codecov.io/gh/Deasilsoft/site-index)
-[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fvite-runtime)](https://socket.dev/npm/package/%40site-index%2Fvite-runtime)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=@site-index/vite-runtime)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/@site-index/vite-runtime)](https://socket.dev/npm/package/@site-index/vite-runtime)
 
 [Repository README](../../../)
 
