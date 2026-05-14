@@ -130,4 +130,3 @@ describe("siteIndexBuildPlugin", () => {
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 });
-

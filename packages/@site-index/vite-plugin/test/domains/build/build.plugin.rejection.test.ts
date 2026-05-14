@@ -95,4 +95,3 @@ describe("siteIndexBuildPlugin rejections", () => {
     expect(runtime.close).toHaveBeenCalledTimes(1);
   });
 });
-

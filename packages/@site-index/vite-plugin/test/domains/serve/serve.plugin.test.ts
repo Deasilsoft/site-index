@@ -184,4 +184,3 @@ describe("siteIndexServePlugin", () => {
     expect(res.end).toHaveBeenLastCalledWith("INITIAL");
   });
 });
-

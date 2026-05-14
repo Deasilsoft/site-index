@@ -202,4 +202,3 @@ describe("createArtifactsMiddleware", () => {
     expect(res.end).not.toHaveBeenCalled();
   });
 });
-

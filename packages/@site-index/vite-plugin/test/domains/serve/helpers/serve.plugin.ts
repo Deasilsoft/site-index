@@ -98,4 +98,3 @@ export async function triggerHotUpdate(input: {
 export async function triggerCloseBundle(plugin: Plugin) {
   await getPluginHookHandler<() => Promise<void>>(plugin.closeBundle)();
 }
-

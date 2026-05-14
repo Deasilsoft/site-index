@@ -13,4 +13,3 @@ export function createResponseMock(): ResponseLike {
     statusCode: 0,
   };
 }
-

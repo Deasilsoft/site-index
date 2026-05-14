@@ -34,4 +34,3 @@ describe("siteIndexPlugin", () => {
     expect(siteIndexBuildPluginMock).toHaveBeenNthCalledWith(1, options);
   });
 });
-
