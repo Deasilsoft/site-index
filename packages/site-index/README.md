@@ -2,7 +2,12 @@
 
 CLI for creating site-index modules and generating/checking sitemap and robots.txt artifacts.
 
-[Repository README](../../README.md)
+[![npm version](https://img.shields.io/npm/v/site-index)](https://www.npmjs.com/package/site-index)
+[![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=site-index)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/site-index)](https://socket.dev/npm/package/site-index)
+
+[Repository README](../../)
 
 ## Install
 
@@ -24,8 +29,8 @@ Use `site-index` when you want command-line workflows for:
 
 ## When not to use
 
-- Use [`@site-index/vite-plugin`](../@site-index/vite-plugin/README.md) for Vite-native integration.
-- Use [`@site-index/core`](../@site-index/core/README.md) for custom programmatic pipelines.
+- Use [`@site-index/vite-plugin`](../@site-index/vite-plugin/) for Vite-native integration.
+- Use [`@site-index/core`](../@site-index/core/) for custom programmatic pipelines.
 
 ## Global options
 
@@ -102,6 +107,6 @@ npm run cli -- build --site-url https://example.com
 
 `site-index` is the user-facing CLI package built on:
 
-- [`@site-index/vite-runtime`](../@site-index/vite-runtime/README.md)
-- [`@site-index/core`](../@site-index/core/README.md)
-- [`@site-index/observability`](../@site-index/observability/README.md)
+- [`@site-index/vite-runtime`](../@site-index/vite-runtime/)
+- [`@site-index/core`](../@site-index/core/)
+- [`@site-index/observability`](../@site-index/observability/)

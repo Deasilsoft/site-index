@@ -2,7 +2,12 @@
 
 Vite integration layer for site-index serve and build pipelines.
 
-[Repository README](../../../README.md)
+[![npm version](https://img.shields.io/npm/v/%40site-index%2Fvite-plugin)](https://www.npmjs.com/package/%40site-index%2Fvite-plugin)
+[![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fvite-plugin)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fvite-plugin)](https://socket.dev/npm/package/%40site-index%2Fvite-plugin)
+
+[Repository README](../../../)
 
 ## Install
 
@@ -90,7 +95,7 @@ export default defineConfig({
 
 ## Related packages
 
-- [`@site-index/core`](../core/README.md)
-- [`@site-index/vite-runtime`](../vite-runtime/README.md)
-- [`@site-index/observability`](../observability/README.md)
-- [`site-index`](../../site-index/README.md)
+- [`@site-index/core`](../core/)
+- [`@site-index/vite-runtime`](../vite-runtime/)
+- [`@site-index/observability`](../observability/)
+- [`site-index`](../../site-index/)

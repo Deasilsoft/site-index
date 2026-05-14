@@ -2,7 +2,12 @@
 
 Vite-backed runtime for executing site-index pipelines through Vite SSR module loading.
 
-[Repository README](../../../README.md)
+[![npm version](https://img.shields.io/npm/v/%40site-index%2Fvite-runtime)](https://www.npmjs.com/package/%40site-index%2Fvite-runtime)
+[![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fvite-runtime)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fvite-runtime)](https://socket.dev/npm/package/%40site-index%2Fvite-runtime)
+
+[Repository README](../../../)
 
 ## Install
 
@@ -21,7 +26,7 @@ Use this package when building adapters or integrations that need direct Vite-ba
 
 ## When not to use
 
-- Most users should use [`site-index`](../../site-index/README.md) or [`@site-index/vite-plugin`](../vite-plugin/README.md) directly.
+- Most users should use [`site-index`](../../site-index/) or [`@site-index/vite-plugin`](../vite-plugin/) directly.
 
 ## Public exports
 
@@ -114,6 +119,6 @@ try {
 
 ## Related packages
 
-- [`@site-index/core`](../core/README.md)
-- [`@site-index/vite-plugin`](../vite-plugin/README.md)
-- [`site-index`](../../site-index/README.md)
+- [`@site-index/core`](../core/)
+- [`@site-index/vite-plugin`](../vite-plugin/)
+- [`site-index`](../../site-index/)

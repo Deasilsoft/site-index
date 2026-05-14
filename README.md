@@ -29,11 +29,11 @@ Maintaining `sitemap.xml`, segmented sitemaps, and `robots.txt` manually is erro
 
 ## Package documentation
 
-- [`packages/site-index/README.md`](packages/site-index/README.md)
-- [`packages/@site-index/vite-plugin/README.md`](packages/@site-index/vite-plugin/README.md)
-- [`packages/@site-index/core/README.md`](packages/@site-index/core/README.md)
-- [`packages/@site-index/vite-runtime/README.md`](packages/@site-index/vite-runtime/README.md)
-- [`packages/@site-index/observability/README.md`](packages/@site-index/observability/README.md)
+- [`packages/site-index`](packages/site-index/)
+- [`packages/@site-index/vite-plugin`](packages/@site-index/vite-plugin/)
+- [`packages/@site-index/core`](packages/@site-index/core/)
+- [`packages/@site-index/vite-runtime`](packages/@site-index/vite-runtime/)
+- [`packages/@site-index/observability`](packages/@site-index/observability/)
 
 ## Shared content model (high-level)
 
@@ -91,7 +91,7 @@ Generated artifacts:
 - `sitemap-<name>.xml`
 - `robots.txt`
 
-For exact validation and pipeline details, see [`packages/@site-index/core/README.md`](packages/@site-index/core/README.md).
+For exact validation and pipeline details, see [`packages/@site-index/core`](packages/@site-index/core/).
 
 ## Monorepo development
 

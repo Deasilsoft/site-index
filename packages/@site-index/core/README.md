@@ -2,7 +2,12 @@
 
 Deterministic site-index pipeline for config resolution, discovery, loading, validation, deduplication, and artifact generation.
 
-[Repository README](../../../README.md)
+[![npm version](https://img.shields.io/npm/v/%40site-index%2Fcore)](https://www.npmjs.com/package/%40site-index%2Fcore)
+[![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
+[![Code Coverage](https://codecov.io/gh/Deasilsoft/site-index/graph/badge.svg?flag=%40site-index%2Fcore)](https://codecov.io/gh/Deasilsoft/site-index)
+[![Socket](https://badge.socket.dev/npm/package/%40site-index%2Fcore)](https://socket.dev/npm/package/%40site-index%2Fcore)
+
+[Repository README](../../../)
 
 ## Install
 
@@ -20,8 +25,8 @@ Use `@site-index/core` when you need programmatic control and can provide module
 
 ## When not to use
 
-- Use [`site-index`](../../site-index/README.md) for CLI-driven workflows.
-- Use [`@site-index/vite-plugin`](../vite-plugin/README.md) for Vite projects.
+- Use [`site-index`](../../site-index/) for CLI-driven workflows.
+- Use [`@site-index/vite-plugin`](../vite-plugin/) for Vite projects.
 
 ## Public exports
 
@@ -152,7 +157,7 @@ const result = await main({
 
 ## Related packages
 
-- [`site-index`](../../site-index/README.md)
-- [`@site-index/vite-plugin`](../vite-plugin/README.md)
-- [`@site-index/vite-runtime`](../vite-runtime/README.md)
-- [`@site-index/observability`](../observability/README.md)
+- [`site-index`](../../site-index/)
+- [`@site-index/vite-plugin`](../vite-plugin/)
+- [`@site-index/vite-runtime`](../vite-runtime/)
+- [`@site-index/observability`](../observability/)
