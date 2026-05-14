@@ -1,6 +1,6 @@
 {
   "name": "@site-index/vite-runtime",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Vite-backed runtime for executing site-index pipelines.",
   "keywords": [
     "site-index",
@@ -43,7 +43,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@site-index/core": "0.1.2"
+    "@site-index/core": "0.1.3"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.6",
