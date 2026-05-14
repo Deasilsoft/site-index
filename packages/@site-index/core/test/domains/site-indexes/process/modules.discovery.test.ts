@@ -1,8 +1,11 @@
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type LoadModule, main, type Module } from "../src/index.js";
-import { writeFiles } from "./helpers/fs.js";
-import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
+import { type LoadModule, main, type Module } from "../../../../src/index.js";
+import { writeFiles } from "../../../helpers/fs.js";
+import {
+  cleanupTempProjects,
+  createTempProject,
+} from "../../../helpers/project.js";
 
 const tempRoots: string[] = [];
 
@@ -11,7 +14,7 @@ afterEach(async () => {
 });
 
 describe("modules discovery", () => {
-  it("returns warning when no modules are found", async () => {
+  it("returns a warning and skips loading when no modules are found", async () => {
     const root = await createTempProject(tempRoots);
     const loadModule = vi.fn<LoadModule>(async () => ({
       siteIndexes: [],
@@ -31,7 +34,7 @@ describe("modules discovery", () => {
     expect(loadModule).not.toHaveBeenCalled();
   });
 
-  it("passes discovered modules correctly to loadModule", async () => {
+  it("loads discovered modules with normalized import ids", async () => {
     const root = await createTempProject(tempRoots);
 
     await writeFiles(root, [

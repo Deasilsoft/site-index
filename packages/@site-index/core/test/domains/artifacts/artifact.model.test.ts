@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Artifact } from "../src/index.js";
+import { Artifact } from "../../../src/index.js";
 
 describe("Artifact", () => {
   it("creates immutable .txt artifact and derives content type", () => {
