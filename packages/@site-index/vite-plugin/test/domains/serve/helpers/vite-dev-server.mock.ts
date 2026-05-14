@@ -15,3 +15,4 @@ export function createViteDevServerMock(): ViteDevServer {
     },
   } as unknown as ViteDevServer;
 }
+

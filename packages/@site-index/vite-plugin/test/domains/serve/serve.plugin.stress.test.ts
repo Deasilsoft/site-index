@@ -123,3 +123,4 @@ describe("siteIndexServePlugin stress", () => {
     expect(runtime.buildArtifacts).toHaveBeenCalledTimes(21);
   });
 });
+
