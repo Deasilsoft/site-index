@@ -65,4 +65,20 @@ describe("Shared schema rejections", () => {
       });
     },
   );
+
+  it.each(schemaParsers)(
+    "rejects config paths that escape the current directory when --root is omitted for %s",
+    async (_, parse) => {
+      await withProject({}, async (project) => {
+        project.chdir();
+
+        expect(() =>
+          parse({
+            siteUrl: "https://example.com",
+            config: "../vite.config.ts",
+          }),
+        ).toThrow("Invalid option: --config must resolve within --root");
+      });
+    },
+  );
 });
