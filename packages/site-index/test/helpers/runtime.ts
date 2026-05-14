@@ -1,6 +1,6 @@
 import { vi } from "vitest";
 
-export function createRuntimeServiceMock() {
+function createRuntimeMocks() {
   const runtime = {
     buildArtifacts: vi.fn(),
     close: vi.fn(async () => {}),
@@ -26,3 +26,13 @@ export function createRuntimeServiceMock() {
     },
   };
 }
+
+const runtimeMocks = vi.hoisted(() => createRuntimeMocks());
+
+export function getRuntimeMocks() {
+  return runtimeMocks;
+}
+
+vi.mock("@site-index/vite-runtime", () => ({
+  createRuntimeService: runtimeMocks.createRuntimeService,
+}));

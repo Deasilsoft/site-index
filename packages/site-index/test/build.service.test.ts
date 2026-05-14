@@ -1,15 +1,14 @@
 import { Artifact } from "@site-index/core";
-import * as ViteRuntime from "@site-index/vite-runtime";
 import NodeFS from "node:fs/promises";
 import NodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { getRuntimeMocks } from "./helpers/runtime.js";
 import { runBuild } from "../src/domains/site-indexes/build.service.js";
 import { getFirstMockArgument } from "./helpers/mock.js";
 import { withProject } from "./helpers/project.js";
-import { createRuntimeServiceMock } from "./helpers/runtime.service.mock.js";
 import { captureStreams } from "./helpers/streams.js";
 
-const runtimeMocks = createRuntimeServiceMock();
+const runtimeMocks = getRuntimeMocks();
 
 function getFirstResolvedViteConfig(): Record<string, unknown> {
   return getFirstMockArgument<Record<string, unknown>>(
@@ -20,10 +19,6 @@ function getFirstResolvedViteConfig(): Record<string, unknown> {
 
 beforeEach(() => {
   runtimeMocks.reset();
-
-  vi.spyOn(ViteRuntime, "createRuntimeService").mockImplementation(
-    runtimeMocks.createRuntimeService as never,
-  );
 });
 
 afterEach(async () => {
