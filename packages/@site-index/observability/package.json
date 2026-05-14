@@ -1,6 +1,6 @@
 {
   "name": "@site-index/observability",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Observability utilities for site-index.",
   "keywords": [
     "site-index",
@@ -44,7 +44,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@site-index/core": "0.1.3",
+    "@site-index/core": "0.1.4",
     "zod": "^4.4.3"
   },
   "devDependencies": {
