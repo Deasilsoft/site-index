@@ -1,17 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const buildPlugin = { name: "build-plugin" };
-const servePlugin = { name: "serve-plugin" };
+const hoisted = vi.hoisted(() => {
+  const buildPlugin = { name: "build-plugin" };
+  const servePlugin = { name: "serve-plugin" };
 
-const siteIndexBuildPluginMock = vi.hoisted(() => vi.fn(() => buildPlugin));
-const siteIndexServePluginMock = vi.hoisted(() => vi.fn(() => servePlugin));
+  return {
+    buildPlugin,
+    servePlugin,
+    siteIndexBuildPluginMock: vi.fn(() => buildPlugin),
+    siteIndexServePluginMock: vi.fn(() => servePlugin),
+  };
+});
 
 vi.mock("../src/domains/build/build.plugin.js", () => ({
-  siteIndexBuildPlugin: siteIndexBuildPluginMock,
+  siteIndexBuildPlugin: hoisted.siteIndexBuildPluginMock,
 }));
 
 vi.mock("../src/domains/serve/serve.plugin.js", () => ({
-  siteIndexServePlugin: siteIndexServePluginMock,
+  siteIndexServePlugin: hoisted.siteIndexServePluginMock,
 }));
 
 import { siteIndexPlugin } from "../src/index.js";
@@ -29,8 +35,8 @@ describe("siteIndexPlugin", () => {
 
     const plugins = siteIndexPlugin(options);
 
-    expect(plugins).toStrictEqual([servePlugin, buildPlugin]);
-    expect(siteIndexServePluginMock).toHaveBeenNthCalledWith(1, options);
-    expect(siteIndexBuildPluginMock).toHaveBeenNthCalledWith(1, options);
+    expect(plugins).toStrictEqual([hoisted.servePlugin, hoisted.buildPlugin]);
+    expect(hoisted.siteIndexServePluginMock).toHaveBeenNthCalledWith(1, options);
+    expect(hoisted.siteIndexBuildPluginMock).toHaveBeenNthCalledWith(1, options);
   });
 });
