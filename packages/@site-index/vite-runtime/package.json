@@ -43,11 +43,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@site-index/core": "0.1.4"
+    "@site-index/core": "0.1.4",
+    "vite": "^8.0.13"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.6",
-    "vite": "^8.0.12",
     "vitest": "^4.1.6"
   },
   "peerDependencies": {
