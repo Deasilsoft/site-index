@@ -2,14 +2,21 @@ import { describe, expect, it } from "vitest";
 import { resolveOptions } from "../../../src/domains/options/options.resolve.js";
 import { type LoadModule } from "../../../src/index.js";
 
+const validSiteUrls = [
+  ["https://cloudini.org", "https://cloudini.org"],
+  ["https://cloudini.org/", "https://cloudini.org"],
+  ["http://localhost:5173", "http://localhost:5173"],
+  ["http://127.0.0.1:5173", "http://127.0.0.1:5173"],
+] as const;
+
 const validLoader: LoadModule = async () => ({
   siteIndexes: [],
 });
 
 describe("resolveOptions", () => {
-  it("normalizes siteUrl/rootPath and applies default extensions", () => {
+  it("normalizes rootPath and applies default extensions", () => {
     const result = resolveOptions({
-      siteUrl: "https://example.com///",
+      siteUrl: "https://example.com",
       rootPath: "  /repo  ",
       loadModule: validLoader,
     });
@@ -22,14 +29,24 @@ describe("resolveOptions", () => {
     });
   });
 
-  it("trims siteUrl before URL validation", () => {
+  it("trims siteUrl before validation", () => {
     const result = resolveOptions({
-      siteUrl: "  https://example.com/docs/  ",
+      siteUrl: "  https://example.com/  ",
       rootPath: "/repo",
       loadModule: validLoader,
     });
 
-    expect(result.siteUrl).toBe("https://example.com/docs");
+    expect(result.siteUrl).toBe("https://example.com");
+  });
+
+  it.each(validSiteUrls)("accepts %s", (siteUrl, expectedOrigin) => {
+    const result = resolveOptions({
+      siteUrl,
+      rootPath: "/repo",
+      loadModule: validLoader,
+    });
+
+    expect(result.siteUrl).toBe(expectedOrigin);
   });
 
   it("keeps explicit extensions and passthrough values", () => {

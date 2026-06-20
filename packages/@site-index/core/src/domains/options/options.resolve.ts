@@ -1,13 +1,11 @@
 import { z as Zod } from "zod";
+import { SiteUrlSchema } from "./site-url.schema.js";
 import type { LoadModule, Options } from "./types.js";
 
 const OptionsSchema = Zod.object({
   siteUrl: Zod.preprocess(
     (value) => (typeof value === "string" ? value.trim() : value),
-    Zod.url({
-      protocol: /^https?$/,
-      hostname: Zod.regexes.domain,
-    }).transform((url) => url.replace(/\/+$/, "")),
+    SiteUrlSchema,
   ),
   rootPath: Zod.string().trim().min(1),
   extensions: Zod.array(Zod.string().regex(/^\.\w+$/))

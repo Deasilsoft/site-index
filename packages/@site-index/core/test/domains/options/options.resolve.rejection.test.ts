@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { resolveOptions } from "../../../src/domains/options/options.resolve.js";
+import { SITE_URL_ERROR_MESSAGE } from "../../../src/domains/options/site-url.schema.js";
 import { type LoadModule, main } from "../../../src/index.js";
 
 type InvalidOptionsCase = {
@@ -24,6 +25,29 @@ const invalidOptionsCases: InvalidOptionsCase[] = [
     name: "invalid siteUrl",
     input: { siteUrl: "not-a-url", rootPath: "/repo" },
     message: "Invalid URL",
+  },
+  {
+    name: "siteUrl with non-http protocol",
+    input: { siteUrl: "ftp://cloudini.org", rootPath: "/repo" },
+    message: "Invalid URL",
+  },
+  {
+    name: "siteUrl with path",
+    input: { siteUrl: "https://cloudini.org/path", rootPath: "/repo" },
+    message: SITE_URL_ERROR_MESSAGE,
+  },
+  {
+    name: "siteUrl with query",
+    input: {
+      siteUrl: "https://cloudini.org?preview=true",
+      rootPath: "/repo",
+    },
+    message: SITE_URL_ERROR_MESSAGE,
+  },
+  {
+    name: "siteUrl with hash",
+    input: { siteUrl: "https://cloudini.org#section", rootPath: "/repo" },
+    message: SITE_URL_ERROR_MESSAGE,
   },
   {
     name: "blank rootPath",

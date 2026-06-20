@@ -1,4 +1,5 @@
 import NodePath from "node:path";
+import { SiteUrlSchema } from "@site-index/core";
 import { z as Zod } from "zod";
 import { isRelativePathEscapingRoot } from "../../../shared/utils/path.js";
 import type { BaseConfig } from "../types.js";
@@ -15,11 +16,7 @@ export const BaseOptionsSchema = Zod.object({
   siteUrl: Zod.string({ error: "Missing required option: --site-url <url>" })
     .trim()
     .min(1, { error: "Missing required option: --site-url <url>" })
-    .pipe(
-      Zod.url({
-        error: "Invalid option: --site-url must be a valid URL",
-      }),
-    ),
+    .pipe(SiteUrlSchema),
   root: Zod.string().trim().min(1).optional(),
   config: Zod.string().trim().min(1).optional(),
 }).superRefine((options, context) => {
