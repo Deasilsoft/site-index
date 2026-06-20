@@ -42,12 +42,12 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "tinyglobby": "^0.2.16",
+    "tinyglobby": "^0.2.17",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.7",
-    "vitest": "^4.1.6"
+    "@vitest/coverage-v8": "^4.1.9",
+    "vitest": "^4.1.9"
   },
   "engines": {
     "node": ">=22"
