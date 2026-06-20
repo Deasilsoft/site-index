@@ -49,7 +49,7 @@
     "@site-index/vite-runtime": "0.1.5"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.1.6",
+    "@vitest/coverage-v8": "^4.1.7",
     "vite": "^8.0.13",
     "vitest": "^4.1.6"
   },
