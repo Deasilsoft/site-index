@@ -51,6 +51,9 @@ type Options = Pick<CoreOptions, "siteUrl" | "extensions">;
 
 - `siteIndexServePlugin` runs in `vite dev`, builds artifacts, serves `/sitemap.xml`, `/sitemap-<name>.xml`, and `/robots.txt`, and rebuilds on watched-file updates.
 - `siteIndexBuildPlugin` runs in `vite build`, builds artifacts in `buildStart`, emits them in `generateBundle`, and closes runtime resources in `closeBundle`.
+- For SSR builds (`build.ssr`), `siteIndexBuildPlugin` also emits a private distributed runtime entry (`site-index.runtime.mjs`) that can regenerate artifacts with:
+  - `node site-index.runtime.mjs --site-url <url> --out <dir>`
+  - imported `run(["--site-url", "<url>", "--out", "<dir>"])` from server code
 
 ## When to use this vs other packages
 

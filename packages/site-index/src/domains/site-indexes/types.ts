@@ -9,3 +9,10 @@ export type BuildConfig = BaseConfig & {
 };
 
 export type CheckConfig = BaseConfig;
+
+export type RuntimeConfig = {
+  siteUrl: string;
+  rootPath: string;
+  outPath: string;
+  entryPath: string;
+};

@@ -25,6 +25,7 @@ const mainTestMocks = vi.hoisted<MainTestMocks>(() => {
     cacMock: vi.fn().mockReturnValue(cli),
     initBuildCommand: vi.fn(),
     initCheckCommand: vi.fn(),
+    initRuntimeCommand: vi.fn(),
     initMakeCommand: vi.fn(),
     configureLogger: vi.fn(),
     loggerError: vi.fn(),
@@ -38,6 +39,10 @@ vi.mock("../src/domains/site-indexes/commands/build.command.js", () => ({
 
 vi.mock("../src/domains/site-indexes/commands/check.command.js", () => ({
   initCheckCommand: mainTestMocks.initCheckCommand,
+}));
+
+vi.mock("../src/domains/site-indexes/commands/runtime.command.js", () => ({
+  initRuntimeCommand: mainTestMocks.initRuntimeCommand,
 }));
 
 vi.mock("../src/domains/make/commands/make.command.js", () => ({
@@ -72,6 +77,9 @@ describe("main CLI wiring", () => {
     );
 
     expect(mainTestMocks.initMakeCommand).toHaveBeenCalledWith(
+      mainTestMocks.cli,
+    );
+    expect(mainTestMocks.initRuntimeCommand).toHaveBeenCalledWith(
       mainTestMocks.cli,
     );
 

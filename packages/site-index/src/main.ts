@@ -3,6 +3,7 @@ import pkg from "../package.json" with { type: "json" };
 import { initMakeCommand } from "./domains/make/commands/make.command.js";
 import { initBuildCommand } from "./domains/site-indexes/commands/build.command.js";
 import { initCheckCommand } from "./domains/site-indexes/commands/check.command.js";
+import { initRuntimeCommand } from "./domains/site-indexes/commands/runtime.command.js";
 import { logger } from "./shared/logging/logger.js";
 
 function hasCommandToken(argv: string[]): boolean {
@@ -18,6 +19,7 @@ export async function main(argv: string[] = process.argv) {
 
     initBuildCommand(cli);
     initCheckCommand(cli);
+    initRuntimeCommand(cli);
     initMakeCommand(cli);
 
     cli.help();

@@ -79,6 +79,16 @@ Use this for CI quality gates.
 - fails on warnings to prevent bad SEO outputs
 - uses the same core pipeline as `build`
 
+### `runtime` (prototype)
+
+```bash
+site-index runtime --site-url <url> [--entry <path>] [--out <dir>] [--root <path>]
+```
+
+Use this to execute a generated distributed runtime artifact (for example
+`dist/server/site-index.runtime.mjs`) and write regenerated artifacts to
+filesystem output.
+
 ## Examples
 
 ```bash
