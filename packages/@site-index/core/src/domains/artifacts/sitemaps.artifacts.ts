@@ -77,7 +77,7 @@ function renderSitemapIndexXml(paths: string[], siteUrl: string): string {
 }
 
 export function makeSitemapIndexArtifact(
-  sitemaps: Artifact[],
+  sitemaps: readonly Artifact[],
   siteUrl: string,
 ): Artifact {
   const paths = sitemaps

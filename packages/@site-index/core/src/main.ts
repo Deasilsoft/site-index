@@ -8,7 +8,11 @@ import { resolveModules } from "./domains/site-indexes/process/modules.resolve.j
 import { resolveSiteIndexes } from "./domains/site-indexes/process/site-indexes.resolve.js";
 import type { Result, Warning } from "./types.js";
 
-export async function main(options: Options): Promise<Result<Artifact[]>> {
+const EMPTY_ARTIFACTS: readonly Artifact[] = Object.freeze([] as Artifact[]);
+
+export async function main(
+  options: Options,
+): Promise<Result<readonly Artifact[]>> {
   const warnings: Warning[] = [];
   const config = resolveOptions(options);
   const modules = await discoverModules(config.rootPath, config.extensions);
@@ -19,7 +23,7 @@ export async function main(options: Options): Promise<Result<Artifact[]>> {
     });
 
     return {
-      data: [],
+      data: EMPTY_ARTIFACTS,
       warnings,
     };
   }

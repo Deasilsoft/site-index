@@ -7,7 +7,7 @@ import { isRelativePathEscapingRoot } from "../../shared/utils/path.js";
 import type { BuildConfig } from "./types.js";
 import { makeResolvedViteConfig } from "./vite.config.js";
 
-async function writeArtifacts(outPath: string, artifacts: Artifact[]) {
+async function writeArtifacts(outPath: string, artifacts: readonly Artifact[]) {
   const resolvedOutPath = NodePath.resolve(outPath);
 
   for (const artifact of artifacts) {

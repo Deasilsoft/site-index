@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { type Artifact, type LoadModule, main } from "../../../src/index.js";
+import { Artifact, type LoadModule, main } from "../../../src/index.js";
 import { writeFiles } from "../../helpers/fs.js";
 import {
   cleanupTempProjects,
@@ -62,7 +62,10 @@ const loadModuleWithEscapedUrl: LoadModule = async () => ({
   siteIndexes: [{ url: "/a&b<c>d\"e'f" }],
 });
 
-function getArtifact(artifacts: Artifact[], filePath: string): Artifact {
+function getArtifact(
+  artifacts: readonly Artifact[],
+  filePath: string,
+): Artifact {
   const artifact = artifacts.find((entry) => entry.filePath === filePath);
 
   if (artifact === undefined) {
@@ -77,6 +80,28 @@ afterEach(async () => {
 });
 
 describe("generated artifacts", () => {
+  it("returns artifacts in a frozen collection", async () => {
+    const root = await createTempProject(tempRoots);
+
+    await writeFiles(root, ["about.site-index.ts"]);
+
+    const result = await main({
+      siteUrl: "https://example.com",
+      rootPath: root,
+      loadModule: loadDefaultArtifactsModule,
+    });
+
+    expect(Object.isFrozen(result.data)).toBe(true);
+    expect(() => {
+      (result.data as Artifact[]).push(
+        new Artifact({
+          filePath: "robots.txt",
+          content: "User-agent: *",
+        }),
+      );
+    }).toThrow(TypeError);
+  });
+
   it("builds sitemap and robots artifacts for indexed and non-indexed routes", async () => {
     const root = await createTempProject(tempRoots);
 

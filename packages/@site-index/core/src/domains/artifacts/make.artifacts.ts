@@ -29,13 +29,13 @@ function makeSitemapGroups(
 export function makeArtifacts(
   siteUrl: string,
   siteIndexes: ResolvedSiteIndex[],
-): Artifact[] {
+): readonly Artifact[] {
   const sitemapGroups = makeSitemapGroups(siteIndexes);
   const sitemapArtifacts = makeSitemapArtifacts(sitemapGroups, siteUrl);
 
-  return [
+  return Object.freeze([
     ...sitemapArtifacts,
     makeSitemapIndexArtifact(sitemapArtifacts, siteUrl),
     makeRobotsArtifact(siteIndexes, siteUrl),
-  ];
+  ]);
 }
