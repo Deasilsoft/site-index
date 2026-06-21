@@ -9,17 +9,6 @@ Deterministic SEO artifact engine for sitemap and robots generation.
 
 [Repository README](../../../)
 
-## What problem this package solves
-
-Teams often need sitemap and robots generation outside one framework, but still want:
-
-- strict validation of route metadata
-- deterministic output ordering
-- deduplication and warning surfaces
-- reusable logic across CLI, Vite, and custom build systems
-
-`@site-index/core` is that reusable engine. It is framework-agnostic and leaves module loading strategy to the caller.
-
 ## Install
 
 ```bash

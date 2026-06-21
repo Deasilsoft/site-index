@@ -9,16 +9,6 @@ Vite plugin for deterministic sitemap.xml and robots.txt generation in dev and b
 
 [Repository README](../../../)
 
-## What problem this plugin solves
-
-Vite apps often need SEO artifacts (`sitemap.xml`, segmented sitemaps, `robots.txt`) but generating them outside Vite creates drift between:
-
-- development preview behavior
-- build output behavior
-- CI artifact validation
-
-`@site-index/vite-plugin` keeps this inside the Vite dev and build lifecycle by integrating artifact generation into Vite hooks.
-
 ## Install
 
 ```bash
@@ -47,12 +37,7 @@ export default defineConfig({
 
 ## Public API
 
-Recommended entry point:
-
 - `siteIndexPlugin(options): Vite.Plugin[]`
-
-Lower-level exports:
-
 - `siteIndexBuildPlugin(options): Vite.Plugin`
 - `siteIndexServePlugin(options): Vite.Plugin`
 
@@ -64,28 +49,8 @@ type Options = Pick<CoreOptions, "siteUrl" | "extensions">;
 
 ## How it works
 
-`siteIndexPlugin(options)` returns two plugins:
-
-1. `siteIndexServePlugin(options)`
-2. `siteIndexBuildPlugin(options)`
-
-### Serve behavior
-
-- runs in Vite dev server (`apply: "serve"`)
-- builds artifacts during `configureServer`
-- serves:
-  - `/sitemap.xml`
-  - `/sitemap-<name>.xml`
-  - `/robots.txt`
-- rebuilds on hot updates for watched files
-- logs warnings/errors through `@site-index/observability`
-
-### Build behavior
-
-- runs during Vite build (`apply: "build"`)
-- builds artifacts in `buildStart`
-- emits generated files as build assets in `generateBundle`
-- closes runtime resources in `closeBundle`
+- `siteIndexServePlugin` runs in `vite dev`, builds artifacts, serves `/sitemap.xml`, `/sitemap-<name>.xml`, and `/robots.txt`, and rebuilds on watched-file updates.
+- `siteIndexBuildPlugin` runs in `vite build`, builds artifacts in `buildStart`, emits them in `generateBundle`, and closes runtime resources in `closeBundle`.
 
 ## When to use this vs other packages
 

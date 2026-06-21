@@ -9,16 +9,6 @@ CLI for generating deterministic sitemap and robots.txt artifacts from file-base
 
 [Repository README](../../)
 
-## What problem this CLI solves
-
-When sitemap generation is script-by-script and team-by-team, SEO artifacts drift:
-
-- stale or missing intended public routes in `sitemap.xml`
-- inconsistent `robots.txt` output between local and CI
-- duplicated URLs and invalid metadata entering release pipelines
-
-`site-index` standardizes this into one CLI workflow for scaffolding, validation, and deterministic artifact generation.
-
 ## Install
 
 ```bash
@@ -36,11 +26,9 @@ Requirements:
 3. Run `build` to generate sitemap/robots artifacts.
 4. Run `check` in CI to fail on warnings.
 
-For SSR deployments, you can also run `site-index build` after deployment from an on-demand task, CI/CD step, or scheduled job.
+## SSR/post-deploy regeneration
 
-- a 10-minute cron can be practical for frequently changing SSR sites
-- it is not a default cadence; choose cadence based on metadata change frequency, serving path, and hosting model
-- write output to the directory, volume, object store, or public asset location your platform serves
+For SSR deployments, `site-index build` can run after deployment from an on-demand task, CI/CD step, or scheduled job. A 10-minute cron can be practical for frequently changing sites, but it is not a default cadence. Write output to the directory, volume, object store, or public asset location your platform serves.
 
 ## Global options
 

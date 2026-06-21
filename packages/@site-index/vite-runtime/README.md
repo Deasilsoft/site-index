@@ -9,19 +9,6 @@ Vite-powered runtime for executing the site-index core pipeline with SSR module 
 
 [Repository README](../../../)
 
-## What problem this package solves
-
-`@site-index/core` is framework-agnostic by design, which means integrations must provide module loading and runtime orchestration.
-
-`@site-index/vite-runtime` solves that integration layer for Vite ecosystems by:
-
-- loading route modules via Vite SSR APIs
-- tracking dependency graph watched files
-- serializing rebuild work for stable output snapshots
-- handling runtime lifecycle and cleanup
-
-Use this package when you are building your own adapter around Vite runtime internals.
-
 ## Install
 
 ```bash
@@ -71,14 +58,12 @@ type RuntimeViteConfig = {
 
 ## Runtime behavior
 
-- executes discovered site-index modules with Vite SSR loading
-- supports two integration modes:
-  - use an existing Vite dev server
-  - create an internal middleware-mode server from Vite config
-- tracks watched files from Vite module graph
-- serializes `buildArtifacts()` via an internal queue
+- executes discovered `*.site-index.*` modules with Vite SSR loading
+- supports an existing Vite dev server or an internal middleware-mode server
+- tracks watched files from the Vite module graph
+- serializes `buildArtifacts()` through an internal queue
 - stores artifact and watched-file snapshots
-- `close()` clears snapshots and only closes internally-created servers
+- `close()` clears snapshots and closes only internally-created servers
 
 ## Example
 

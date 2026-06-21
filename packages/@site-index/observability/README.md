@@ -9,19 +9,6 @@ Shared logging and error-formatting utilities for site-index packages.
 
 [Repository README](../../../)
 
-## What problem this package solves
-
-In multi-package tooling, logs and errors become inconsistent fast.
-
-`@site-index/observability` standardizes:
-
-- warning formatting
-- validation error formatting
-- verbose stack handling
-- writer injection for CLI and framework adapters
-
-This creates stable diagnostics across CLI, core runtime, and Vite integration layers.
-
 ## Install
 
 ```bash
@@ -62,19 +49,11 @@ type LoggerOptions = {
 
 ## Behavior
 
-- default sinks:
-  - `info` -> stdout
-  - `warn` -> stderr
-  - `error` -> stderr
+- default sinks: `info` -> stdout, `warn`/`error` -> stderr
 - `quiet` suppresses info output
 - `verbose` includes stack traces when available
-- warning inputs accepted:
-  - string
-  - single `Warning`
-  - `Warning[]`
-- warning output format:
-  - `Warning: <message>`
-  - `Warning: <filePath>: <message>`
+- warning inputs: string, `Warning`, or `Warning[]`
+- warning format: `Warning: <message>` or `Warning: <filePath>: <message>`
 - Zod errors are formatted as validation summaries with issue lines
 
 ## Example

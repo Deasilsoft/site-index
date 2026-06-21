@@ -4,52 +4,19 @@ Deterministic sitemap and robots.txt generation for TypeScript, Vite, and CLI wo
 
 `site-index` is a monorepo for deterministic SEO artifact generation from explicit file-based route metadata.
 
-## Why this exists
-
-Most teams eventually hit one or more of these problems:
-
-- manually maintained sitemaps drift from intended public routes
-- inconsistent sitemap output between local and CI
-- duplicate URLs and invalid metadata slip into production
-- no clear place to enforce sitemap/robots validation rules
-
-`site-index` solves this with a file-based indexing model and a deterministic pipeline that works the same way in CLI jobs and Vite-based applications.
-
-## How it works
-
-1. You define route metadata in `*.site-index.*` modules.
-2. `site-index` discovers and validates those metadata modules.
-3. The pipeline deduplicates, sorts, and generates artifacts.
-4. You consume output through the CLI, Vite plugin, or core API.
-
-Generated artifacts:
-
-- `sitemap.xml`
-- `sitemap-<name>.xml`
-- `robots.txt`
+Define route metadata in `*.site-index.*` modules, then generate deterministic `sitemap.xml`, segmented sitemaps, and `robots.txt` through the CLI, Vite plugin, or core runtime APIs.
 
 ## Deployment patterns
 
 ### Static-file hosting
 
-For static Vite deployments, `@site-index/vite-plugin` is usually enough.
-
-- in `vite dev`, it serves generated artifacts for local verification
-- in `vite build`, it emits generated artifacts as build assets
+For static Vite deployments, use `@site-index/vite-plugin` to serve artifacts during `vite dev` and emit them during `vite build`.
 
 ### SSR hosting
 
-For SSR deployments, the Vite plugin is still useful for dev/build parity, but many teams also run the `site-index` CLI after deployment when sitemap-worthy metadata changes.
+For SSR deployments, keep the Vite plugin for dev/build parity and run `site-index` after deploy when sitemap-worthy metadata changes. Regeneration can run on demand, in CI/CD, or on a schedule.
 
-Common patterns:
-
-- on-demand operational tasks
-- CI/CD post-deploy steps
-- scheduled jobs (for example, every 10 minutes on frequently changing sites)
-
-Cadence is deployment-specific and depends on how often public route metadata changes, how artifacts are served, and the hosting model.
-
-When using the CLI after deployment, write artifacts to the directory, volume, object store, or public asset location your host actually serves.
+A 10-minute cron is a practical example for frequently changing sites, not a default. Choose cadence based on metadata change frequency, serving path, and hosting model, and write output to the directory, volume, object store, or public asset location your host serves.
 
 ### Custom integrations
 
@@ -57,13 +24,13 @@ Use `@site-index/core` (optionally with `@site-index/vite-runtime`) when you nee
 
 ## Package map
 
-| Package                     | What problem it solves                                                                            | Best for                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `site-index`                | CLI workflows for scaffolding, validating, and generating sitemap/robots artifacts.               | CI pipelines, scripts, scheduled jobs, and SSR post-deploy regeneration |
-| `@site-index/vite-plugin`   | Integrates generation into Vite lifecycle, serving artifacts in `vite dev` and emitting in build. | Vite apps where dev/build generation matches deployment needs           |
-| `@site-index/core`          | Framework-agnostic deterministic pipeline and validation engine.                                  | Custom integrations and programmatic control                            |
-| `@site-index/vite-runtime`  | Vite-backed execution/runtime layer used by plugin and CLI integration paths.                     | Integration authors who need runtime control                            |
-| `@site-index/observability` | Consistent warnings/errors formatting and logger behavior.                                        | Shared observability across packages                                    |
+| Package                     | Role                                                             | Best for                                 |
+| --------------------------- | ---------------------------------------------------------------- | ---------------------------------------- |
+| `site-index`                | CLI for scaffolding, validation, and artifact generation         | CI, scripts, schedules, SSR regeneration |
+| `@site-index/vite-plugin`   | Vite integration that serves in dev and emits in build           | Vite apps with build-time artifacts      |
+| `@site-index/core`          | Framework-agnostic deterministic pipeline                        | Custom integrations                      |
+| `@site-index/vite-runtime`  | Vite-backed runtime adapter used by CLI/plugin integration paths | Runtime-level integrations               |
+| `@site-index/observability` | Shared warning/error formatting and logger behavior              | Shared diagnostics                       |
 
 ## Choose your entry point
 
@@ -78,13 +45,6 @@ npm install -D site-index
 npx site-index make src/pages.site-index.ts --format ts
 npx site-index build --site-url https://example.com
 npx site-index check --site-url https://example.com
-```
-
-## Public API imports
-
-```ts
-import { main } from "@site-index/core";
-import { siteIndexPlugin } from "@site-index/vite-plugin";
 ```
 
 ## Shared module model
@@ -107,30 +67,6 @@ Default ignored paths:
 - `**/dist/**`
 - `**/coverage/**`
 - `**/.git/**`
-
-TypeScript module example:
-
-```ts
-import type { SiteIndex } from "@site-index/core";
-
-const siteIndexes = [
-  {
-    url: "/",
-    lastModified: "2026-04-01T00:00:00.000Z",
-  },
-] satisfies SiteIndex[];
-
-export default { siteIndexes };
-```
-
-JavaScript module example:
-
-```js
-/** @type {import("@site-index/core").SiteIndex[]} */
-const siteIndexes = [{ url: "/" }];
-
-export default { siteIndexes };
-```
 
 ## Monorepo development
 
