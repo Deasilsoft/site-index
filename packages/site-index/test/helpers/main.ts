@@ -14,6 +14,7 @@ export type MainTestMocks = {
   cacMock: ReturnType<typeof vi.fn>;
   initBuildCommand: ReturnType<typeof vi.fn>;
   initCheckCommand: ReturnType<typeof vi.fn>;
+  initRuntimeCommand: ReturnType<typeof vi.fn>;
   initMakeCommand: ReturnType<typeof vi.fn>;
   configureLogger: ReturnType<typeof vi.fn>;
   loggerError: ReturnType<typeof vi.fn>;
@@ -22,6 +23,7 @@ export type MainTestMocks = {
 function resetCommandMocks(mainTestMocks: MainTestMocks): void {
   mainTestMocks.initBuildCommand.mockClear();
   mainTestMocks.initCheckCommand.mockClear();
+  mainTestMocks.initRuntimeCommand.mockClear();
   mainTestMocks.initMakeCommand.mockClear();
 }
 

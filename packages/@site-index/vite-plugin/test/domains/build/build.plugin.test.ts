@@ -44,6 +44,7 @@ describe("siteIndexBuildPlugin", () => {
           contentType: "text/plain; charset=utf-8",
         },
       ]),
+      getWatchedFiles: vi.fn(() => new Set<string>()),
       close: vi.fn(async () => {}),
     };
 
@@ -75,6 +76,7 @@ describe("siteIndexBuildPlugin", () => {
         info(message: string): void;
         warn(message: string): void;
         error(message: string): void;
+        emitFile(asset: Record<string, unknown>): void;
       }) => void | Promise<void>
     >(plugin.buildStart);
 
@@ -82,16 +84,13 @@ describe("siteIndexBuildPlugin", () => {
       info: vi.fn(),
       warn: vi.fn(),
       error: vi.fn(),
+      emitFile: vi.fn(),
     });
 
     const emitFile = vi.fn();
     const generateBundle = getPluginHookHandler<
       (this: {
-        emitFile(asset: {
-          type: "asset";
-          fileName: string;
-          source: string;
-        }): void;
+        emitFile(asset: Record<string, unknown>): void;
       }) => void | Promise<void>
     >(plugin.generateBundle);
 
@@ -128,5 +127,92 @@ describe("siteIndexBuildPlugin", () => {
     });
 
     expect(runtime.close).toHaveBeenCalledTimes(1);
+  });
+
+  it("emits a private runtime chunk for SSR builds", async () => {
+    const runtime = {
+      buildArtifacts: vi.fn(async () => ({
+        data: [],
+        warnings: [],
+      })),
+      getArtifacts: vi.fn(() => []),
+      getWatchedFiles: vi.fn(
+        () =>
+          new Set([
+            "/repo/src/routes.site-index.ts",
+            "/repo/src/not-site-index.ts",
+            "/repo/src/another.site-index.mjs",
+          ]),
+      ),
+      close: vi.fn(async () => {}),
+    };
+
+    const { builder } = createRuntimeBuilderMock(runtime);
+
+    createRuntimeServiceMock.mockReturnValue(builder as never);
+
+    const plugin = siteIndexBuildPlugin({ siteUrl: "https://example.com" });
+    const resolvedConfig = {
+      command: "build",
+      root: "/repo",
+      mode: "production",
+      build: {
+        ssr: true,
+      },
+      logger: {
+        info: vi.fn(),
+        warn: vi.fn(),
+        error: vi.fn(),
+      },
+    } as unknown as ResolvedConfig;
+
+    const configResolved = getPluginHookHandler<
+      (resolved: ResolvedConfig) => void | Promise<void>
+    >(plugin.configResolved);
+
+    configResolved(resolvedConfig);
+
+    const buildStart = getPluginHookHandler<
+      (this: {
+        info(message: string): void;
+        warn(message: string): void;
+        error(message: string): void;
+        emitFile(asset: Record<string, unknown>): void;
+      }) => void | Promise<void>
+    >(plugin.buildStart);
+
+    const emitRuntimeChunk = vi.fn();
+
+    await buildStart.call({
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      emitFile: emitRuntimeChunk,
+    });
+
+    const resolveId = getPluginHookHandler<
+      (id: string) => string | undefined | Promise<string | undefined>
+    >(plugin.resolveId);
+    const load = getPluginHookHandler<
+      (id: string) => string | undefined | Promise<string | undefined>
+    >(plugin.load);
+
+    expect(resolveId("virtual:site-index/runtime-entry")).toBe(
+      "\0site-index/runtime-entry",
+    );
+
+    const runtimeSource = load("\0site-index/runtime-entry");
+
+    expect(runtimeSource).toContain("buildArtifactsFromLoadedModules");
+    expect(runtimeSource).toContain('import module0 from "/repo/src/another.site-index.mjs";');
+    expect(runtimeSource).toContain('import module1 from "/repo/src/routes.site-index.ts";');
+    expect(runtimeSource).not.toContain("not-site-index");
+
+    expect(emitRuntimeChunk).toHaveBeenCalledTimes(1);
+    expect(emitRuntimeChunk).toHaveBeenCalledWith({
+      type: "chunk",
+      id: "virtual:site-index/runtime-entry",
+      fileName: "site-index.runtime.mjs",
+    });
   });
 });

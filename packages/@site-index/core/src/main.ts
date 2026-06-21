@@ -6,6 +6,7 @@ import { discoverModules } from "./domains/site-indexes/process/modules.discover
 import { loadModules } from "./domains/site-indexes/process/modules.load.js";
 import { resolveModules } from "./domains/site-indexes/process/modules.resolve.js";
 import { resolveSiteIndexes } from "./domains/site-indexes/process/site-indexes.resolve.js";
+import type { LoadedModule } from "./domains/site-indexes/types.js";
 import type { Result, Warning } from "./types.js";
 
 const EMPTY_ARTIFACTS: readonly Artifact[] = Object.freeze([] as Artifact[]);
@@ -40,6 +41,26 @@ export async function main(
 
   return {
     data: makeArtifacts(config.siteUrl, resolvedSiteIndexes.data),
+    warnings,
+  };
+}
+
+type BuildArtifactsFromLoadedModulesInput = {
+  siteUrl: string;
+  loadedModules: LoadedModule[];
+};
+
+export function buildArtifactsFromLoadedModules(
+  input: BuildArtifactsFromLoadedModulesInput,
+): Result<readonly Artifact[]> {
+  const warnings: Warning[] = [];
+  const resolvedModules = resolveModules(input.loadedModules);
+  const resolvedSiteIndexes = resolveSiteIndexes(resolvedModules.data);
+
+  warnings.push(...resolvedModules.warnings, ...resolvedSiteIndexes.warnings);
+
+  return {
+    data: makeArtifacts(input.siteUrl, resolvedSiteIndexes.data),
     warnings,
   };
 }

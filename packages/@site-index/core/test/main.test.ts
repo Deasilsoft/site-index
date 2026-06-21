@@ -1,6 +1,6 @@
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { type LoadModule, main } from "../src/index.js";
+import { buildArtifactsFromLoadedModules, type LoadModule, main } from "../src/index.js";
 import { writeFiles } from "./helpers/fs.js";
 import { cleanupTempProjects, createTempProject } from "./helpers/project.js";
 
@@ -60,6 +60,57 @@ describe("main", () => {
         "sitemap-pages.xml",
         "sitemap.xml",
       ]),
+    );
+  });
+
+  it("builds artifacts from preloaded modules", () => {
+    const result = buildArtifactsFromLoadedModules({
+      siteUrl: "https://example.com",
+      loadedModules: [
+        {
+          filePath: "/project/a.site-index.ts",
+          importId: "./a.site-index.ts",
+          siteIndexes: [{ url: "/a" }],
+        },
+        {
+          filePath: "/project/b.site-index.ts",
+          importId: "./b.site-index.ts",
+          siteIndexes: [{ url: "/a" }],
+        },
+      ],
+    });
+
+    expect(
+      result.warnings.some((warning) =>
+        warning.message.includes('Duplicate URL "/a"'),
+      ),
+    ).toBe(true);
+
+    expect(result.data.map((artifact) => artifact.filePath)).toEqual(
+      expect.arrayContaining(["robots.txt", "sitemap-pages.xml", "sitemap.xml"]),
+    );
+  });
+
+  it("builds artifacts from valid preloaded modules without warnings", () => {
+    const result = buildArtifactsFromLoadedModules({
+      siteUrl: "https://example.com",
+      loadedModules: [
+        {
+          filePath: "/project/a.site-index.ts",
+          importId: "./a.site-index.ts",
+          siteIndexes: [{ url: "/a" }],
+        },
+        {
+          filePath: "/project/b.site-index.ts",
+          importId: "./b.site-index.ts",
+          siteIndexes: [{ url: "/b" }],
+        },
+      ],
+    });
+
+    expect(result.warnings).toHaveLength(0);
+    expect(result.data.map((artifact) => artifact.filePath)).toEqual(
+      expect.arrayContaining(["robots.txt", "sitemap-pages.xml", "sitemap.xml"]),
     );
   });
 });
