@@ -1,6 +1,6 @@
 {
   "name": "@site-index/core",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Deterministic site-index pipeline: config, discovery, loading, validation, and artifact generation.",
   "keywords": [
     "site-index",

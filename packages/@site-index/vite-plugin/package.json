@@ -1,6 +1,6 @@
 {
   "name": "@site-index/vite-plugin",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Vite integration layer for site-index serve/build pipelines.",
   "keywords": [
     "site-index",
@@ -44,9 +44,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@site-index/core": "0.1.5",
-    "@site-index/observability": "0.1.5",
-    "@site-index/vite-runtime": "0.1.5"
+    "@site-index/core": "^0.2.0",
+    "@site-index/observability": "^0.2.0",
+    "@site-index/vite-runtime": "^0.2.0"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.1.9",

@@ -1,6 +1,6 @@
 {
   "name": "site-index",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "CLI for generating sitemap and robots.txt artifacts from site-index modules.",
   "keywords": [
     "site-index",
@@ -44,9 +44,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@site-index/core": "0.1.5",
-    "@site-index/observability": "0.1.5",
-    "@site-index/vite-runtime": "0.1.5",
+    "@site-index/core": "^0.2.0",
+    "@site-index/observability": "^0.2.0",
+    "@site-index/vite-runtime": "^0.2.0",
     "cac": "^7.0.0",
     "zod": "^4.4.3"
   },
