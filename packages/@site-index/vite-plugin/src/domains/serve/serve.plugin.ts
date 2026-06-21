@@ -48,12 +48,12 @@ export function siteIndexServePlugin(options: Options): Vite.Plugin {
 
       await buildArtifacts();
     },
-    async handleHotUpdate(ctx) {
+    async handleHotUpdate(context) {
       if (runtime === undefined) {
         return;
       }
 
-      if (!runtime.getWatchedFiles().has(ctx.file)) {
+      if (!runtime.getWatchedFiles().has(context.file)) {
         return;
       }
 

@@ -14,9 +14,10 @@ export async function withProject<T>(
   run: (project: ProjectContext) => Promise<T>,
 ): Promise<T> {
   const initialCwd = process.cwd();
-  const root = await NodeFS.realpath(
-    await NodeFS.mkdtemp(NodePath.join(NodeOS.tmpdir(), `${pkg.name}-`)),
+  const temp = await NodeFS.mkdtemp(
+    NodePath.join(NodeOS.tmpdir(), `${pkg.name}-`),
   );
+  const root = await NodeFS.realpath(temp);
 
   const project: ProjectContext = {
     root,

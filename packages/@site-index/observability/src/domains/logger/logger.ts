@@ -14,6 +14,14 @@ export class Logger {
     }
   }
 
+  #write(write: LogSink, message: string): void {
+    if (message.length === 0) {
+      return;
+    }
+
+    write(message);
+  }
+
   configure(options: LoggerOptions): void {
     if (options.writer !== undefined) {
       this.#writer = options.writer;
@@ -54,13 +62,5 @@ export class Logger {
 
   error(error: unknown): void {
     this.#write(this.#writer.error, formatError(error, this.#verbose));
-  }
-
-  #write(write: LogSink, message: string): void {
-    if (message.length === 0) {
-      return;
-    }
-
-    write(message);
   }
 }

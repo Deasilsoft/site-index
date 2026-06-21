@@ -77,17 +77,19 @@ describe("RuntimeService rebuild stress", () => {
     }
 
     for (const result of fulfilled) {
-      if (result.status === "fulfilled") {
-        expect(result.value.data).toHaveLength(1);
-        const artifact = result.value.data[0];
-
-        if (!artifact) {
-          throw new Error("Expected artifact in fulfilled build result");
-        }
-
-        expect(artifact.filePath).toMatch(/^sitemap-\d+\.xml$/);
-        expect(artifact.content).toMatch(/^XML_\d+$/);
+      if (result.status !== "fulfilled") {
+        continue;
       }
+
+      expect(result.value.data).toHaveLength(1);
+      const artifact = result.value.data[0];
+
+      if (!artifact) {
+        throw new Error("Expected artifact in fulfilled build result");
+      }
+
+      expect(artifact.filePath).toMatch(/^sitemap-\d+\.xml$/);
+      expect(artifact.content).toMatch(/^XML_\d+$/);
     }
 
     await expect(runtime.buildArtifacts()).resolves.toEqual({

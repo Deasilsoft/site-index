@@ -8,8 +8,23 @@ export default [
   unicorn.configs.recommended,
   {
     rules: {
-      "unicorn/prevent-abbreviations": "off",
+      "unicorn/name-replacements": "off",
+      "unicorn/no-this-outside-of-class": "off",
+      "unicorn/prefer-spread": "off",
       "unicorn/prefer-ternary": "off",
+      "unicorn/prevent-abbreviations": "off",
+    },
+  },
+  {
+    files: ["packages/**/test/**/*.ts"],
+    rules: {
+      "unicorn/no-top-level-side-effects": "off",
+    },
+  },
+  {
+    linterOptions: {
+      noInlineConfig: true,
+      reportUnusedDisableDirectives: "error",
     },
   },
   {

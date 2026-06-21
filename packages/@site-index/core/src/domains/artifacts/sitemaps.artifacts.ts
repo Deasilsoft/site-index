@@ -45,7 +45,7 @@ export function makeSitemapArtifacts(
   sitemaps: Map<string, ResolvedSiteIndex[]>,
   siteUrl: string,
 ): Artifact[] {
-  const sortedSitemaps = [...sitemaps.entries()].toSorted(([a], [b]) =>
+  const sortedSitemaps = [...sitemaps].toSorted(([a], [b]) =>
     a.localeCompare(b),
   );
 

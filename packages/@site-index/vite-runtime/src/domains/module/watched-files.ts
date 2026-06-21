@@ -1,4 +1,8 @@
 export class WatchedFiles {
+  static empty(): WatchedFiles {
+    return new WatchedFiles([]);
+  }
+
   readonly #files: ReadonlySet<string>;
 
   constructor(files: Iterable<string>) {
@@ -7,9 +11,5 @@ export class WatchedFiles {
 
   getFiles(): ReadonlySet<string> {
     return new Set(this.#files);
-  }
-
-  static empty(): WatchedFiles {
-    return new WatchedFiles([]);
   }
 }

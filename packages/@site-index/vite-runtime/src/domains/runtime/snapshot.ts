@@ -7,6 +7,13 @@ type Input = {
 };
 
 export class RuntimeSnapshot {
+  static empty(): RuntimeSnapshot {
+    return new RuntimeSnapshot({
+      artifacts: [],
+      watchedFiles: WatchedFiles.empty(),
+    });
+  }
+
   readonly #artifacts: readonly SiteIndex.Artifact[];
   readonly #watchedFiles: WatchedFiles;
 
@@ -21,12 +28,5 @@ export class RuntimeSnapshot {
 
   getWatchedFiles(): ReadonlySet<string> {
     return this.#watchedFiles.getFiles();
-  }
-
-  static empty(): RuntimeSnapshot {
-    return new RuntimeSnapshot({
-      artifacts: [],
-      watchedFiles: WatchedFiles.empty(),
-    });
   }
 }

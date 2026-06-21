@@ -81,7 +81,11 @@ describe("Logger", () => {
     const logger = new Logger({ writer, quiet: true });
     const error = new Error("boom");
 
-    error.stack = "STACK_TRACE";
+    Object.defineProperty(error, "stack", {
+      value: "STACK_TRACE",
+      configurable: true,
+      writable: true,
+    });
 
     logger.configure({ verbose: true });
 
@@ -209,7 +213,11 @@ describe("Logger", () => {
 
     const error = new Error("boom");
 
-    error.stack = "STACK_TRACE";
+    Object.defineProperty(error, "stack", {
+      value: "STACK_TRACE",
+      configurable: true,
+      writable: true,
+    });
 
     logger.error(error);
     logger.configure({ verbose: true });

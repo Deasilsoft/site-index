@@ -18,19 +18,17 @@ export function resolveSiteIndexes(
           message: `Duplicate URL "${duplicate.url}" found in "${duplicate.filePath}"`,
           filePath: module.filePath,
         });
-
-        continue;
+      } else {
+        data.set(siteIndex.url, {
+          ...siteIndex,
+          filePath: module.filePath,
+        });
       }
-
-      data.set(siteIndex.url, {
-        ...siteIndex,
-        filePath: module.filePath,
-      });
     }
   }
 
   return {
-    data: [...data.values()].toSorted(
+    data: Array.from(data.values()).toSorted(
       (a, b) =>
         a.sitemap.localeCompare(b.sitemap) || a.url.localeCompare(b.url),
     ),

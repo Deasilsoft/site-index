@@ -16,17 +16,6 @@ export class RuntimeService {
     this.#serverConnection = serverConnection;
   }
 
-  async buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
-    const run = this.#buildQueue.then(async () => this.#runBuildArtifacts());
-
-    this.#buildQueue = run.then(
-      () => {},
-      () => {},
-    );
-
-    return run;
-  }
-
   async #runBuildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
     const watchedFilesBuilder = new WatchedFilesBuilder();
     const moduleLoader = new ModuleLoader({
@@ -47,6 +36,24 @@ export class RuntimeService {
     });
 
     return result;
+  }
+
+  async buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>> {
+    const run = (async () => {
+      await this.#buildQueue;
+
+      return this.#runBuildArtifacts();
+    })();
+
+    this.#buildQueue = (async () => {
+      try {
+        await run;
+      } catch (error) {
+        void error;
+      }
+    })();
+
+    return run;
   }
 
   getArtifacts(): readonly SiteIndex.Artifact[] {

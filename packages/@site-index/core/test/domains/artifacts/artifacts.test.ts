@@ -93,9 +93,16 @@ describe("generated artifacts", () => {
     });
 
     expect(result.warnings).toHaveLength(0);
-    expect(result.data.map((artifact) => artifact.filePath).toSorted()).toEqual(
-      ["robots.txt", "sitemap-blog.xml", "sitemap-pages.xml", "sitemap.xml"],
-    );
+    expect(
+      result.data
+        .map((artifact) => artifact.filePath)
+        .toSorted((a, b) => a.localeCompare(b)),
+    ).toEqual([
+      "robots.txt",
+      "sitemap-blog.xml",
+      "sitemap-pages.xml",
+      "sitemap.xml",
+    ]);
 
     const sitemapBlog = getArtifact(result.data, "sitemap-blog.xml");
     const sitemapPages = getArtifact(result.data, "sitemap-pages.xml");

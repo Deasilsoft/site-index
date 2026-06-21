@@ -9,7 +9,7 @@ export function formatWarning(warning: Warning): string {
   return `Warning: ${warning.filePath}: ${warning.message}`;
 }
 
-export function formatError(error: unknown, verbose: boolean): string {
+export function formatError(error: unknown, isVerbose: boolean): string {
   if (error instanceof ZodError) {
     const issues = error.issues.map((issue) => {
       if (issue.path.length === 0) {
@@ -23,7 +23,7 @@ export function formatError(error: unknown, verbose: boolean): string {
   }
 
   if (error instanceof Error) {
-    if (verbose && error.stack !== undefined) {
+    if (isVerbose && error.stack !== undefined) {
       return error.stack;
     }
 

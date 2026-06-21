@@ -44,11 +44,11 @@ export const MakeConfigSchema = MakeOptionsSchema.transform(
     const resolved = NodePath.resolve(options.filePath);
     const dir = NodePath.dirname(resolved);
     const base = normalizeBaseName(resolved);
-    const ext = EXTENSIONS[options.format];
+    const extension = EXTENSIONS[options.format];
 
     return {
       ...options,
-      outputFilePath: NodePath.resolve(dir, `${base}.site-index.${ext}`),
+      outputFilePath: NodePath.resolve(dir, `${base}.site-index.${extension}`),
     };
   },
 );

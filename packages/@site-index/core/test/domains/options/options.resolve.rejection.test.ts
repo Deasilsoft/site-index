@@ -51,7 +51,7 @@ const invalidOptionsCases: InvalidOptionsCase[] = [
   },
   {
     name: "blank rootPath",
-    input: { siteUrl: "https://example.com", rootPath: "   " },
+    input: { siteUrl: "https://example.com", rootPath: " ".repeat(3) },
     message: "Too small",
   },
   {

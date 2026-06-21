@@ -119,12 +119,12 @@ describe("ModuleLoader watched-file graph", () => {
 
   it("avoids infinite recursion for cyclic imports", async () => {
     const entry = createModule("/repo/src/routes/cycle.site-index.ts");
-    const depA = createModule("/repo/src/content/a.ts");
-    const depB = createModule("/repo/src/content/b.ts");
+    const dependencyA = createModule("/repo/src/content/a.ts");
+    const dependencyB = createModule("/repo/src/content/b.ts");
 
-    entry.importedModules.add(depA);
-    depA.importedModules.add(depB);
-    depB.importedModules.add(entry);
+    entry.importedModules.add(dependencyA);
+    dependencyA.importedModules.add(dependencyB);
+    dependencyB.importedModules.add(entry);
 
     const viteServer = createViteServerMock({
       modulesByUrl: {

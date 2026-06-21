@@ -65,12 +65,12 @@ export async function setupServePlugin(input: {
 export function getRegisteredMiddleware(
   server: ViteDevServer,
 ): (
-  req: { url?: string; method?: string },
+  request: { url?: string; method?: string },
   res: MiddlewareResponse,
   next: () => void,
 ) => void {
   type Middleware = (
-    req: { url?: string; method?: string },
+    request: { url?: string; method?: string },
     res: MiddlewareResponse,
     next: () => void,
   ) => void;
@@ -88,7 +88,7 @@ export async function triggerHotUpdate(input: {
   file: string;
 }) {
   await getPluginHookHandler<
-    (ctx: { file: string; server: ViteDevServer }) => Promise<void>
+    (context: { file: string; server: ViteDevServer }) => Promise<void>
   >(input.plugin.handleHotUpdate)({
     file: input.file,
     server: input.server,

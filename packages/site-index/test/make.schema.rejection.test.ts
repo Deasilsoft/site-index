@@ -7,7 +7,7 @@ describe("MakeConfigSchema rejections", () => {
     await withProject({}, async (project) => {
       project.chdir();
 
-      expect(() => MakeConfigSchema.parse({ filePath: "   " })).toThrow(
+      expect(() => MakeConfigSchema.parse({ filePath: " ".repeat(3) })).toThrow(
         "File path is required",
       );
     });

@@ -13,6 +13,7 @@ afterEach(async () => {
 describe("main", () => {
   it("collects warnings from module loading and validation", async () => {
     const root = await createTempProject(tempRoots);
+    const throwsPath = path.join(root, "throws.site-index.ts");
 
     await writeFiles(root, [
       "good-a.site-index.ts",
@@ -22,15 +23,15 @@ describe("main", () => {
     ]);
 
     const loadModule: LoadModule = async (module) => {
+      if (module.importId === "./throws.site-index.ts") {
+        throw new Error("Loader warning");
+      }
+
       const byImportId = new Map<string, unknown>([
         ["./good-a.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
         ["./good-b.site-index.ts", { siteIndexes: [{ url: "/about" }] }],
         ["./bad.site-index.ts", { siteIndexes: [{ url: "not-valid" }] }],
       ]);
-
-      if (module.importId === "./throws.site-index.ts") {
-        throw new Error("Loader warning");
-      }
 
       return (byImportId.get(module.importId) ?? {
         siteIndexes: [],
@@ -46,9 +47,7 @@ describe("main", () => {
     expect(result.warnings).toHaveLength(3);
     expect(result.warnings.map((warning) => warning.message)).toEqual(
       expect.arrayContaining([
-        expect.stringContaining(
-          `Failed to load module "${path.join(root, "throws.site-index.ts")}"`,
-        ),
+        expect.stringContaining(`Failed to load module "${throwsPath}"`),
         expect.stringContaining("Loader warning"),
         expect.stringContaining("Invalid module"),
         expect.stringContaining('Duplicate URL "/about"'),

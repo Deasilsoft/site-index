@@ -37,7 +37,8 @@ describe("siteIndexServePlugin stress", () => {
     const runtime = createServeRuntimeMock({
       buildArtifacts: async () => {
         const buildNumber = ++nextBuildNumber;
-        const run = buildQueue.then(async () => {
+        const run = (async () => {
+          await buildQueue;
           await Promise.resolve();
 
           if (failingBuildNumbers.has(buildNumber)) {
@@ -55,12 +56,15 @@ describe("siteIndexServePlugin stress", () => {
           }
 
           return { data: artifacts, warnings: [] };
-        });
+        })();
 
-        buildQueue = run.then(
-          () => {},
-          () => {},
-        );
+        buildQueue = (async () => {
+          try {
+            await run;
+          } catch (error) {
+            void error;
+          }
+        })();
 
         return run;
       },

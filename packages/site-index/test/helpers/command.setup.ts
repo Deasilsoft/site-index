@@ -4,9 +4,9 @@ type ResettableMock = {
   mockReset: () => void;
 };
 
-export function setupCommandMock(mockFn: ResettableMock): void {
+export function setupCommandMock(mockFunction: ResettableMock): void {
   beforeEach(() => {
-    mockFn.mockReset();
+    mockFunction.mockReset();
   });
 
   afterEach(() => {

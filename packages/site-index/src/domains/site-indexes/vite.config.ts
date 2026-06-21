@@ -5,6 +5,6 @@ export function makeResolvedViteConfig(config: BaseConfig): RuntimeViteConfig {
   return {
     root: config.rootPath,
     mode: "production",
-    ...(config.configFile ? { configFile: config.configFile } : {}),
+    ...(config.configFile && { configFile: config.configFile }),
   };
 }
