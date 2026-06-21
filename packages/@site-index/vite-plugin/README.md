@@ -1,6 +1,6 @@
 # @site-index/vite-plugin
 
-Vite integration layer for site-index serve and build pipelines.
+Vite plugin for deterministic sitemap.xml and robots.txt generation in dev and build.
 
 [![npm version](https://img.shields.io/npm/v/@site-index/vite-plugin)](https://www.npmjs.com/package/@site-index/vite-plugin)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
@@ -8,6 +8,16 @@ Vite integration layer for site-index serve and build pipelines.
 [![Socket](https://badge.socket.dev/npm/package/@site-index/vite-plugin)](https://socket.dev/npm/package/@site-index/vite-plugin)
 
 [Repository README](../../../)
+
+## What problem this plugin solves
+
+Vite apps often need SEO artifacts (`sitemap.xml`, segmented sitemaps, `robots.txt`) but generating them outside Vite creates drift between:
+
+- development preview behavior
+- build output behavior
+- CI artifact validation
+
+`@site-index/vite-plugin` keeps this inside the Vite dev and build lifecycle by integrating artifact generation into Vite hooks.
 
 ## Install
 
@@ -20,21 +30,24 @@ Requirements:
 - Node.js `>=22`
 - peer dependency: `vite ^8.0.10`
 
-## When to use
-
-Use this package when your project already uses Vite and you want sitemap and robots.txt artifacts handled during dev and build.
-
-## Public exports
+## Quickstart
 
 ```ts
-export { siteIndexBuildPlugin } from "./domains/build/build.plugin.js";
-export { siteIndexServePlugin } from "./domains/serve/serve.plugin.js";
-export { siteIndexPlugin } from "./main.js";
+import { defineConfig } from "vite";
+import { siteIndexPlugin } from "@site-index/vite-plugin";
+
+export default defineConfig({
+  plugins: [
+    siteIndexPlugin({
+      siteUrl: "https://example.com",
+    }),
+  ],
+});
 ```
 
 ## Public API
 
-Recommended default:
+Recommended entry point:
 
 - `siteIndexPlugin(options): Vite.Plugin[]`
 
@@ -49,49 +62,36 @@ Options:
 type Options = Pick<CoreOptions, "siteUrl" | "extensions">;
 ```
 
-## Behavior
+## How it works
 
-`siteIndexPlugin(options)` returns:
+`siteIndexPlugin(options)` returns two plugins:
 
-- `siteIndexServePlugin(options)`
-- `siteIndexBuildPlugin(options)`
+1. `siteIndexServePlugin(options)`
+2. `siteIndexBuildPlugin(options)`
 
-Serve plugin:
+### Serve behavior
 
-- applies in Vite dev server
-- creates runtime from the existing Vite dev server
+- runs in Vite dev server (`apply: "serve"`)
 - builds artifacts during `configureServer`
-- serves generated artifact paths such as:
+- serves:
   - `/sitemap.xml`
   - `/sitemap-<name>.xml`
   - `/robots.txt`
-- returns headers only for `HEAD` requests
-- rebuilds on hot updates when changed files are in runtime watched files
-- logs warnings/errors via `@site-index/observability`
+- rebuilds on hot updates for watched files
+- logs warnings/errors through `@site-index/observability`
 
-Build plugin:
+### Build behavior
 
-- applies during Vite build
-- creates runtime from resolved Vite config
+- runs during Vite build (`apply: "build"`)
 - builds artifacts in `buildStart`
-- emits generated artifacts as assets in `generateBundle`
-- closes runtime in `closeBundle`
-- logs warnings through `@site-index/observability`
+- emits generated files as build assets in `generateBundle`
+- closes runtime resources in `closeBundle`
 
-## Example
+## When to use this vs other packages
 
-```ts
-import { defineConfig } from "vite";
-import { siteIndexPlugin } from "@site-index/vite-plugin";
-
-export default defineConfig({
-  plugins: [
-    siteIndexPlugin({
-      siteUrl: "https://example.com",
-    }),
-  ],
-});
-```
+- Use this package when build-time artifact generation fits your Vite deployment model.
+- For SSR deployments that also need post-deploy regeneration, pair this package with [`site-index`](../../site-index/).
+- Use [`@site-index/core`](../core/) for custom runtime/loaders.
 
 ## Related packages
 

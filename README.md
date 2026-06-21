@@ -2,46 +2,104 @@
 
 Deterministic sitemap and robots.txt generation for TypeScript, Vite, and CLI workflows.
 
-`site-index` is an npm workspaces monorepo for generating SEO artifacts from file-based site indexing modules. It gives you one shared content model and consistent outputs across CLI and Vite integrations.
+`site-index` is a monorepo for deterministic SEO artifact generation from explicit file-based route metadata.
 
-Use it to keep sitemap generation and robots.txt generation deterministic across local development, CI, and build pipelines.
+## Why this exists
 
-## What problem it solves
+Most teams eventually hit one or more of these problems:
 
-Maintaining `sitemap.xml`, segmented sitemaps, and `robots.txt` manually is error-prone as sites grow.
+- manually maintained sitemaps drift from intended public routes
+- inconsistent sitemap output between local and CI
+- duplicate URLs and invalid metadata slip into production
+- no clear place to enforce sitemap/robots validation rules
 
-`site-index` provides:
+`site-index` solves this with a file-based indexing model and a deterministic pipeline that works the same way in CLI jobs and Vite-based applications.
 
-- file-based site indexing via `*.site-index.*` modules
-- deterministic generation of sitemap and robots.txt artifacts
-- validation and deduplication in a shared core pipeline
-- both CLI and Vite plugin workflows for static sites and web apps
+## How it works
+
+1. You define route metadata in `*.site-index.*` modules.
+2. `site-index` discovers and validates those metadata modules.
+3. The pipeline deduplicates, sorts, and generates artifacts.
+4. You consume output through the CLI, Vite plugin, or core API.
+
+Generated artifacts:
+
+- `sitemap.xml`
+- `sitemap-<name>.xml`
+- `robots.txt`
+
+## Deployment patterns
+
+### Static-file hosting
+
+For static Vite deployments, `@site-index/vite-plugin` is usually enough.
+
+- in `vite dev`, it serves generated artifacts for local verification
+- in `vite build`, it emits generated artifacts as build assets
+
+### SSR hosting
+
+For SSR deployments, the Vite plugin is still useful for dev/build parity, but many teams also run the `site-index` CLI after deployment when sitemap-worthy metadata changes.
+
+Common patterns:
+
+- on-demand operational tasks
+- CI/CD post-deploy steps
+- scheduled jobs (for example, every 10 minutes on frequently changing sites)
+
+Cadence is deployment-specific and depends on how often public route metadata changes, how artifacts are served, and the hosting model.
+
+When using the CLI after deployment, write artifacts to the directory, volume, object store, or public asset location your host actually serves.
+
+### Custom integrations
+
+Use `@site-index/core` (optionally with `@site-index/vite-runtime`) when you need custom module loading, runtime wiring, or hosting integration beyond standard CLI/Vite flows.
 
 ## Package map
 
-| Package                     | Role                                                                                                                  | Best for                                                |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| `site-index`                | CLI for creating site-index modules and generating/checking sitemap + robots.txt artifacts.                           | CI pipelines and terminal-driven workflows              |
-| `@site-index/vite-plugin`   | Vite plugin for serving generated artifacts in dev and emitting them during build.                                    | Vite apps                                               |
-| `@site-index/core`          | Deterministic framework-agnostic pipeline for discovery, loading, validation, deduplication, and artifact generation. | Custom integrations and programmatic usage              |
-| `@site-index/vite-runtime`  | Vite-backed runtime for executing the core pipeline through Vite module loading.                                      | Integration authors who need direct runtime control     |
-| `@site-index/observability` | Shared logging and observability utilities used by the packages.                                                      | Consistent logging/formatting across site-index tooling |
+| Package                     | What problem it solves                                                                            | Best for                                                                |
+| --------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `site-index`                | CLI workflows for scaffolding, validating, and generating sitemap/robots artifacts.               | CI pipelines, scripts, scheduled jobs, and SSR post-deploy regeneration |
+| `@site-index/vite-plugin`   | Integrates generation into Vite lifecycle, serving artifacts in `vite dev` and emitting in build. | Vite apps where dev/build generation matches deployment needs           |
+| `@site-index/core`          | Framework-agnostic deterministic pipeline and validation engine.                                  | Custom integrations and programmatic control                            |
+| `@site-index/vite-runtime`  | Vite-backed execution/runtime layer used by plugin and CLI integration paths.                     | Integration authors who need runtime control                            |
+| `@site-index/observability` | Consistent warnings/errors formatting and logger behavior.                                        | Shared observability across packages                                    |
 
-## Package documentation
+## Choose your entry point
 
-- [`packages/site-index`](packages/site-index/)
-- [`packages/@site-index/vite-plugin`](packages/@site-index/vite-plugin/)
-- [`packages/@site-index/core`](packages/@site-index/core/)
-- [`packages/@site-index/vite-runtime`](packages/@site-index/vite-runtime/)
-- [`packages/@site-index/observability`](packages/@site-index/observability/)
+- Use [`packages/@site-index/vite-plugin`](packages/@site-index/vite-plugin/) for Vite apps when dev/build artifact generation fits your deployment model.
+- Use [`packages/site-index`](packages/site-index/) for CI, scripts, and SSR deployments that need post-deploy regeneration.
+- Use [`packages/@site-index/core`](packages/@site-index/core/) and [`packages/@site-index/vite-runtime`](packages/@site-index/vite-runtime/) for custom integrations.
 
-## Shared content model (high-level)
+## Quickstart (CLI)
+
+```bash
+npm install -D site-index
+npx site-index make src/pages.site-index.ts --format ts
+npx site-index build --site-url https://example.com
+npx site-index check --site-url https://example.com
+```
+
+## Public API imports
+
+```ts
+import { main } from "@site-index/core";
+import { siteIndexPlugin } from "@site-index/vite-plugin";
+```
+
+## Shared module model
 
 Discovered files:
 
 - `**/*.site-index.js`
 - `**/*.site-index.mjs`
 - `**/*.site-index.ts`
+
+Default supported module extensions:
+
+- `.js`
+- `.mjs`
+- `.ts`
 
 Default ignored paths:
 
@@ -50,13 +108,7 @@ Default ignored paths:
 - `**/coverage/**`
 - `**/.git/**`
 
-Default supported extensions:
-
-```ts
-[".js", ".mjs", ".ts"];
-```
-
-TypeScript module shape:
+TypeScript module example:
 
 ```ts
 import type { SiteIndex } from "@site-index/core";
@@ -71,27 +123,14 @@ const siteIndexes = [
 export default { siteIndexes };
 ```
 
-ESM/JavaScript module shape:
+JavaScript module example:
 
 ```js
 /** @type {import("@site-index/core").SiteIndex[]} */
-const siteIndexes = [
-  {
-    url: "/",
-    lastModified: "2026-04-01T00:00:00.000Z",
-  },
-];
+const siteIndexes = [{ url: "/" }];
 
 export default { siteIndexes };
 ```
-
-Generated artifacts:
-
-- `sitemap.xml`
-- `sitemap-<name>.xml`
-- `robots.txt`
-
-For exact validation and pipeline details, see [`packages/@site-index/core`](packages/@site-index/core/).
 
 ## Monorepo development
 
@@ -100,39 +139,42 @@ Requirements:
 - Node.js `>=22`
 - npm workspaces
 
-Install dependencies for general local development:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-For contribution checks that should match CI more closely, use `npm ci` as
-documented in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+Run CI-equivalent checks locally:
 
-Run from repository root:
+```bash
+npm run format:check
+npm run lint
+npm run knip
+npm run typecheck
+npm test
+```
+
+Local package-build validation:
 
 ```bash
 npm run build
-npm run format
-npm run format:check
-npm run lint
-npm run lint:fix
-npm run typecheck
-npm run test
-npm run knip
-npm run clean
 ```
 
-Run the CLI workspace from the monorepo:
+Run CLI from repo root:
 
 ```bash
 npm run cli -- build --site-url https://example.com
 ```
 
-## Contributing
+## Related docs
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for process, standards, and testing
-expectations.
+- [`packages/site-index/README.md`](packages/site-index/README.md)
+- [`packages/@site-index/vite-plugin/README.md`](packages/@site-index/vite-plugin/README.md)
+- [`packages/@site-index/core/README.md`](packages/@site-index/core/README.md)
+- [`packages/@site-index/vite-runtime/README.md`](packages/@site-index/vite-runtime/README.md)
+- [`packages/@site-index/observability/README.md`](packages/@site-index/observability/README.md)
+- [`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ## License
 

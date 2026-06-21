@@ -1,6 +1,6 @@
 # @site-index/observability
 
-Observability and logging utilities for site-index packages.
+Shared logging and error-formatting utilities for site-index packages.
 
 [![npm version](https://img.shields.io/npm/v/@site-index/observability)](https://www.npmjs.com/package/@site-index/observability)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
@@ -8,6 +8,19 @@ Observability and logging utilities for site-index packages.
 [![Socket](https://badge.socket.dev/npm/package/@site-index/observability)](https://socket.dev/npm/package/@site-index/observability)
 
 [Repository README](../../../)
+
+## What problem this package solves
+
+In multi-package tooling, logs and errors become inconsistent fast.
+
+`@site-index/observability` standardizes:
+
+- warning formatting
+- validation error formatting
+- verbose stack handling
+- writer injection for CLI and framework adapters
+
+This creates stable diagnostics across CLI, core runtime, and Vite integration layers.
 
 ## Install
 
@@ -18,21 +31,6 @@ npm install @site-index/observability
 Requirements:
 
 - Node.js `>=22`
-
-## When to use
-
-Use this package when you want consistent warning/error formatting and logging behavior across site-index tooling.
-
-## Public exports
-
-```ts
-export { Logger } from "./domains/logger/logger.js";
-export type {
-  LoggerOptions,
-  LogSink,
-  LogWriter,
-} from "./domains/logger/types.js";
-```
 
 ## Public API
 
@@ -45,8 +43,6 @@ class Logger {
   error(error: unknown): void;
 }
 ```
-
-Types:
 
 ```ts
 type LogSink = (message: string) => void;
@@ -66,20 +62,20 @@ type LoggerOptions = {
 
 ## Behavior
 
-- default writers:
-  - info -> stdout
-  - warn -> stderr
-  - error -> stderr
-- `quiet` suppresses info logs
-- `verbose` includes error stack traces when available
-- warning input can be:
+- default sinks:
+  - `info` -> stdout
+  - `warn` -> stderr
+  - `error` -> stderr
+- `quiet` suppresses info output
+- `verbose` includes stack traces when available
+- warning inputs accepted:
   - string
   - single `Warning`
   - `Warning[]`
-- warning formatting:
+- warning output format:
   - `Warning: <message>`
   - `Warning: <filePath>: <message>`
-- Zod errors are formatted as validation failures with issue lines
+- Zod errors are formatted as validation summaries with issue lines
 
 ## Example
 

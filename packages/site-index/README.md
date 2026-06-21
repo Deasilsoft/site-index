@@ -1,6 +1,6 @@
 # site-index
 
-CLI for creating site-index modules and generating/checking sitemap and robots.txt artifacts.
+CLI for generating deterministic sitemap and robots.txt artifacts from file-based route metadata.
 
 [![npm version](https://img.shields.io/npm/v/site-index)](https://www.npmjs.com/package/site-index)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
@@ -8,6 +8,16 @@ CLI for creating site-index modules and generating/checking sitemap and robots.t
 [![Socket](https://badge.socket.dev/npm/package/site-index)](https://socket.dev/npm/package/site-index)
 
 [Repository README](../../)
+
+## What problem this CLI solves
+
+When sitemap generation is script-by-script and team-by-team, SEO artifacts drift:
+
+- stale or missing intended public routes in `sitemap.xml`
+- inconsistent `robots.txt` output between local and CI
+- duplicated URLs and invalid metadata entering release pipelines
+
+`site-index` standardizes this into one CLI workflow for scaffolding, validation, and deterministic artifact generation.
 
 ## Install
 
@@ -19,23 +29,23 @@ Requirements:
 
 - Node.js `>=22`
 
-## When to use
+## Typical workflow
 
-Use `site-index` when you want command-line workflows for:
+1. Scaffold a `*.site-index.*` module with `make`.
+2. Add route metadata (`url`, optional `lastModified`, etc.).
+3. Run `build` to generate sitemap/robots artifacts.
+4. Run `check` in CI to fail on warnings.
 
-- scaffolding `*.site-index.*` modules
-- generating sitemap and robots.txt artifacts
-- validating site-index modules in CI
+For SSR deployments, you can also run `site-index build` after deployment from an on-demand task, CI/CD step, or scheduled job.
 
-## When not to use
-
-- Use [`@site-index/vite-plugin`](../@site-index/vite-plugin/) for Vite-native integration.
-- Use [`@site-index/core`](../@site-index/core/) for custom programmatic pipelines.
+- a 10-minute cron can be practical for frequently changing SSR sites
+- it is not a default cadence; choose cadence based on metadata change frequency, serving path, and hosting model
+- write output to the directory, volume, object store, or public asset location your platform serves
 
 ## Global options
 
 - `--quiet`: suppress informational output
-- `--verbose`: enable verbose logging
+- `--verbose`: include stack traces when available
 
 ## Commands
 
@@ -45,16 +55,15 @@ Use `site-index` when you want command-line workflows for:
 site-index make <filePath> [--format <format>] [--force]
 ```
 
-Behavior:
+Use this to scaffold route metadata modules.
 
-- creates a new site-index module template
-- supports `--format ts`
-- supports `--format esm`
-- defaults format to `ts`
-- refuses to overwrite existing files unless `--force` is used
-- normalizes output filenames to:
+- `--format ts` generates TypeScript
+- `--format esm` generates JavaScript ESM
+- default format is `ts`
+- output is normalized to:
   - `<name>.site-index.ts`
   - `<name>.site-index.mjs`
+- existing files are protected unless `--force` is used
 
 ### `build`
 
@@ -62,16 +71,13 @@ Behavior:
 site-index build --site-url <url> [--root <path>] [--out <dir>] [--config <path>]
 ```
 
-Behavior:
+Use this to generate SEO artifacts for deployment.
 
-- generates site-index artifacts
-- writes artifacts to `--out` (default: `dist`)
-- requires `--site-url`
-- validates `--site-url` as a valid URL
-- validates `--out` resolves within `--root`
+- generates `sitemap.xml`, segmented sitemaps, and `robots.txt`
+- writes to `--out` (default: `dist`)
+- validates `--site-url` as HTTP(S) origin
+- validates path safety (`--out` and `--config` within `--root`)
 - uses Vite config when `--config` is provided
-- `--root` defaults to current working directory
-- `--config` must resolve within `--root`
 
 ### `check`
 
@@ -79,14 +85,11 @@ Behavior:
 site-index check --site-url <url> [--root <path>] [--config <path>]
 ```
 
-Behavior:
+Use this for CI quality gates.
 
-- validates discovered site-index modules for CI
-- requires `--site-url`
-- fails when warnings are produced
-- uses Vite config when `--config` is provided
-- `--root` defaults to current working directory
-- `--config` must resolve within `--root`
+- validates discovered modules and metadata
+- fails on warnings to prevent bad SEO outputs
+- uses the same core pipeline as `build`
 
 ## Examples
 
@@ -97,16 +100,18 @@ npx site-index build --site-url https://example.com
 npx site-index check --site-url https://example.com
 ```
 
-Local monorepo development:
+Monorepo local run:
 
 ```bash
 npm run cli -- build --site-url https://example.com
 ```
 
-## How it fits in the monorepo
+## Package architecture
 
-`site-index` is the user-facing CLI package built on:
+This CLI is built on:
 
 - [`@site-index/vite-runtime`](../@site-index/vite-runtime/)
 - [`@site-index/core`](../@site-index/core/)
 - [`@site-index/observability`](../@site-index/observability/)
+
+If you already use Vite app config directly, consider [`@site-index/vite-plugin`](../@site-index/vite-plugin/).

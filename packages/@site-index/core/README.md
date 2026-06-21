@@ -1,6 +1,6 @@
 # @site-index/core
 
-Deterministic site-index pipeline for config resolution, discovery, loading, validation, deduplication, and artifact generation.
+Deterministic SEO artifact engine for sitemap and robots generation.
 
 [![npm version](https://img.shields.io/npm/v/@site-index/core)](https://www.npmjs.com/package/@site-index/core)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
@@ -8,6 +8,17 @@ Deterministic site-index pipeline for config resolution, discovery, loading, val
 [![Socket](https://badge.socket.dev/npm/package/@site-index/core)](https://socket.dev/npm/package/@site-index/core)
 
 [Repository README](../../../)
+
+## What problem this package solves
+
+Teams often need sitemap and robots generation outside one framework, but still want:
+
+- strict validation of route metadata
+- deterministic output ordering
+- deduplication and warning surfaces
+- reusable logic across CLI, Vite, and custom build systems
+
+`@site-index/core` is that reusable engine. It is framework-agnostic and leaves module loading strategy to the caller.
 
 ## Install
 
@@ -19,125 +30,101 @@ Requirements:
 
 - Node.js `>=22`
 
-## When to use
+## When to use core directly
 
-Use `@site-index/core` when you need programmatic control and can provide module loading yourself.
+Use `@site-index/core` when you want programmatic control and provide your own `loadModule` implementation.
 
-## When not to use
+Use higher-level packages if you do not need custom integration plumbing:
 
-- Use [`site-index`](../../site-index/) for CLI-driven workflows.
-- Use [`@site-index/vite-plugin`](../vite-plugin/) for Vite projects.
+- CLI: [`site-index`](../../site-index/)
+- Vite integration: [`@site-index/vite-plugin`](../vite-plugin/)
 
-## Public exports
-
-```ts
-export { Artifact } from "./domains/artifacts/artifact.js";
-export type { LoadModule, Options } from "./domains/options/types.js";
-export type * from "./domains/site-indexes/types.js";
-export type { Warning, Result } from "./types.js";
-export { main } from "./main.js";
-```
-
-## Main API
+## Public API
 
 ```ts
-main(options: Options): Promise<Result<Artifact[]>>
+main(options: Options): Promise<Result<readonly Artifact[]>>
 ```
 
-Options:
+Key types:
 
 ```ts
 type Options = {
   siteUrl: string;
   rootPath: string;
-  extensions?: string[] | undefined;
+  extensions?: string[];
   loadModule: LoadModule;
 };
-```
 
-`LoadModule`:
-
-```ts
 type LoadModule = (module: Module) => Promise<ModuleExports>;
-```
 
-`Module`:
-
-```ts
 type Module = {
   filePath: string;
   importId: string;
 };
-```
 
-`ModuleExports`:
-
-```ts
 type ModuleExports = {
   siteIndexes: SiteIndex[];
 };
 ```
 
-## Site index type
+## SiteIndex model
 
 ```ts
 type SiteIndex = {
   url: `/${string}`;
-  lastModified?: string | undefined;
-  sitemap?: string | undefined;
-  index?: boolean | undefined;
+  lastModified?: string;
+  sitemap?: string;
+  index?: boolean;
 };
 ```
 
-Validation rules:
+Validation highlights:
 
 - `url` must start with `/`
-- `url` cannot contain query strings or fragments
-- `lastModified` is optional
-- `lastModified` must be an ISO date or an ISO datetime with offset
-- `sitemap` is optional
+- `url` cannot include query strings or hash fragments
+- `lastModified` accepts ISO date / ISO datetime with offset
 - `sitemap` defaults to `pages`
-- `sitemap` must be lowercase and can include hyphens
-- `index` is optional
+- `sitemap` must match lowercase slug segments (`^[a-z0-9]+(-[a-z0-9]+)*$`)
 - `index` defaults to `true`
-- `index: false` excludes the URL from sitemap artifacts and adds `Disallow: <path>` to `robots.txt`
+- `index: false` removes URL from sitemap files and adds `Disallow` in `robots.txt`
 
-## Artifacts
+## Pipeline stages
 
-Generated:
+`main(...)` runs a deterministic pipeline:
 
-- `sitemap.xml`
-- `sitemap-<name>.xml`
-- `robots.txt`
+1. resolve and validate options
+2. discover `*.site-index.*` files
+3. load modules through caller `loadModule`
+4. validate exported data
+5. deduplicate and sort route entries
+6. generate deterministic artifacts as frozen `Artifact` objects in a frozen collection
+7. return warnings for recoverable issues
 
-Artifact content types:
+Immutability scope:
 
-- `.xml` -> `application/xml; charset=utf-8`
-- `.txt` -> `text/plain; charset=utf-8`
-
-## Pipeline behavior
-
-`main(...)`:
-
-- resolves options
-- discovers `*.site-index.*` modules
-- loads modules via caller-provided `loadModule`
-- validates module exports
-- resolves and deduplicates site index entries
-- sorts output deterministically
-- generates immutable artifacts
-- returns warnings for recoverable issues
+- each `Artifact` object is frozen
+- the returned artifact collection is frozen
+- the `Result` object and warning collection are not documented as immutable
 
 Warning categories include:
 
 - no modules found
 - failed module load
 - invalid module exports
-- duplicate URL entries
+- duplicate URLs
+
+## Generated artifacts
+
+- `sitemap.xml`
+- `sitemap-<name>.xml`
+- `robots.txt`
+
+Content types:
+
+- `.xml` -> `application/xml; charset=utf-8`
+- `.txt` -> `text/plain; charset=utf-8`
 
 ## Example
-
-Example with a runtime that can import the discovered module files:
 
 ```ts
 import { main } from "@site-index/core";

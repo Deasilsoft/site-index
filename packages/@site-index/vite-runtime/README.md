@@ -1,6 +1,6 @@
 # @site-index/vite-runtime
 
-Vite-backed runtime for executing site-index pipelines through Vite SSR module loading.
+Vite-powered runtime for executing the site-index core pipeline with SSR module loading.
 
 [![npm version](https://img.shields.io/npm/v/@site-index/vite-runtime)](https://www.npmjs.com/package/@site-index/vite-runtime)
 [![Code Quality](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml/badge.svg?branch=main)](https://github.com/Deasilsoft/site-index/actions/workflows/code-quality.yml)
@@ -8,6 +8,19 @@ Vite-backed runtime for executing site-index pipelines through Vite SSR module l
 [![Socket](https://badge.socket.dev/npm/package/@site-index/vite-runtime)](https://socket.dev/npm/package/@site-index/vite-runtime)
 
 [Repository README](../../../)
+
+## What problem this package solves
+
+`@site-index/core` is framework-agnostic by design, which means integrations must provide module loading and runtime orchestration.
+
+`@site-index/vite-runtime` solves that integration layer for Vite ecosystems by:
+
+- loading route modules via Vite SSR APIs
+- tracking dependency graph watched files
+- serializing rebuild work for stable output snapshots
+- handling runtime lifecycle and cleanup
+
+Use this package when you are building your own adapter around Vite runtime internals.
 
 ## Install
 
@@ -20,32 +33,11 @@ Requirements:
 - Node.js `>=22`
 - peer dependency: `vite ^8.0.10`
 
-## When to use
-
-Use this package when building adapters or integrations that need direct Vite-backed pipeline execution.
-
-## When not to use
-
-- Most users should use [`site-index`](../../site-index/) or [`@site-index/vite-plugin`](../vite-plugin/) directly.
-
-## Public exports
-
-```ts
-export { createRuntimeService } from "./domains/runtime/factory.js";
-export { RuntimeServiceBuilder } from "./domains/runtime/builder.js";
-export { RuntimeService } from "./domains/runtime/service.js";
-export type { Options, RuntimeViteConfig } from "./types.js";
-```
-
 ## Public API
-
-Factory:
 
 ```ts
 createRuntimeService(): RuntimeServiceBuilder
 ```
-
-Builder:
 
 ```ts
 class RuntimeServiceBuilder {
@@ -56,24 +48,18 @@ class RuntimeServiceBuilder {
 }
 ```
 
-Runtime service:
-
 ```ts
 class RuntimeService {
-  buildArtifacts(): Promise<SiteIndex.Result<SiteIndex.Artifact[]>>;
+  buildArtifacts(): Promise<SiteIndex.Result<readonly SiteIndex.Artifact[]>>;
   getArtifacts(): readonly SiteIndex.Artifact[];
   getWatchedFiles(): ReadonlySet<string>;
   close(): Promise<void>;
 }
 ```
 
-Options:
-
 ```ts
 type Options = Pick<SiteIndex.Options, "siteUrl" | "extensions">;
 ```
-
-Runtime Vite config:
 
 ```ts
 type RuntimeViteConfig = {
@@ -83,16 +69,16 @@ type RuntimeViteConfig = {
 };
 ```
 
-## Behavior
+## Runtime behavior
 
-- uses Vite SSR loading for executing discovered site-index modules
-- can run with an existing Vite dev server
-- can create its own middleware-mode Vite server from config
-- tracks watched files through Vite's SSR module graph
-- serializes `buildArtifacts()` calls through an internal queue
-- snapshots latest artifacts and watched files
-- clears snapshots and closes internally created server resources on `close()`
-- does not close externally provided Vite dev servers
+- executes discovered site-index modules with Vite SSR loading
+- supports two integration modes:
+  - use an existing Vite dev server
+  - create an internal middleware-mode server from Vite config
+- tracks watched files from Vite module graph
+- serializes `buildArtifacts()` via an internal queue
+- stores artifact and watched-file snapshots
+- `close()` clears snapshots and only closes internally-created servers
 
 ## Example
 
@@ -100,9 +86,7 @@ type RuntimeViteConfig = {
 import { createRuntimeService } from "@site-index/vite-runtime";
 
 const runtime = createRuntimeService()
-  .withOptions({
-    siteUrl: "https://example.com",
-  })
+  .withOptions({ siteUrl: "https://example.com" })
   .withViteConfig({
     root: process.cwd(),
     mode: "production",
@@ -116,6 +100,11 @@ try {
   await runtime.close();
 }
 ```
+
+## When not to use this directly
+
+- Use [`@site-index/vite-plugin`](../vite-plugin/) for standard Vite app integration.
+- Use [`site-index`](../../site-index/) for CLI workflows.
 
 ## Related packages
 
