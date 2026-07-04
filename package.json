@@ -27,7 +27,7 @@
     "eslint": "^10.5.0",
     "eslint-plugin-unicorn": "^68.0.0",
     "knip": "^6.17.1",
-    "prettier": "^3.8.4",
+    "prettier": "^3.9.4",
     "prettier-plugin-packagejson": "^3.0.2",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.61.1"
